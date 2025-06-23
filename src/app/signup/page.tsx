@@ -142,7 +142,7 @@ export default function SignupPage() {
               htmlFor="acceptsContactSharing"
               className="ml-2 block text-sm text-gray-900"
             >
-              J'accepte de partager mes coordonnées avec les autres bénévoles.
+              J&apos;accepte de partager mes coordonnées avec les autres bénévoles.
             </label>
           </div>
           <button

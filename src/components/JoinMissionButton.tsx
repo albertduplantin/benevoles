@@ -3,7 +3,6 @@
 import { useState } from 'react'
 
 interface JoinMissionButtonProps {
-    missionId: number;
     userId: string | undefined;
     isUserInscribed: boolean;
     isMissionFull: boolean;
@@ -12,7 +11,6 @@ interface JoinMissionButtonProps {
 }
 
 export default function JoinMissionButton({
-    missionId,
     userId,
     isUserInscribed,
     isMissionFull,

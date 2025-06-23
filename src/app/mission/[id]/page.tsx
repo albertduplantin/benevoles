@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
-import type { Mission, UserProfile, Inscription } from '@/lib/types'
+import type { UserProfile, Inscription } from '@/lib/types'
 import AuthButton from '@/components/AuthButton'
 import Link from 'next/link'
 import JoinMissionButton from '@/components/JoinMissionButton'
@@ -60,9 +60,9 @@ export default async function MissionDetailsPage({
   return (
     <div className="w-full max-w-4xl mx-auto my-8">
        <nav className="flex justify-between w-full p-4 border-b border-gray-200">
-        <a href="/" className="text-xl font-semibold hover:underline">
+        <Link href="/" className="text-xl font-semibold hover:underline">
           &larr; Retour aux missions
-        </a>
+        </Link>
         <AuthButton user={user} />
       </nav>
 

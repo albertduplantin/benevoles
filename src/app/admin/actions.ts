@@ -80,7 +80,6 @@ export async function deleteUserAction(userId: string) {
   if (user.id === userId) return "Vous ne pouvez pas supprimer votre propre compte administrateur."
 
   // 2. Créer un client admin avec la clé service_role pour avoir les droits de suppression
-  const supabaseAdmin = createClient(cookies())
   // La librairie @supabase/ssr ne permet pas de passer directement la clé service_role
   // Il faut utiliser createClient de @supabase/supabase-js pour les opérations d'admin
   const { createClient: createAdminClient } = await import('@supabase/supabase-js')

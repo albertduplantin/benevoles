@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
-import type { Mission } from '@/lib/types'
 
 // Action pour INSCRIRE un utilisateur à une mission
 export async function joinMission(missionId: number) {
