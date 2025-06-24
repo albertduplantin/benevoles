@@ -38,7 +38,7 @@ export default async function HomePage() {
   const typedMissions = missions?.map(mission => ({
     ...mission,
     inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0
-  })) as MissionWithCounts[] | null
+  })) as Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }> | null
 
   return (
     <div className="min-h-screen">
