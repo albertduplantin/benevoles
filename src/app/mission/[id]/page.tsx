@@ -110,7 +110,7 @@ export default async function MissionDetailsPage({
                     </div>
                 ))
               ) : (
-                <p className="text-gray-500">Personne n'est encore inscrit à cette mission.</p>
+                <p className="text-gray-500">Personne n&apos;est encore inscrit à cette mission.</p>
               )}
             </div>
           ) : (
