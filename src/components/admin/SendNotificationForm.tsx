@@ -191,7 +191,7 @@ export default function SendNotificationForm({ missions = [] }: SendNotification
                       <button
                         key={type.value}
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, type: type.value as any }))}
+                        onClick={() => setFormData(prev => ({ ...prev, type: type.value as 'info' | 'success' | 'warning' | 'error' }))}
                         className={`p-3 border rounded-lg text-sm font-medium transition-colors ${
                           formData.type === type.value
                             ? 'border-blue-500 bg-blue-50 text-blue-700'

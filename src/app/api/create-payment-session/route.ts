@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, year, userId, userName } = await request.json()
+    const { amount, year, userId } = await request.json()
 
     if (!amount || !year || !userId) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Récupérer le vrai email de l'utilisateur depuis Supabase Auth
     const supabaseAuth = await createClient()
-    const { data: { user }, error: userError } = await supabaseAuth.auth.admin.getUserById(userId)
+    const { data: { user } } = await supabaseAuth.auth.admin.getUserById(userId)
     
     const userRealEmail = user?.email || 'no-email@example.com'
 

@@ -8,7 +8,7 @@ interface CalendarViewProps {
   users: UserProfile[]
 }
 
-export default function CalendarView({ missions, users }: CalendarViewProps) {
+export default function CalendarView({ missions }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
 
   // Grouper les missions par date

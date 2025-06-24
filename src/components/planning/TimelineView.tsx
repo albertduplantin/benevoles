@@ -8,7 +8,7 @@ interface TimelineViewProps {
   users: UserProfile[]
 }
 
-export default function TimelineView({ missions, users }: TimelineViewProps) {
+export default function TimelineView({ missions }: TimelineViewProps) {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
 
   // Grouper les missions par date

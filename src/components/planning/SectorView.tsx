@@ -8,7 +8,7 @@ interface SectorViewProps {
   users: UserProfile[]
 }
 
-export default function SectorView({ missions, users }: SectorViewProps) {
+export default function SectorView({ missions }: SectorViewProps) {
   
   // Catégoriser les missions par secteur (basé sur les mots-clés du titre ou lieu)
   const missionsBySector = useMemo(() => {

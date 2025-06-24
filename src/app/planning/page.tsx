@@ -64,7 +64,7 @@ export default async function PlanningPage() {
   const planningMissions: PlanningMission[] = missionsData?.map(mission => ({
     ...mission,
     inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0,
-    volunteers: mission.volunteers?.map((inscription: any) => ({
+    volunteers: mission.volunteers?.map((inscription: { user_id: string; users?: { first_name?: string; last_name?: string; phone?: string } }) => ({
       user_id: inscription.user_id,
       first_name: inscription.users?.first_name,
       last_name: inscription.users?.last_name,

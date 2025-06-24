@@ -17,7 +17,7 @@ interface PlanningViewProps {
   currentUser: User
 }
 
-export default function PlanningView({ missions, users, currentUser }: PlanningViewProps) {
+export default function PlanningView({ missions, users }: PlanningViewProps) {
   const [currentView, setCurrentView] = useState<ViewType>('calendar')
   const [filters, setFilters] = useState<PlanningFiltersType>({})
   const [showStats, setShowStats] = useState(false)
