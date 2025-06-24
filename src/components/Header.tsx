@@ -11,82 +11,117 @@ interface HeaderProps {
 
 export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false }: HeaderProps) {
   return (
-    <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4">
-        <nav className="flex justify-between items-center py-4">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">🎬</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 leading-tight">Festival du Film Court</h1>
-                <p className="text-sm text-gray-600">Portail Bénévoles</p>
-              </div>
-            </Link>
+    <>
+      {/* Header principal */}
+      <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/50 shadow-2xl sticky top-0 z-50">
+        {/* Effet de lumière subtil */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex justify-between items-center py-4">
+            {/* Logo et titre */}
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="group flex items-center space-x-3 transition-all duration-300 hover:scale-105">
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                    <span className="text-white font-bold text-lg">🎬</span>
+                  </div>
+                  <div className="absolute -inset-1 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent leading-tight">
+                    Festival du Film Court
+                  </h1>
+                  <p className="text-sm text-gray-400 font-medium">Portail Bénévoles</p>
+                </div>
+              </Link>
+              
+              {/* Navigation principale */}
+              {user && (
+                <div className="hidden lg:flex items-center space-x-1">
+                  <NavLink href="/" icon="🎯" text="Missions" />
+                  <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                  <NavLink href="/planning" icon="📅" text="Planning" />
+                </div>
+              )}
+            </div>
             
-            {/* Navigation principale */}
-            {user && (
-              <div className="hidden md:flex items-center space-x-6">
+            {/* Titre de page et actions */}
+            <div className="flex items-center space-x-6">
+              {title !== "Portail Bénévoles - Festival du Film Court" && (
+                <div className="hidden xl:block">
+                  <h2 className="text-lg font-semibold text-white/90 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                    {title}
+                  </h2>
+                </div>
+              )}
+              
+              {showBackToSite && (
                 <Link 
                   href="/" 
-                  className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  className="group flex items-center space-x-2 text-sm text-blue-400 hover:text-blue-300 font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-white/10"
                 >
-                  Missions
+                  <span className="group-hover:-translate-x-1 transition-transform duration-200">←</span>
+                  <span>Retour au site</span>
                 </Link>
-                <Link 
-                  href="/profile" 
-                  className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  Mon Profil
-                </Link>
-                <Link 
-                  href="/planning" 
-                  className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  📅 Planning
-                </Link>
+              )}
+              
+              <div className="flex items-center space-x-3">
+                {/* Notifications */}
+                {user && (
+                  <div className="relative">
+                    <NotificationBell userId={user.id} />
+                  </div>
+                )}
+                
+                {/* Menu mobile */}
+                {user && (
+                  <div className="lg:hidden flex items-center space-x-2">
+                    <MobileNavButton href="/" icon="🎯" />
+                    <MobileNavButton href="/profile" icon="👤" />
+                    <MobileNavButton href="/planning" icon="📅" />
+                  </div>
+                )}
+                
+                {/* Bouton d'authentification */}
+                <div className="relative">
+                  <AuthButton user={user} />
+                </div>
               </div>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {title !== "Portail Bénévoles - Festival du Film Court" && (
-              <h2 className="hidden lg:block text-lg font-semibold text-gray-700">{title}</h2>
-            )}
-            {showBackToSite && (
-              <Link 
-                href="/" 
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-              >
-                ← Retour au site
-              </Link>
-            )}
-            {/* Notifications */}
-            {user && <NotificationBell userId={user.id} />}
-            {/* Navigation mobile */}
-            {user && (
-              <Link 
-                href="/" 
-                className="md:hidden text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors flex items-center space-x-1"
-              >
-                <span>📋</span>
-                <span>Missions</span>
-              </Link>
-            )}
-            {user && (
-              <Link 
-                href="/profile" 
-                className="md:hidden text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors flex items-center space-x-1"
-              >
-                <span>👤</span>
-                <span>Profil</span>
-              </Link>
-            )}
-            <AuthButton user={user} />
-          </div>
-        </nav>
-      </div>
-    </header>
+            </div>
+          </nav>
+        </div>
+      </header>
+      
+      {/* Effet de dégradé sous le header */}
+      <div className="h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
+    </>
+  )
+}
+
+// Composant pour les liens de navigation
+function NavLink({ href, icon, text }: { href: string; icon: string; text: string }) {
+  return (
+    <Link 
+      href={href}
+      className="group flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-200 relative overflow-hidden"
+    >
+      <span className="text-base group-hover:scale-110 transition-transform duration-200">{icon}</span>
+      <span>{text}</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl"></div>
+    </Link>
+  )
+}
+
+// Composant pour les boutons de navigation mobile
+function MobileNavButton({ href, icon }: { href: string; icon: string }) {
+  return (
+    <Link 
+      href={href}
+      className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 relative group"
+    >
+      <span className="text-lg group-hover:scale-110 transition-transform duration-200">{icon}</span>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg"></div>
+    </Link>
   )
 } 
