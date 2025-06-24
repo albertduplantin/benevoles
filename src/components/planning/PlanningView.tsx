@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { User } from '@supabase/supabase-js'
-import { PlanningMission, UserProfile, PlanningView as ViewType, PlanningFilters, ConflictDetection, PlanningStats } from '@/lib/types'
+import { PlanningMission, UserProfile, PlanningView as ViewType, PlanningFilters as PlanningFiltersType, ConflictDetection, PlanningStats as PlanningStatsType } from '@/lib/types'
 import PlanningFilters from './PlanningFilters'
 import CalendarView from './CalendarView'
 import TimelineView from './TimelineView'
@@ -19,7 +19,7 @@ interface PlanningViewProps {
 
 export default function PlanningView({ missions, users, currentUser }: PlanningViewProps) {
   const [currentView, setCurrentView] = useState<ViewType>('calendar')
-  const [filters, setFilters] = useState<PlanningFilters>({})
+  const [filters, setFilters] = useState<PlanningFiltersType>({})
   const [showStats, setShowStats] = useState(false)
   const [showConflicts, setShowConflicts] = useState(false)
 
@@ -121,7 +121,7 @@ export default function PlanningView({ missions, users, currentUser }: PlanningV
   }, [filteredMissions, users])
 
   // Calcul des statistiques
-  const stats: PlanningStats = useMemo(() => {
+  const stats: PlanningStatsType = useMemo(() => {
     const totalVolunteerSlots = filteredMissions.reduce((sum, m) => sum + m.max_volunteers, 0)
     const filledSlots = filteredMissions.reduce((sum, m) => sum + m.inscriptions_count, 0)
     
