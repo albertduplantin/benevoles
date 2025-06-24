@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import type { UserProfile } from '@/lib/types'
 
 interface CreateMissionFormProps {
     onMissionCreated: (formData: FormData) => Promise<string | undefined>;
+    users?: UserProfile[] | null;
 }
 
-export default function CreateMissionForm({ onMissionCreated }: CreateMissionFormProps) {
+export default function CreateMissionForm({ onMissionCreated, users }: CreateMissionFormProps) {
     const [message, setMessage] = useState<string | undefined>('')
+    const formRef = useRef<HTMLFormElement>(null)
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -17,13 +20,13 @@ export default function CreateMissionForm({ onMissionCreated }: CreateMissionFor
         const result = await onMissionCreated(formData);
         setMessage(result);
 
-        if (result?.startsWith('Succès')) {
-            event.currentTarget.reset();
+        if (result?.startsWith('Succès') && formRef.current) {
+            formRef.current.reset();
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} className="p-4 mt-6 border rounded-lg bg-gray-50">
+        <form ref={formRef} onSubmit={handleSubmit} className="p-4 mt-6 border rounded-lg bg-gray-50">
             <h3 className="text-lg font-semibold mb-4">Créer une nouvelle mission</h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
@@ -41,6 +44,17 @@ export default function CreateMissionForm({ onMissionCreated }: CreateMissionFor
                  <div>
                     <label htmlFor="max_volunteers" className="block text-sm font-medium text-gray-700">Bénévoles max</label>
                     <input type="number" name="max_volunteers" id="max_volunteers" required min="1" className="w-full mt-1 border-gray-300 rounded-md shadow-sm"/>
+                </div>
+                <div>
+                    <label htmlFor="manager_id" className="block text-sm font-medium text-gray-700">Responsable (optionnel)</label>
+                    <select name="manager_id" id="manager_id" className="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                        <option value="">Aucun responsable assigné</option>
+                        {users?.filter(user => user.role === 'responsable' || user.role === 'admin').map(user => (
+                            <option key={user.id} value={user.id}>
+                                {user.first_name} {user.last_name} ({user.role})
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div>
                     <label htmlFor="start_time" className="block text-sm font-medium text-gray-700">Date et heure de début</label>

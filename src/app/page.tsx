@@ -1,16 +1,29 @@
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
-import AuthButton from '@/components/AuthButton'
+import { redirect } from 'next/navigation'
+import Header from '@/components/Header'
+import Container from '@/components/Container'
 import { MissionWithCounts } from '@/lib/types'
 import Link from 'next/link'
 
 export default async function HomePage() {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  // Rediriger les admins vers leur tableau de bord
+  if (user) {
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    if (userProfile?.role === 'admin') {
+      redirect('/admin')
+    }
+  }
 
   const { data: missions, error } = await supabase
     .from('missions')
@@ -21,63 +34,104 @@ export default async function HomePage() {
     console.error('Error fetching missions:', error)
   }
   
-  const typedMissions = missions as MissionWithCounts[] | null
+  // Transformer les données pour extraire le count correctement
+  const typedMissions = missions?.map(mission => ({
+    ...mission,
+    inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0
+  })) as MissionWithCounts[] | null
 
   return (
-    <div className="w-full max-w-4xl mx-auto my-8">
-      <nav className="flex justify-between w-full p-4 border-b border-gray-200">
-        <h1 className="text-xl font-semibold">
-          Portail Bénévoles - Festival du Film Court
-        </h1>
-        <AuthButton user={user} />
-      </nav>
-      <main className="p-4">
-        <h2 className="mb-6 text-2xl font-bold text-center">
-          Les missions disponibles
-        </h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {typedMissions && typedMissions.length > 0 ? (
-            typedMissions.map((mission) => (
-              <Link href={`/mission/${mission.id}`} key={mission.id} className="block hover:bg-gray-50">
-                <div
-                  className="p-6 bg-white border border-gray-200 rounded-lg shadow-md h-full"
+    <div className="min-h-screen">
+      <Header user={user} />
+      
+      <main className="py-8">
+        <Container>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              Missions Disponibles
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Rejoignez notre équipe de bénévoles et contribuez au succès du Festival du Film Court
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {typedMissions && typedMissions.length > 0 ? (
+              typedMissions.map((mission) => (
+                <Link 
+                  href={`/mission/${mission.id}`} 
+                  key={mission.id} 
+                  className="group block"
                 >
-                  <h3 className="mb-2 text-xl font-bold">{mission.title}</h3>
-                  <p className="mb-4 text-gray-700">{mission.description}</p>
-                  <div className="text-sm text-gray-600">
-                    <p>
-                      <strong>Lieu :</strong> {mission.location}
-                    </p>
-                    <p>
-                      <strong>Date :</strong>{' '}
-                      {new Date(mission.start_time).toLocaleDateString('fr-FR')}
-                    </p>
-                    <p>
-                      <strong>Créneau :</strong>{' '}
-                      {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} -{' '}
-                      {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                    <div className="mt-4">
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="bg-blue-600 h-2.5 rounded-full"
-                          style={{ width: `${(mission.inscriptions_count / mission.max_volunteers) * 100}%` }}
-                        ></div>
+                  <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02] h-full overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {mission.title}
+                        </h3>
+                        <div className="flex-shrink-0 ml-2">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            mission.inscriptions_count >= mission.max_volunteers 
+                              ? 'bg-red-100 text-red-800' 
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {mission.inscriptions_count >= mission.max_volunteers ? 'Complet' : 'Disponible'}
+                          </span>
+                        </div>
                       </div>
-                      <p className="mt-1 text-xs text-right">
-                        {mission.inscriptions_count}/{mission.max_volunteers} bénévoles
-                      </p>
+                      
+                      {mission.description && (
+                        <p className="text-gray-600 mb-4 line-clamp-2">{mission.description}</p>
+                      )}
+                      
+                      <div className="space-y-2 text-sm text-gray-600 mb-4">
+                        <div className="flex items-center">
+                          <span className="w-4 h-4 mr-2">📍</span>
+                          <span>{mission.location}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="w-4 h-4 mr-2">📅</span>
+                          <span>{new Date(mission.start_time).toLocaleDateString('fr-FR', { 
+                            weekday: 'long', 
+                            day: 'numeric', 
+                            month: 'long' 
+                          })}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="w-4 h-4 mr-2">⏰</span>
+                          <span>
+                            {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-gray-700">Places</span>
+                          <span className="text-sm text-gray-600">
+                            {mission.inscriptions_count}/{mission.max_volunteers}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${Math.min((mission.inscriptions_count / mission.max_volunteers) * 100, 100)}%` }}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-500">
-              Aucune mission disponible pour le moment.
-            </p>
-          )}
-        </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <div className="text-6xl mb-4">🎬</div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucune mission disponible</h3>
+                <p className="text-gray-600">Les missions seront bientôt publiées. Revenez plus tard !</p>
+              </div>
+            )}
+          </div>
+        </Container>
       </main>
     </div>
   )

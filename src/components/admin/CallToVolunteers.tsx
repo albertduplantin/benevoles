@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import type { MissionWithCounts } from '@/lib/types'
+import type { MissionWithVolunteers, UserProfile } from '@/lib/types'
 
 interface CallToVolunteersProps {
-  missions: MissionWithCounts[] | null
+  missions: MissionWithVolunteers[] | null;
+  users?: UserProfile[] | null;
 }
 
-export default function CallToVolunteers({ missions }: CallToVolunteersProps) {
+export default function CallToVolunteers({ missions, users }: CallToVolunteersProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState('');
 
@@ -24,11 +25,47 @@ export default function CallToVolunteers({ missions }: CallToVolunteersProps) {
     incompleteMissions.forEach(m => {
       const missionUrl = `${window.location.origin}/mission/${m.id}`
       const placesRestantes = m.max_volunteers - m.inscriptions_count;
+      
+      // Trouver le responsable de la mission
+      const manager = m.manager_id ? users?.find(u => u.id === m.manager_id) : null;
+      
       text += `🔹 *${m.title}*\n`
       text += `   - Lieu : ${m.location}\n`
       text += `   - Date : ${new Date(m.start_time).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}\n`
       text += `   - Créneau : ${new Date(m.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - ${new Date(m.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}\n`
+      
+      // Ajouter la description si elle existe
+      if (m.description && m.description.trim()) {
+        text += `   - Description : ${m.description}\n`
+      }
+      
       text += `   - Places restantes : ${placesRestantes}\n`
+      
+      // Ajouter les informations du responsable si il y en a un
+      if (manager) {
+        text += `   - Responsable : ${manager.first_name} ${manager.last_name}`
+        if (manager.phone) {
+          text += ` (📞 ${manager.phone})`
+        }
+        text += `\n`
+      }
+      
+      // Ajouter la liste des bénévoles déjà inscrits
+      if (m.inscriptions && m.inscriptions.length > 0) {
+        const volunteersNames = m.inscriptions
+          .filter(inscription => inscription.users) // Filtrer les inscriptions avec détails utilisateur
+          .map(inscription => {
+            const user = inscription.users!;
+            return `${user.first_name || ''} ${user.last_name || ''}`.trim();
+          })
+          .filter(name => name.length > 0) // Filtrer les noms vides
+          .join(', ');
+        
+        if (volunteersNames) {
+          text += `   - Bénévoles déjà inscrits : ${volunteersNames}\n`
+        }
+      }
+      
       text += `   - S'inscrire ici : ${missionUrl}\n\n`
     })
 

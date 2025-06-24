@@ -2,12 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
 
 // Action pour INSCRIRE un utilisateur à une mission
 export async function joinMission(missionId: number) {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
 
   // 1. Vérifier si l'utilisateur est connecté
   const { data: { user } } = await supabase.auth.getUser()
@@ -92,8 +90,7 @@ export async function joinMission(missionId: number) {
 
 // Action pour DÉSINSCRIRE un utilisateur d'une mission
 export async function leaveMission(missionId: number) {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
