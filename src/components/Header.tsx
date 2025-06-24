@@ -2,6 +2,7 @@ import Link from 'next/link'
 import AuthButton from './AuthButton'
 import NotificationBell from './NotificationBell'
 import { User } from '@supabase/supabase-js'
+import Image from 'next/image'
 
 interface HeaderProps {
   user: User | null;
@@ -23,10 +24,16 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
             <div className="flex items-center space-x-8">
               <Link href="/" className="group flex items-center space-x-3 transition-all duration-300 hover:scale-105">
                 <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
-                    <span className="text-white font-bold text-lg">🎬</span>
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-amber-500/25 transition-all duration-300 p-2">
+                    <Image 
+                      src="/festival-logo.svg" 
+                      alt="Festival Logo" 
+                      width={32} 
+                      height={32}
+                      className="transition-transform duration-300 group-hover:scale-110"
+                    />
                   </div>
-                  <div className="absolute -inset-1 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
                 </div>
                 <div>
                   <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent leading-tight">

@@ -1,0 +1,11 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Arcs concentriques noirs -->
+  <path d="M4 40 C4 20, 20 4, 40 4" stroke="#1f2937" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M8 36 C8 22, 22 8, 36 8" stroke="#1f2937" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M12 32 C12 24, 24 12, 32 12" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M16 28 C16 26, 26 16, 28 16" stroke="#1f2937" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Forme dorée/accent -->
+  <rect x="32" y="28" width="12" height="16" rx="6" ry="6" fill="#f59e0b"/>
+  <rect x="34" y="30" width="8" height="12" rx="4" ry="4" fill="#fbbf24"/>
+</svg> 
