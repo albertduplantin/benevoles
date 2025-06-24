@@ -25,7 +25,7 @@ export default async function ProfilePage() {
     .single()
 
   // Récupérer l'historique des missions
-  const { data: missionsHistory } = await supabase
+  const { data: rawMissionsHistory } = await supabase
     .from('inscriptions')
     .select(`
       created_at,
@@ -40,6 +40,12 @@ export default async function ProfilePage() {
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+
+  // Transformer les données pour correspondre au type attendu
+  const missionsHistory = rawMissionsHistory?.map(inscription => ({
+    created_at: inscription.created_at,
+    missions: Array.isArray(inscription.missions) ? inscription.missions[0] || null : inscription.missions
+  })) || null
 
   return (
     <div className="min-h-screen">
