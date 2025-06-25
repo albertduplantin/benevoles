@@ -12,6 +12,7 @@ import { MissionWithCounts, MissionWithVolunteers, UserProfile } from '@/lib/typ
 import MissionRow from './MissionRow'
 import UserRow from './UserRow'
 import CallToVolunteers from '@/components/admin/CallToVolunteers'
+import CreateAnnouncementForm from '@/components/admin/CreateAnnouncementForm'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -87,6 +88,12 @@ export default async function AdminPage() {
       
       <main className="py-8">
         <Container maxWidth="xl">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Communication</h2>
+          <p className="text-gray-600 mb-6">Gérez les annonces et communications avec les bénévoles</p>
+          <CreateAnnouncementForm />
+        </div>
+
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Actions Rapides</h2>
           <p className="text-gray-600 mb-6">Générez facilement des appels à bénévoles pour les missions à pourvoir</p>

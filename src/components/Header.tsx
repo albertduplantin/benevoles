@@ -47,6 +47,7 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               {user && (
                 <div className="hidden lg:flex items-center space-x-1">
                   <NavLink href="/" icon="🎯" text="Missions" />
+                  <NavLink href="/communication" icon="💬" text="Communication" />
                   <NavLink href="/profile" icon="👤" text="Mon Profil" />
                   <NavLink href="/planning" icon="📅" text="Planning" />
                 </div>
@@ -85,6 +86,7 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                 {user && (
                   <div className="lg:hidden flex items-center space-x-2">
                     <MobileNavButton href="/" icon="🎯" />
+                    <MobileNavButton href="/communication" icon="💬" />
                     <MobileNavButton href="/profile" icon="👤" />
                     <MobileNavButton href="/planning" icon="📅" />
                   </div>

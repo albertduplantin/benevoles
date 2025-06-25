@@ -312,4 +312,84 @@ export interface PlanningFilters {
 }
 
 // Types pour les vues de planning
-export type PlanningView = 'calendar' | 'timeline' | 'volunteer' | 'sector'; 
+export type PlanningView = 'calendar' | 'timeline' | 'volunteer' | 'sector';
+
+// Types pour le système de communication
+export interface Conversation {
+  id: number;
+  title: string | null;
+  type: 'direct' | 'group' | 'announcement';
+  created_by: string;
+  mission_id: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationParticipant {
+  id: number;
+  conversation_id: number;
+  user_id: string;
+  role: 'admin' | 'moderator' | 'member';
+  joined_at: string;
+  last_read_at: string;
+}
+
+export interface Message {
+  id: number;
+  conversation_id: number;
+  sender_id: string;
+  content: string;
+  message_type: 'text' | 'image' | 'file' | 'system';
+  attachment_url: string | null;
+  reply_to_id: number | null;
+  is_edited: boolean;
+  edited_at: string | null;
+  created_at: string;
+}
+
+export interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  target_roles: string[];
+  created_by: string;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AnnouncementRead {
+  id: number;
+  announcement_id: number;
+  user_id: string;
+  read_at: string;
+}
+
+// Types étendus avec informations utilisateur
+export interface MessageWithSender extends Message {
+  sender: {
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+  };
+  reply_to?: MessageWithSender;
+}
+
+export interface ConversationWithDetails extends Conversation {
+  participants: Array<ConversationParticipant & {
+    users: UserProfile;
+  }>;
+  last_message?: MessageWithSender;
+  unread_count: number;
+}
+
+export interface AnnouncementWithCreator extends Announcement {
+  creator: {
+    first_name: string | null;
+    last_name: string | null;
+  };
+  is_read: boolean;
+} 
