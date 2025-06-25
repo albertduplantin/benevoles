@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+
 export async function createMissionAction(formData: FormData) {
   const supabase = await createClient()
 
@@ -28,7 +29,7 @@ export async function createMissionAction(formData: FormData) {
     return "Erreur : Champs requis manquants."
   }
   
-  const { error } = await supabase.from('missions').insert(rawData)
+  const { data: newMission, error } = await supabase.from('missions').insert(rawData).select().single()
 
   if (error) {
     return `Erreur lors de la création : ${error.message}`
@@ -47,6 +48,8 @@ export async function deleteMissionAction(missionId: number) {
 
   const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return "Action non autorisée."
+
+
 
   // On supprime d'abord les inscriptions liées à cette mission pour éviter les erreurs de contrainte de clé étrangère
   const { error: inscriptionError } = await supabase.from('inscriptions').delete().eq('mission_id', missionId)
@@ -234,6 +237,9 @@ export async function updateMissionAction(missionId: number, formData: FormData)
   if (error) {
     return `Erreur lors de la mise à jour : ${error.message}`
   }
+
+  // Notifications désactivées (système nettoyé)
+  console.log(`✅ Mission ${missionId} mise à jour`)
 
   revalidatePath('/admin')
   revalidatePath('/')

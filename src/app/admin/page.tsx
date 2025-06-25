@@ -6,8 +6,8 @@ import Container from '@/components/Container'
 import CreateMissionForm from '@/components/admin/CreateMissionForm'
 import CreateUserForm from '@/components/admin/CreateUserForm'
 import MembershipSettings from '@/components/admin/MembershipSettings'
-import SendNotificationForm from '@/components/admin/SendNotificationForm'
-import { createMissionAction } from './actions'
+import VolunteerPreferencesView from '@/components/admin/VolunteerPreferencesView'
+import { createMissionActionSafe } from './actions-safe'
 import { MissionWithCounts, MissionWithVolunteers, UserProfile } from '@/lib/types'
 import MissionRow from './MissionRow'
 import UserRow from './UserRow'
@@ -48,10 +48,9 @@ export default async function AdminPage() {
     .from('missions')
     .select(`
       *, 
-      inscriptions_count:inscriptions(count),
       inscriptions(
         user_id,
-        users(first_name, last_name)
+        users(first_name, last_name, phone)
       )
     `)
     .order('start_time', { ascending: false })
@@ -65,16 +64,16 @@ export default async function AdminPage() {
     console.error('Error fetching admin data:', missionsError || usersError)
   }
 
-  // Transformer les données pour extraire le count correctement
+  // Transformer les données pour compter les inscriptions correctement
   const typedMissions = missionsData?.map(mission => ({
     ...mission,
-    inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0
+    inscriptions_count: mission.inscriptions ? mission.inscriptions.length : 0
   })) as MissionWithCounts[] | null
 
   // Missions avec détails des bénévoles pour l'appel à bénévoles
   const missionsWithVolunteers = missionsData?.map(mission => ({
     ...mission,
-    inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0,
+    inscriptions_count: mission.inscriptions ? mission.inscriptions.length : 0,
     inscriptions: mission.inscriptions || []
   })) as MissionWithVolunteers[] | null
 
@@ -92,7 +91,6 @@ export default async function AdminPage() {
           <p className="text-gray-600 mb-6">Générez facilement des appels à bénévoles pour les missions à pourvoir</p>
           <div className="flex gap-4 mb-4">
             <CallToVolunteers missions={missionsWithVolunteers} users={typedUsers} />
-            <SendNotificationForm missions={typedMissions?.map(m => ({ id: m.id, title: m.title })) || []} />
           </div>
         </div>
 
@@ -101,7 +99,7 @@ export default async function AdminPage() {
           <p className="text-gray-600 mb-6">Créez, modifiez et suivez toutes vos missions</p>
         </div>
         
-        <CreateMissionForm onMissionCreated={createMissionAction} users={typedUsers} />
+        <CreateMissionForm onMissionCreated={createMissionActionSafe} users={typedUsers} />
 
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Toutes les missions</h3>
@@ -133,10 +131,18 @@ export default async function AdminPage() {
           </div>
         </div>
 
+
+
         <div className="mt-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Paramètres de Cotisation</h2>
             <p className="text-gray-600 mb-6">Configurez le montant de la cotisation annuelle</p>
             <MembershipSettings />
+        </div>
+
+        <div className="mt-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Préférences des Bénévoles</h2>
+            <p className="text-gray-600 mb-6">Consultez les disponibilités et compétences de vos bénévoles</p>
+            <VolunteerPreferencesView />
         </div>
 
         <div className="mt-16">

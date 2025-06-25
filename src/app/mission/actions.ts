@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+
 // Action pour INSCRIRE un utilisateur à une mission
 export async function joinMission(missionId: number) {
   const supabase = await createClient()
@@ -81,6 +82,8 @@ export async function joinMission(missionId: number) {
   if (insertError) {
     return `Erreur lors de l'inscription : ${insertError.message}`
   }
+
+
 
   // 6. Invalider le cache pour rafraîchir la page
   revalidatePath(`/mission/${missionId}`)

@@ -12,6 +12,7 @@ interface MissionRowProps {
 export default function MissionRow({ mission, users }: MissionRowProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showVolunteers, setShowVolunteers] = useState(false)
 
   const handleDelete = async () => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer la mission "${mission.title}" ? Cette action est irréversible.`)) {
@@ -144,25 +145,125 @@ export default function MissionRow({ mission, users }: MissionRowProps) {
   }
 
   return (
-    <tr className="border-t">
-      <td className="px-4 py-2 font-medium">{mission.title}</td>
-      <td className="px-4 py-2">{new Date(mission.start_time).toLocaleDateString('fr-FR')}</td>
-      <td className="px-4 py-2">
-        {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-        {' - '}
-        {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+    <>
+      <tr className="border-t">
+        <td className="px-4 py-2 font-medium">{mission.title}</td>
+        <td className="px-4 py-2">{new Date(mission.start_time).toLocaleDateString('fr-FR')}</td>
+        <td className="px-4 py-2">
+          {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+          {' - '}
+          {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+        </td>
+              <td className="px-4 py-2 text-center">
+        {mission.inscriptions_count} / {mission.max_volunteers}
       </td>
       <td className="px-4 py-2 text-center">
-        {mission.inscriptions_count[0]?.count || 0} / {mission.max_volunteers}
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-10 flex justify-center">
+            {mission.inscriptions_count > 0 ? (
+              <button 
+                onClick={() => setShowVolunteers(!showVolunteers)}
+                className="text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors"
+                title={showVolunteers ? 'Masquer les inscrits' : 'Voir les inscrits'}
+              >
+                {showVolunteers ? '👆' : '👥'}
+              </button>
+            ) : (
+              <span className="p-2"></span>
+            )}
+          </div>
+          <button 
+            onClick={handleEdit} 
+            className="text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors"
+            title="Éditer la mission"
+          >
+            ✏️
+          </button>
+          <form action={handleDelete} className="inline">
+              <button 
+                type="submit" 
+                className="text-red-600 hover:bg-red-50 p-2 rounded transition-colors"
+                title="Supprimer la mission"
+              >
+                🗑️
+              </button>
+          </form>
+        </div>
       </td>
-      <td className="px-4 py-2 text-center">
-        <button onClick={handleEdit} className="text-blue-600 hover:underline text-sm">Éditer</button>
-        <form action={handleDelete} className="inline ml-2">
-            <button type="submit" className="text-red-600 hover:underline text-sm">
-                Supprimer
-            </button>
-        </form>
-      </td>
-    </tr>
+      </tr>
+      
+      {showVolunteers && mission.inscriptions && mission.inscriptions.length > 0 && (
+        <tr className="border-t bg-gray-50">
+          <td colSpan={5} className="px-4 py-3">
+            <div className="bg-white rounded-lg p-4 border">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-gray-800">
+                  Bénévoles inscrits ({mission.inscriptions.length})
+                </h4>
+                <button 
+                  onClick={() => setShowVolunteers(false)}
+                  className="text-gray-500 hover:text-gray-700 text-sm"
+                >
+                  ✕ Fermer
+                </button>
+              </div>
+              
+              {/* Format compact pour plus de 6 bénévoles, sinon format carte */}
+              {mission.inscriptions.length > 6 ? (
+                <div className="max-h-48 overflow-y-auto border rounded">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-100 sticky top-0">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium">Nom</th>
+                        <th className="px-3 py-2 text-left font-medium">Téléphone</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mission.inscriptions.map((inscription, index) => (
+                        <tr key={inscription.user_id} className={`border-t ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                          <td className="px-3 py-2 font-medium">
+                            {inscription.users?.first_name} {inscription.users?.last_name}
+                          </td>
+                          <td className="px-3 py-2 text-gray-600">
+                            {inscription.users?.phone ? (
+                              <a href={`tel:${inscription.users.phone}`} className="hover:text-blue-600">
+                                📞 {inscription.users.phone}
+                              </a>
+                            ) : (
+                              <span className="text-gray-400">Non renseigné</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {mission.inscriptions.map((inscription, index) => (
+                    <div key={inscription.user_id} className="flex items-center p-3 bg-gray-50 rounded border">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">
+                          {inscription.users?.first_name} {inscription.users?.last_name}
+                        </div>
+                        {inscription.users?.phone ? (
+                          <a href={`tel:${inscription.users.phone}`} className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                            📞 {inscription.users.phone}
+                          </a>
+                        ) : (
+                          <div className="text-sm text-gray-500">
+                            Pas de téléphone renseigné
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   )
 }

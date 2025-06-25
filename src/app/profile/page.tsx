@@ -6,6 +6,8 @@ import ProfileForm from '@/components/ProfileForm'
 import MissionHistory from '@/components/MissionHistory'
 import MembershipButton from '@/components/MembershipButton'
 
+import VolunteerPreferences from '@/components/VolunteerPreferences'
+
 export default async function ProfilePage() {
   const supabase = await createClient()
 
@@ -61,6 +63,15 @@ export default async function ProfilePage() {
                 <p className="text-gray-600 mb-6">Gérez vos informations personnelles et vos préférences</p>
                 <ProfileForm userProfile={userProfile} />
               </div>
+              
+              {/* Disponibilités et compétences - seulement pour les bénévoles */}
+              {userProfile?.role === 'benevole' && (
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Mes Disponibilités & Compétences</h2>
+                  <p className="text-gray-600 mb-6">Aidez-nous à vous proposer des missions adaptées à vos disponibilités et compétences</p>
+                  <VolunteerPreferences userId={user.id} />
+                </div>
+              )}
             </div>
 
             {/* Sidebar - Cotisation et Historique */}
