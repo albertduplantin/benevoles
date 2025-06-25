@@ -1,11 +1,11 @@
 # Guide de Déploiement Vercel - Application Bénévoles
 
-## 🚀 Déploiement sur Vercel
+## 🚀 Déploiement Automatique via GitHub
 
-### Prérequis
-- Compte Vercel
-- Base de données Supabase configurée
-- Variables d'environnement prêtes
+### Configuration Existante
+✅ Repository GitHub : `https://github.com/albertduplantin/benevoles.git`  
+✅ Intégration Vercel-GitHub active  
+✅ Déploiement automatique configuré
 
 ### Variables d'Environnement Requises
 
@@ -23,39 +23,40 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 ```
 
-### Étapes de Déploiement
+### Étapes de Déploiement Automatique
 
-#### 1. Préparation Local
+#### 1. Préparation Locale
 ```bash
 # Vérifier le build local
 npm run build
 
-# Tester localement  
+# Test fonctionnel local
 npm run start
 ```
 
-#### 2. Installation Vercel CLI
+#### 2. Merge vers Main et Push
 ```bash
-npm install -g vercel
+# Retourner à main et merger les changements
+git checkout main
+git merge deploy/vercel-production
+
+# Pousser vers GitHub (déclenchera le déploiement automatique)
+git push origin main
 ```
 
-#### 3. Configuration Vercel
+#### 3. Alternative : Pull Request
 ```bash
-# Connexion à Vercel
-vercel login
+# Pousser la branche de déploiement
+git push origin deploy/vercel-production
 
-# Configuration du projet
-vercel
-
-# Déploiement
-vercel --prod
+# Créer une Pull Request sur GitHub
+# Le déploiement se fera après merge
 ```
 
-#### 4. Configuration des Variables d'Environnement
-- Aller sur le dashboard Vercel
-- Sélectionner votre projet
-- Onglet "Settings" → "Environment Variables"
-- Ajouter toutes les variables requises
+#### 4. Vérification Variables d'Environnement
+- Dashboard Vercel → Votre projet → Settings → Environment Variables
+- S'assurer que toutes les variables sont présentes
+- Redéployer si modification nécessaire
 
 ### 🔄 Stratégie de Rollback (Réversible)
 
