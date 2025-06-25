@@ -41,6 +41,7 @@ export default function VolunteerPreferencesView() {
   const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerCompleteProfile | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSector, setFilterSector] = useState<string>('all');
+  const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -54,11 +55,14 @@ export default function VolunteerPreferencesView() {
 
         if (error) {
           console.error('Erreur chargement préférences bénévoles:', error);
+          setError('Les tables de préférences n\'existent pas encore. Veuillez exécuter le script SQL dans Supabase.');
         } else {
           setVolunteers(data || []);
+          setError(null);
         }
       } catch (error) {
         console.error('Erreur:', error);
+        setError('Erreur de connexion à la base de données.');
       } finally {
         setIsLoading(false);
       }
@@ -86,6 +90,27 @@ export default function VolunteerPreferencesView() {
           <div className="space-y-2">
             <div className="h-4 bg-gray-200 rounded"></div>
             <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Gestion d'erreur avec message explicite
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">Erreur</h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>{error}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -154,7 +179,13 @@ export default function VolunteerPreferencesView() {
                   )}
                 </div>
                 <button
-                  onClick={() => setSelectedVolunteer(volunteer)}
+                  onClick={() => {
+                    try {
+                      setSelectedVolunteer(volunteer);
+                    } catch (error) {
+                      console.error('Erreur lors de l\'ouverture des détails:', error);
+                    }
+                  }}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
                   Détails
