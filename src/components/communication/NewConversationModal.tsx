@@ -117,11 +117,29 @@ export default function NewConversationModal({
       const isGroup = selectedUsers.length > 1;
       const type = isGroup ? 'group' : 'direct';
       
+      // Préparer le titre : utiliser le titre fourni ou générer un nom par défaut
+      let finalTitle = conversationTitle?.trim() || null;
+      
+      // Si pas de titre fourni, générer un nom par défaut basé sur les participants
+      if (!finalTitle) {
+        const participantNames = selectedUsers
+          .map(id => {
+            const selectedUser = users.find(u => u.id === id);
+            return selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}` : '';
+          })
+          .filter(Boolean)
+          .join(', ');
+        
+        finalTitle = isGroup 
+          ? `Groupe avec ${participantNames}`
+          : `Conversation avec ${participantNames}`;
+      }
+      
       // Créer la conversation
       const { data: conversation, error: convError } = await supabase
         .from('conversations')
         .insert({
-          title: isGroup ? conversationTitle || null : null,
+          title: finalTitle,
           type,
           created_by: user.id
         })
@@ -153,7 +171,7 @@ export default function NewConversationModal({
           conversation_id: conversation.id,
           sender_id: user.id,
           content: firstMessage.trim(),
-          type: 'text'
+          message_type: 'text'
         });
 
       if (messageError) throw messageError;
@@ -300,12 +318,12 @@ export default function NewConversationModal({
                 )}
               </div>
 
-              {/* Titre de groupe (si plusieurs personnes sélectionnées) */}
-              {selectedUsers.length > 1 && (
+              {/* Titre de conversation (toujours affiché si des utilisateurs sont sélectionnés) */}
+              {selectedUsers.length > 0 && (
                 <div className="p-4 border-t border-gray-200">
                   <input
                     type="text"
-                    placeholder="Nom du groupe (optionnel)"
+                    placeholder={selectedUsers.length > 1 ? "Nom du groupe (optionnel)" : "Nom de la conversation (optionnel)"}
                     value={conversationTitle}
                     onChange={(e) => setConversationTitle(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -315,18 +333,16 @@ export default function NewConversationModal({
             </>
           ) : (
             <>
-              {/* Titre de conversation (si groupe) */}
-              {selectedUsers.length > 1 && (
-                <div className="p-4 border-b border-gray-200">
-                  <input
-                    type="text"
-                    placeholder="Nom du groupe (optionnel)"
-                    value={conversationTitle}
-                    onChange={(e) => setConversationTitle(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              )}
+              {/* Titre de conversation (toujours affiché dans l'étape 2) */}
+              <div className="p-4 border-b border-gray-200">
+                <input
+                  type="text"
+                  placeholder={selectedUsers.length > 1 ? "Nom du groupe (optionnel)" : "Nom de la conversation (optionnel)"}
+                  value={conversationTitle}
+                  onChange={(e) => setConversationTitle(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
 
               {/* Zone de saisie du message */}
               <div className="flex-1 p-4">

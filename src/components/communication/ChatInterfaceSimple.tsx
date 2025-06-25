@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import Avatar from '../Avatar';
+import { formatMessageTime } from '@/lib/dateUtils';
 
 interface SimpleMessage {
   id: number;
@@ -12,6 +14,7 @@ interface SimpleMessage {
   sender?: {
     first_name: string;
     last_name: string;
+    avatar_url?: string;
   };
 }
 
@@ -27,10 +30,21 @@ interface ChatInterfaceSimpleProps {
   selectedConversation?: SimpleConversation;
 }
 
+interface ConversationParticipant {
+  id: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string;
+  email?: string;
+}
+
 export default function ChatInterfaceSimple({ user, selectedConversation }: ChatInterfaceSimpleProps) {
   const [messages, setMessages] = useState<SimpleMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showConversationInfo, setShowConversationInfo] = useState(false);
+  const [conversationParticipants, setConversationParticipants] = useState<ConversationParticipant[]>([]);
+  const [conversationCreatedAt, setConversationCreatedAt] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
@@ -38,6 +52,65 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Charger les informations de la conversation
+  useEffect(() => {
+    if (!selectedConversation) return;
+
+    const fetchConversationInfo = async () => {
+      try {
+        // Récupérer les informations détaillées de la conversation
+        const { data: conversationData, error: convError } = await supabase
+          .from('conversations')
+          .select('created_at')
+          .eq('id', selectedConversation.id)
+          .single();
+
+        if (convError) {
+          console.error('Erreur conversation:', convError);
+          return;
+        }
+
+        if (conversationData) {
+          setConversationCreatedAt(conversationData.created_at);
+        }
+
+        // Récupérer les participants avec leurs informations complètes
+        const { data: participantsData, error: participantsError } = await supabase
+          .from('conversation_participants')
+          .select('user_id')
+          .eq('conversation_id', selectedConversation.id);
+
+        if (participantsError) {
+          console.error('Erreur participants:', participantsError);
+          return;
+        }
+
+        if (participantsData && participantsData.length > 0) {
+          // Récupérer les infos des users séparément pour éviter les erreurs de jointure
+          const userIds = participantsData.map(p => p.user_id);
+          
+          const { data: usersData, error: usersError } = await supabase
+            .from('users')
+            .select('id, first_name, last_name, avatar_url, email')
+            .in('id', userIds);
+
+          if (usersError) {
+            console.error('Erreur users:', usersError);
+            return;
+          }
+
+          if (usersData) {
+            setConversationParticipants(usersData);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des infos de conversation:', error);
+      }
+    };
+
+    fetchConversationInfo();
+  }, [selectedConversation, supabase]);
 
   // Charger les messages de manière simplifiée
   useEffect(() => {
@@ -48,12 +121,7 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
       try {
         const { data, error } = await supabase
           .from('messages')
-          .select(`
-            id,
-            content,
-            sender_id,
-            created_at
-          `)
+          .select('id, content, sender_id, created_at')
           .eq('conversation_id', selectedConversation.id)
           .order('created_at', { ascending: true });
 
@@ -63,21 +131,40 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
           return;
         }
 
-        // Récupérer les infos des expéditeurs séparément
-        const messagesWithSenders = await Promise.all(
-          (data || []).map(async (message) => {
-            const { data: senderData } = await supabase
-              .from('users')
-              .select('first_name, last_name')
-              .eq('id', message.sender_id)
-              .single();
+        if (!data || data.length === 0) {
+          setMessages([]);
+          return;
+        }
 
-            return {
-              ...message,
-              sender: senderData || undefined
-            };
-          })
-        );
+        // Récupérer les infos des expéditeurs séparément pour éviter les erreurs
+        const senderIds = [...new Set(data.map(m => m.sender_id))];
+        const { data: sendersData, error: sendersError } = await supabase
+          .from('users')
+          .select('id, first_name, last_name, avatar_url')
+          .in('id', senderIds);
+
+        if (sendersError) {
+          console.error('Erreur senders:', sendersError);
+          setMessages(data.map(msg => ({ ...msg, sender: undefined })));
+          return;
+        }
+
+        // Associer les expéditeurs aux messages
+        const messagesWithSenders = data.map(message => ({
+          ...message,
+          sender: sendersData?.find(sender => sender.id === message.sender_id)
+        }));
+
+        // Marquer la conversation comme lue
+        try {
+          await supabase.rpc('mark_conversation_as_read', {
+            p_conversation_id: selectedConversation.id,
+            p_user_id: user.id
+          });
+        } catch (error) {
+          console.error('Erreur marquage lu:', error);
+          // Ne pas bloquer l'affichage des messages pour cette erreur
+        }
 
         setMessages(messagesWithSenders);
       } catch (error) {
@@ -89,7 +176,7 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
     };
 
     fetchMessages();
-  }, [selectedConversation, supabase]);
+  }, [selectedConversation, supabase, user.id]);
 
   // Scroller vers le bas quand les messages changent
   useEffect(() => {
@@ -101,41 +188,71 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation || isLoading) return;
 
+    const messageContent = newMessage.trim();
+    setNewMessage(''); // Vider le champ immédiatement pour une meilleure UX
     setIsLoading(true);
+
     try {
       const { error } = await supabase
         .from('messages')
         .insert({
           conversation_id: selectedConversation.id,
           sender_id: user.id,
-          content: newMessage.trim(),
+          content: messageContent,
           message_type: 'text'
         });
 
       if (error) {
         console.error('Erreur envoi message:', error);
+        setNewMessage(messageContent); // Restaurer le message en cas d'erreur
         return;
       }
 
-      setNewMessage('');
-      
-      // Recharger les messages après envoi
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
+      // Recharger les messages après envoi sans reload complet
+      const { data: newMessages, error: fetchError } = await supabase
+        .from('messages')
+        .select('id, content, sender_id, created_at')
+        .eq('conversation_id', selectedConversation.id)
+        .order('created_at', { ascending: true });
+
+      if (!fetchError && newMessages) {
+        // Récupérer les infos des expéditeurs
+        const senderIds = [...new Set(newMessages.map(m => m.sender_id))];
+        const { data: sendersData } = await supabase
+          .from('users')
+          .select('id, first_name, last_name, avatar_url')
+          .in('id', senderIds);
+
+        const messagesWithSenders = newMessages.map(message => ({
+          ...message,
+          sender: sendersData?.find(sender => sender.id === message.sender_id)
+        }));
+
+        setMessages(messagesWithSenders);
+      }
 
     } catch (error) {
       console.error('Erreur générale envoi:', error);
+      setNewMessage(messageContent); // Restaurer le message en cas d'erreur
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Formatage du temps simplifié
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  };
+  // Obtenir l'utilisateur actuel pour l'avatar
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const { data } = await supabase
+        .from('users')
+        .select('first_name, last_name, avatar_url')
+        .eq('id', user.id)
+        .single();
+      setCurrentUser(data);
+    };
+    fetchCurrentUser();
+  }, [user.id, supabase]);
 
   if (!selectedConversation) {
     return (
@@ -163,7 +280,7 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
               {selectedConversation.title || 'Conversation'}
             </h2>
             <p className="text-sm text-gray-500">
-              {selectedConversation.participants?.length || 0} participant(s)
+              {conversationParticipants.length} participant(s)
             </p>
           </div>
           <div className="flex items-center space-x-2">
@@ -177,9 +294,124 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
               {selectedConversation.type === 'direct' ? '👥 Direct' : 
                selectedConversation.type === 'group' ? '👥 Groupe' : '📢 Annonce'}
             </span>
+            
+            {/* Bouton Info */}
+            <button
+              onClick={() => setShowConversationInfo(true)}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              title="Informations de la conversation"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Modal des informations de conversation */}
+      {showConversationInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+            {/* En-tête du modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Informations de la conversation
+              </h3>
+              <button
+                onClick={() => setShowConversationInfo(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Contenu du modal */}
+            <div className="p-6">
+              {/* Titre de la conversation */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Titre</h4>
+                <p className="text-gray-900">{selectedConversation.title || 'Sans titre'}</p>
+              </div>
+
+              {/* Type de conversation */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Type</h4>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  selectedConversation.type === 'direct' 
+                    ? 'bg-blue-100 text-blue-800'
+                    : selectedConversation.type === 'group'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-purple-100 text-purple-800'
+                }`}>
+                  {selectedConversation.type === 'direct' ? '👥 Direct' : 
+                   selectedConversation.type === 'group' ? '👥 Groupe' : '📢 Annonce'}
+                </span>
+              </div>
+
+              {/* Date de création */}
+              {conversationCreatedAt && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Créée le</h4>
+                  <p className="text-gray-900">
+                    {new Date(conversationCreatedAt).toLocaleDateString('fr-FR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              )}
+
+              {/* Liste des participants */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">
+                  Participants ({conversationParticipants.length})
+                </h4>
+                <div className="space-y-3">
+                  {conversationParticipants.map((participant) => (
+                    <div key={participant.id} className="flex items-center space-x-3">
+                      <Avatar
+                        src={participant.avatar_url}
+                        firstName={participant.first_name}
+                        lastName={participant.last_name}
+                        size="sm"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {participant.first_name} {participant.last_name}
+                          {participant.id === user.id && (
+                            <span className="ml-2 text-xs text-blue-600 font-medium">(Vous)</span>
+                          )}
+                        </p>
+                        {participant.email && (
+                          <p className="text-xs text-gray-500 truncate">
+                            {participant.email}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Pied du modal */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+              <button
+                onClick={() => setShowConversationInfo(false)}
+                className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -197,21 +429,51 @@ export default function ChatInterfaceSimple({ user, selectedConversation }: Chat
           messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.sender_id === user.id ? 'justify-end' : 'justify-start'} mb-4`}
             >
-              <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                message.sender_id === user.id
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-900'
+              <div className={`flex items-end space-x-2 max-w-xs lg:max-w-md ${
+                message.sender_id === user.id ? 'flex-row-reverse space-x-reverse' : ''
               }`}>
-                {message.sender_id !== user.id && message.sender && (
-                  <div className="text-xs font-medium mb-1 opacity-75">
-                    {message.sender.first_name} {message.sender.last_name}
+                {/* Avatar */}
+                <div className="flex-shrink-0">
+                  {message.sender_id === user.id ? (
+                    // Avatar de l'utilisateur actuel
+                    currentUser && (
+                      <Avatar
+                        src={currentUser.avatar_url}
+                        firstName={currentUser.first_name}
+                        lastName={currentUser.last_name}
+                        size="sm"
+                      />
+                    )
+                  ) : (
+                    // Avatar de l'expéditeur
+                    message.sender && (
+                      <Avatar
+                        src={message.sender.avatar_url}
+                        firstName={message.sender.first_name}
+                        lastName={message.sender.last_name}
+                        size="sm"
+                      />
+                    )
+                  )}
+                </div>
+
+                {/* Bulle de message */}
+                <div className={`px-4 py-2 rounded-lg ${
+                  message.sender_id === user.id
+                    ? 'bg-blue-600 text-white rounded-br-none'
+                    : 'bg-gray-200 text-gray-900 rounded-bl-none'
+                }`}>
+                  {message.sender_id !== user.id && message.sender && (
+                    <div className="text-xs font-medium mb-1 opacity-75">
+                      {message.sender.first_name} {message.sender.last_name}
+                    </div>
+                  )}
+                  <div className="text-sm">{message.content}</div>
+                  <div className="text-xs opacity-75 mt-1">
+                    {formatMessageTime(message.created_at)}
                   </div>
-                )}
-                <div className="text-sm">{message.content}</div>
-                <div className="text-xs opacity-75 mt-1">
-                  {formatTime(message.created_at)}
                 </div>
               </div>
             </div>

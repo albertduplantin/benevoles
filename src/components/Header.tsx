@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import AuthButton from './AuthButton'
 import NotificationBell from './NotificationBell'
+import MessagesUnreadBadge from './MessagesUnreadBadge'
 import { User } from '@supabase/supabase-js'
 import Image from 'next/image'
 
@@ -47,7 +48,7 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               {user && (
                 <div className="hidden lg:flex items-center space-x-1">
                   <NavLink href="/" icon="🎯" text="Missions" />
-                  <NavLink href="/communication" icon="💬" text="Communication" />
+                  <MessagesUnreadBadge userId={user.id} />
                   <NavLink href="/profile" icon="👤" text="Mon Profil" />
                   <NavLink href="/planning" icon="📅" text="Planning" />
                 </div>
