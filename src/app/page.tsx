@@ -5,6 +5,8 @@ import Container from '@/components/Container'
 import { MissionWithCounts } from '@/lib/types'
 import Link from 'next/link'
 
+// Version déployée avec interface modernisée et nettoyage complet - v2.1.0
+
 export default async function HomePage() {
   const supabase = await createClient()
 
