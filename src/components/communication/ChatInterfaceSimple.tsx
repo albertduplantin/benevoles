@@ -3,28 +3,43 @@
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { ConversationWithDetails, MessageWithSender } from '@/lib/types';
 
-interface ChatInterfaceProps {
-  user: User;
-  selectedConversation?: ConversationWithDetails;
-  onConversationSelect?: (conversation: ConversationWithDetails) => void;
+interface SimpleMessage {
+  id: number;
+  content: string;
+  sender_id: string;
+  created_at: string;
+  sender?: {
+    first_name: string;
+    last_name: string;
+  };
 }
 
-export default function ChatInterface({ user, selectedConversation, onConversationSelect }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<MessageWithSender[]>([]);
+interface SimpleConversation {
+  id: number;
+  title: string | null;
+  type: string;
+  participants: any[];
+}
+
+interface ChatInterfaceSimpleProps {
+  user: User;
+  selectedConversation?: SimpleConversation;
+}
+
+export default function ChatInterfaceSimple({ user, selectedConversation }: ChatInterfaceSimpleProps) {
+  const [messages, setMessages] = useState<SimpleMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
-  // Faire défiler vers le bas quand de nouveaux messages arrivent
+  // Faire défiler vers le bas
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Charger les messages de la conversation
+  // Charger les messages de manière simplifiée
   useEffect(() => {
     if (!selectedConversation) return;
 
@@ -34,76 +49,46 @@ export default function ChatInterface({ user, selectedConversation, onConversati
         const { data, error } = await supabase
           .from('messages')
           .select(`
-            *,
-            sender:users!messages_sender_id_fkey(first_name, last_name, avatar_url),
-            reply_to:messages!messages_reply_to_id_fkey(
-              *,
-              sender:users!messages_sender_id_fkey(first_name, last_name, avatar_url)
-            )
+            id,
+            content,
+            sender_id,
+            created_at
           `)
           .eq('conversation_id', selectedConversation.id)
           .order('created_at', { ascending: true });
 
-        if (error) throw error;
-        setMessages(data || []);
-        
-        // Marquer comme lu
-        await supabase
-          .from('conversation_participants')
-          .update({ last_read_at: new Date().toISOString() })
-          .eq('conversation_id', selectedConversation.id)
-          .eq('user_id', user.id);
+        if (error) {
+          console.error('Erreur lors du chargement des messages:', error);
+          setMessages([]);
+          return;
+        }
 
+        // Récupérer les infos des expéditeurs séparément
+        const messagesWithSenders = await Promise.all(
+          (data || []).map(async (message) => {
+            const { data: senderData } = await supabase
+              .from('users')
+              .select('first_name, last_name')
+              .eq('id', message.sender_id)
+              .single();
+
+            return {
+              ...message,
+              sender: senderData || undefined
+            };
+          })
+        );
+
+        setMessages(messagesWithSenders);
       } catch (error) {
-        console.error('Erreur lors du chargement des messages:', error);
-        setMessages([]); // Réinitialiser en cas d'erreur
+        console.error('Erreur générale messages:', error);
+        setMessages([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchMessages();
-  }, [selectedConversation, user.id, supabase]);
-
-  // Écouter les nouveaux messages en temps réel
-  useEffect(() => {
-    if (!selectedConversation) return;
-
-    const channel = supabase
-      .channel(`messages-${selectedConversation.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${selectedConversation.id}`,
-        },
-        async (payload) => {
-          // Récupérer le message complet avec les détails de l'expéditeur
-          const { data } = await supabase
-            .from('messages')
-            .select(`
-              *,
-              sender:users!messages_sender_id_fkey(first_name, last_name, avatar_url),
-              reply_to:messages!messages_reply_to_id_fkey(
-                *,
-                sender:users!messages_sender_id_fkey(first_name, last_name, avatar_url)
-              )
-            `)
-            .eq('id', payload.new.id)
-            .single();
-
-          if (data) {
-            setMessages(prev => [...prev, data]);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [selectedConversation, supabase]);
 
   // Scroller vers le bas quand les messages changent
@@ -127,26 +112,29 @@ export default function ChatInterface({ user, selectedConversation, onConversati
           message_type: 'text'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur envoi message:', error);
+        return;
+      }
+
       setNewMessage('');
+      
+      // Recharger les messages après envoi
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
+      console.error('Erreur générale envoi:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Formatage du temps
+  // Formatage du temps simplifié
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
-
-    if (diffInHours < 24) {
-      return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    } else {
-      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-    }
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
 
   if (!selectedConversation) {
@@ -167,7 +155,7 @@ export default function ChatInterface({ user, selectedConversation, onConversati
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      {/* En-tête de la conversation */}
+      {/* En-tête */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -175,7 +163,7 @@ export default function ChatInterface({ user, selectedConversation, onConversati
               {selectedConversation.title || 'Conversation'}
             </h2>
             <p className="text-sm text-gray-500">
-              {selectedConversation.participants.length} participant(s)
+              {selectedConversation.participants?.length || 0} participant(s)
             </p>
           </div>
           <div className="flex items-center space-x-2">
@@ -199,6 +187,12 @@ export default function ChatInterface({ user, selectedConversation, onConversati
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
+        ) : messages.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            <div className="text-4xl mb-2">💬</div>
+            <p>Aucun message pour le moment</p>
+            <p className="text-sm">Soyez le premier à écrire !</p>
+          </div>
         ) : (
           messages.map((message) => (
             <div
@@ -210,23 +204,14 @@ export default function ChatInterface({ user, selectedConversation, onConversati
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-900'
               }`}>
-                {message.sender_id !== user.id && (
+                {message.sender_id !== user.id && message.sender && (
                   <div className="text-xs font-medium mb-1 opacity-75">
                     {message.sender.first_name} {message.sender.last_name}
-                  </div>
-                )}
-                {message.reply_to && (
-                  <div className="text-xs opacity-75 mb-2 p-2 rounded bg-black bg-opacity-10">
-                    <div className="font-medium">
-                      {message.reply_to.sender.first_name} {message.reply_to.sender.last_name}
-                    </div>
-                    <div className="truncate">{message.reply_to.content}</div>
                   </div>
                 )}
                 <div className="text-sm">{message.content}</div>
                 <div className="text-xs opacity-75 mt-1">
                   {formatTime(message.created_at)}
-                  {message.is_edited && ' (modifié)'}
                 </div>
               </div>
             </div>

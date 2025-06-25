@@ -10,13 +10,15 @@ interface ConversationsListProps {
   selectedConversation?: ConversationWithDetails;
   onConversationSelect: (conversation: ConversationWithDetails) => void;
   onNewConversation?: () => void;
+  newConversationId?: string;
 }
 
 export default function ConversationsList({ 
   user, 
   selectedConversation, 
   onConversationSelect, 
-  onNewConversation 
+  onNewConversation,
+  newConversationId
 }: ConversationsListProps) {
   const [conversations, setConversations] = useState<ConversationWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -82,6 +84,14 @@ export default function ConversationsList({
         // Filtrer les conversations où l'utilisateur n'est pas participant
         const validConversations = conversationsWithUnread.filter(Boolean) as ConversationWithDetails[];
         setConversations(validConversations);
+        
+        // Si une nouvelle conversation a été créée, la sélectionner automatiquement
+        if (newConversationId) {
+          const newConv = validConversations.find(conv => conv.id.toString() === newConversationId);
+          if (newConv) {
+            onConversationSelect(newConv);
+          }
+        }
       } catch (error) {
         console.error('Erreur lors du chargement des conversations:', error);
       } finally {
@@ -90,9 +100,9 @@ export default function ConversationsList({
     };
 
     fetchConversations();
-  }, [user.id, supabase]);
+  }, [user.id, supabase, newConversationId, onConversationSelect]);
 
-  // Écouter les nouveaux messages pour mettre à jour les compteurs
+  // Écouter les nouveaux messages pour mettre à jour les compteurs ET les nouvelles conversations
   useEffect(() => {
     const channel = supabase
       .channel('conversations-updates')
@@ -116,12 +126,109 @@ export default function ConversationsList({
           }));
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+        },
+        () => {
+          // Recharger les conversations quand une nouvelle est créée
+          window.location.reload();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants',
+        },
+        (payload) => {
+          // Si l'utilisateur actuel est ajouté à une conversation, recharger
+          if (payload.new.user_id === user.id) {
+            setTimeout(() => {
+              // Recharger les conversations après un délai pour permettre à la transaction de se terminer
+              fetchConversations();
+            }, 500);
+          }
+        }
+      )
       .subscribe();
+
+    const fetchConversations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('conversations')
+          .select(`
+            *,
+            participants:conversation_participants(
+              *,
+              users(*)
+            ),
+            last_message:messages(*)
+          `)
+          .eq('is_active', true)
+          .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Calculer les messages non lus pour chaque conversation
+        const conversationsWithUnread = await Promise.all(
+          (data || []).map(async (conv) => {
+            // Trouver le participant actuel
+            const currentParticipant = conv.participants.find((p: any) => p.user_id === user.id);
+            
+            if (!currentParticipant) return null;
+            
+            // Compter les messages non lus
+            const { count } = await supabase
+              .from('messages')
+              .select('*', { count: 'exact', head: true })
+              .eq('conversation_id', conv.id)
+              .gt('created_at', currentParticipant.last_read_at);
+
+            // Récupérer le dernier message
+            const { data: lastMessage } = await supabase
+              .from('messages')
+              .select(`
+                *,
+                sender:users!messages_sender_id_fkey(first_name, last_name, avatar_url)
+              `)
+              .eq('conversation_id', conv.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+
+            return {
+              ...conv,
+              unread_count: count || 0,
+              last_message: lastMessage
+            };
+          })
+        );
+
+        // Filtrer les conversations où l'utilisateur n'est pas participant
+        const validConversations = conversationsWithUnread.filter(Boolean) as ConversationWithDetails[];
+        setConversations(validConversations);
+        
+        // Si une nouvelle conversation a été créée, la sélectionner automatiquement
+        if (newConversationId) {
+          const newConv = validConversations.find(conv => conv.id.toString() === newConversationId);
+          if (newConv) {
+            onConversationSelect(newConv);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des conversations:', error);
+      }
+    };
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id, supabase]);
+  }, [user.id, supabase, newConversationId, onConversationSelect]);
 
   // Filtrer les conversations
   const filteredConversations = conversations.filter(conv => {
