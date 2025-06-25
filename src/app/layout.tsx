@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portail Bénévoles - Festival du Film Court",
-  description: "Plateforme de gestion des bénévoles pour le Festival du Film Court",
+  title: "Festival Bénévoles v2.1.0",
+  description: "Plateforme de gestion des bénévoles - Version déployée 2025",
 };
 
 export default function RootLayout({
@@ -27,6 +27,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen`}
       >
+        {/* Version 2.1.0 - Déployée avec corrections complètes */}
         {children}
       </body>
     </html>
