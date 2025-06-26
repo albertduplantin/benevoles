@@ -2,14 +2,18 @@
 
 import { useState, useMemo } from 'react'
 import { PlanningMission, UserProfile } from '@/lib/types'
+import MissionEditModal from '@/components/admin/MissionEditModal'
 
 interface CalendarViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
+  isAdmin: boolean
+  onMissionUpdated?: () => void
 }
 
-export default function CalendarView({ missions }: CalendarViewProps) {
+export default function CalendarView({ missions, users, isAdmin, onMissionUpdated }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [selectedMission, setSelectedMission] = useState<PlanningMission | null>(null)
 
   // Grouper les missions par date
   const missionsByDate = useMemo(() => {
@@ -172,13 +176,19 @@ export default function CalendarView({ missions }: CalendarViewProps) {
                 {dayMissions.slice(0, 3).map((mission) => (
                   <div
                     key={mission.id}
-                    className={`text-xs p-1 rounded border ${getMissionColor(mission)} cursor-pointer hover:opacity-80 transition-opacity`}
+                    className={`text-xs p-1 rounded border ${getMissionColor(mission)} ${isAdmin ? 'cursor-pointer hover:opacity-80 transition-opacity relative group' : ''}`}
                     title={`${mission.title} - ${formatTime(mission.start_time)} à ${formatTime(mission.end_time)} - ${mission.inscriptions_count}/${mission.max_volunteers} bénévoles`}
+                    onClick={isAdmin ? () => setSelectedMission(mission) : undefined}
                   >
                     <div className="font-medium truncate">{mission.title}</div>
                     <div className="text-xs opacity-75">
                       {formatTime(mission.start_time)} - {mission.inscriptions_count}/{mission.max_volunteers}
                     </div>
+                    {isAdmin && (
+                      <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-xs text-blue-600">✏️</span>
+                      </div>
+                    )}
                   </div>
                 ))}
                 
@@ -222,6 +232,19 @@ export default function CalendarView({ missions }: CalendarViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Modale d'édition */}
+      {selectedMission && (
+        <MissionEditModal
+          mission={selectedMission}
+          users={users}
+          onClose={() => setSelectedMission(null)}
+          onMissionUpdated={() => {
+            // Rafraîchir les données sans recharger la page
+            onMissionUpdated?.()
+          }}
+        />
+      )}
     </div>
   )
 } 

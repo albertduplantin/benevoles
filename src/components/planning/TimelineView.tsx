@@ -2,14 +2,18 @@
 
 import { useState, useMemo } from 'react'
 import { PlanningMission, UserProfile } from '@/lib/types'
+import MissionEditModal from '@/components/admin/MissionEditModal'
 
 interface TimelineViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
+  isAdmin: boolean
+  onMissionUpdated?: () => void
 }
 
-export default function TimelineView({ missions }: TimelineViewProps) {
+export default function TimelineView({ missions, users, isAdmin, onMissionUpdated }: TimelineViewProps) {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [selectedMission, setSelectedMission] = useState<PlanningMission | null>(null)
 
   // Grouper les missions par date
   const missionsByDate = useMemo(() => {
@@ -105,7 +109,8 @@ export default function TimelineView({ missions }: TimelineViewProps) {
           {selectedMissions.map((mission) => (
             <div
               key={mission.id}
-              className={`border-l-4 p-4 rounded-lg shadow-sm ${getMissionColor(mission)}`}
+              className={`border-l-4 p-4 rounded-lg shadow-sm ${getMissionColor(mission)} ${isAdmin ? 'cursor-pointer hover:shadow-md transition-shadow relative group' : ''}`}
+              onClick={isAdmin ? () => setSelectedMission(mission) : undefined}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -113,6 +118,9 @@ export default function TimelineView({ missions }: TimelineViewProps) {
                     <h3 className="text-lg font-medium text-gray-900">
                       {mission.title}
                     </h3>
+                    {isAdmin && (
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 text-sm">✏️ Cliquer pour éditer</span>
+                    )}
                     <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
                       {formatTime(mission.start_time)} - {formatTime(mission.end_time)}
                     </span>
@@ -130,13 +138,6 @@ export default function TimelineView({ missions }: TimelineViewProps) {
                       <div className="flex items-center gap-1">
                         <span>📍</span>
                         <span>{mission.location}</span>
-                      </div>
-                    )}
-                    
-                    {mission.manager && (
-                      <div className="flex items-center gap-1">
-                        <span>👤</span>
-                        <span>{mission.manager.first_name} {mission.manager.last_name}</span>
                       </div>
                     )}
                   </div>
@@ -176,7 +177,7 @@ export default function TimelineView({ missions }: TimelineViewProps) {
               {mission.volunteers.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">
-                    Bénévoles inscrits ({mission.volunteers.length})
+                    Bénévoles participants ({mission.volunteers.length})
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {mission.volunteers.map((volunteer) => (
@@ -187,6 +188,19 @@ export default function TimelineView({ missions }: TimelineViewProps) {
                         {volunteer.first_name} {volunteer.last_name}
                       </span>
                     ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Affichage du responsable */}
+              {mission.manager && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
+                    <span>👑</span>
+                    Responsable de mission
+                  </h4>
+                  <div className="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                    {mission.manager.first_name} {mission.manager.last_name}
                   </div>
                 </div>
               )}
@@ -236,6 +250,19 @@ export default function TimelineView({ missions }: TimelineViewProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modale d'édition */}
+      {selectedMission && (
+        <MissionEditModal
+          mission={selectedMission}
+          users={users}
+          onClose={() => setSelectedMission(null)}
+          onMissionUpdated={() => {
+            // Optionnel : rafraîchir les données si nécessaire
+            window.location.reload()
+          }}
+        />
       )}
     </div>
   )

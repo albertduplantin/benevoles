@@ -10,22 +10,37 @@ import VolunteerView from './VolunteerView'
 import SectorView from './SectorView'
 import PlanningStats from './PlanningStats'
 import ConflictsList from './ConflictsList'
+import React from 'react'
 
 interface PlanningViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
   currentUser: User
+  isAdmin: boolean
 }
 
-export default function PlanningView({ missions, users }: PlanningViewProps) {
+export default function PlanningView({ missions, users, isAdmin }: PlanningViewProps) {
   const [currentView, setCurrentView] = useState<ViewType>('calendar')
   const [filters, setFilters] = useState<PlanningFiltersType>({})
   const [showStats, setShowStats] = useState(false)
   const [showConflicts, setShowConflicts] = useState(false)
+  const [missionsData, setMissionsData] = useState(missions)
+
+  // Mettre à jour les données locales quand les props changent
+  React.useEffect(() => {
+    setMissionsData(missions)
+  }, [missions])
+
+  // Fonction pour rafraîchir les données
+  const handleMissionUpdated = () => {
+    // Optionnel : on pourrait faire un appel API ici pour rafraîchir les données
+    // Pour l'instant, on laisse les données se rafraîchir naturellement
+    console.log('Mission mise à jour, données rafraîchies')
+  }
 
   // Filtrer les missions selon les critères
   const filteredMissions = useMemo(() => {
-    return missions.filter(mission => {
+    return missionsData.filter(mission => {
       // Filtre par date
       if (filters.start_date && mission.start_time < filters.start_date) return false
       if (filters.end_date && mission.end_time > filters.end_date) return false
@@ -59,7 +74,7 @@ export default function PlanningView({ missions, users }: PlanningViewProps) {
       
       return true
     })
-  }, [missions, filters])
+  }, [missionsData, filters])
 
   // Détection des conflits d'horaires
   const conflicts = useMemo(() => {
@@ -173,6 +188,12 @@ export default function PlanningView({ missions, users }: PlanningViewProps) {
           
           {/* Boutons d'action */}
           <div className="flex gap-2">
+            {isAdmin && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm">
+                <span>✏️</span>
+                <span>Cliquez sur une mission pour l'éditer</span>
+              </div>
+            )}
             <button
               onClick={() => setShowStats(!showStats)}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -223,16 +244,31 @@ export default function PlanningView({ missions, users }: PlanningViewProps) {
       {/* Vue principale */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {currentView === 'calendar' && (
-          <CalendarView missions={filteredMissions} users={users} />
+          <CalendarView 
+            missions={filteredMissions} 
+            users={users} 
+            isAdmin={isAdmin} 
+            onMissionUpdated={handleMissionUpdated}
+          />
         )}
         {currentView === 'timeline' && (
-          <TimelineView missions={filteredMissions} users={users} />
+          <TimelineView 
+            missions={filteredMissions} 
+            users={users} 
+            isAdmin={isAdmin} 
+            onMissionUpdated={handleMissionUpdated}
+          />
         )}
         {currentView === 'volunteer' && (
           <VolunteerView missions={filteredMissions} users={users} />
         )}
         {currentView === 'sector' && (
-          <SectorView missions={filteredMissions} users={users} />
+          <SectorView 
+            missions={filteredMissions} 
+            users={users} 
+            isAdmin={isAdmin} 
+            onMissionUpdated={handleMissionUpdated}
+          />
         )}
       </div>
 

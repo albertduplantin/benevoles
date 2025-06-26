@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
@@ -10,6 +10,12 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
   const [message, setMessage] = useState('')
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const msg = searchParams.get('message')
+    if (msg) setMessage(msg)
+  }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

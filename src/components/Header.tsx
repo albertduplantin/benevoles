@@ -1,15 +1,21 @@
+'use client'
+
 import Link from 'next/link'
 import AuthButton from './AuthButton'
 import { User } from '@supabase/supabase-js'
 import Image from 'next/image'
+import { useState } from 'react'
+import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 interface HeaderProps {
   user: User | null;
   title?: string;
   showBackToSite?: boolean;
+  isAdmin?: boolean;
 }
 
-export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false }: HeaderProps) {
+export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false, isAdmin = false }: HeaderProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <>
       {/* Header principal */}
@@ -48,6 +54,7 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                   <NavLink href="/" icon="🎯" text="Missions" />
                   <NavLink href="/profile" icon="👤" text="Mon Profil" />
                   <NavLink href="/planning" icon="📅" text="Planning" />
+                  {isAdmin && <NavLink href="/admin" icon="🛠️" text="Admin" />}
                 </div>
               )}
             </div>
@@ -65,7 +72,7 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               {showBackToSite && (
                 <Link 
                   href="/" 
-                  className="group flex items-center space-x-2 text-sm text-blue-400 hover:text-blue-300 font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-white/10"
+                  className="hidden md:group md:flex items-center space-x-2 text-sm text-blue-400 hover:text-blue-300 font-medium transition-all duration-200 px-3 py-2 rounded-lg hover:bg-white/10"
                 >
                   <span className="group-hover:-translate-x-1 transition-transform duration-200">←</span>
                   <span>Retour au site</span>
@@ -73,13 +80,15 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               )}
               
               <div className="flex items-center space-x-3">
-                {/* Menu mobile */}
+                {/* Menu burger mobile */}
                 {user && (
-                  <div className="lg:hidden flex items-center space-x-2">
-                    <MobileNavButton href="/" icon="🎯" />
-                    <MobileNavButton href="/profile" icon="👤" />
-                    <MobileNavButton href="/planning" icon="📅" />
-                  </div>
+                  <button
+                    className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 relative group"
+                    onClick={() => setMenuOpen(true)}
+                    title="Menu"
+                  >
+                    <Bars3Icon className="w-7 h-7" />
+                  </button>
                 )}
                 
                 {/* Bouton d'authentification */}
@@ -90,6 +99,46 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
             </div>
           </nav>
         </div>
+        {/* Drawer menu mobile */}
+        {menuOpen && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* Overlay */}
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)}></div>
+            {/* Menu latéral */}
+            <div className="relative bg-slate-900 w-64 max-w-full h-full shadow-xl flex flex-col p-6 animate-in slide-in-from-left-10">
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                onClick={() => setMenuOpen(false)}
+                title="Fermer le menu"
+              >
+                <XMarkIcon className="w-7 h-7" />
+              </button>
+              <nav className="mt-10 flex flex-col gap-4">
+                {showBackToSite && (
+                  <Link href="/" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-blue-400 hover:text-white hover:bg-blue-600/20 transition-all duration-200">
+                    <span className="text-lg">←</span>
+                    <span>Retour au site</span>
+                  </Link>
+                )}
+                <NavLink href="/" icon="🎯" text="Missions" />
+                <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                <NavLink href="/planning" icon="📅" text="Planning" />
+                {isAdmin && <NavLink href="/admin" icon="🛠️" text="Admin" />}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    const btn = document.querySelector('[title="Déconnexion"]') as HTMLButtonElement | null;
+                    if (btn) btn.click();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-400 hover:text-white hover:bg-red-600/20 transition-all duration-200 mt-8"
+                >
+                  <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                  Déconnexion
+                </button>
+              </nav>
+            </div>
+          </div>
+        )}
       </header>
       
       {/* Effet de dégradé sous le header */}
@@ -108,19 +157,6 @@ function NavLink({ href, icon, text }: { href: string; icon: string; text: strin
       <span className="text-base group-hover:scale-110 transition-transform duration-200">{icon}</span>
       <span>{text}</span>
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl"></div>
-    </Link>
-  )
-}
-
-// Composant pour les boutons de navigation mobile
-function MobileNavButton({ href, icon }: { href: string; icon: string }) {
-  return (
-    <Link 
-      href={href}
-      className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 relative group"
-    >
-      <span className="text-lg group-hover:scale-110 transition-transform duration-200">{icon}</span>
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg"></div>
     </Link>
   )
 } 

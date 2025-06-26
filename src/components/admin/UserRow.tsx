@@ -2,6 +2,7 @@
 
 import { VolunteerCompleteProfile } from '@/lib/types';
 import { useState } from 'react';
+import { deleteUserAction } from '@/app/admin/actions';
 
 const WEEK_DAYS_LABELS: Record<string, string> = {
   'monday': 'Lun',
@@ -84,6 +85,13 @@ export default function UserRow({ user, missions }: { user: VolunteerCompletePro
         <button
           className="text-red-600 hover:text-red-800 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400"
           aria-label="Supprimer le bénévole"
+          onClick={async () => {
+            if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${user.first_name} ${user.last_name} ? Cette action est irréversible.`)) {
+              const result = await deleteUserAction(user.id);
+              if (result) alert(result);
+              window.location.reload();
+            }
+          }}
         >
           {/* Icône poubelle Material Design */}
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">

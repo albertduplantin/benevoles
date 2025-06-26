@@ -1,14 +1,18 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { PlanningMission, UserProfile } from '@/lib/types'
+import MissionEditModal from '@/components/admin/MissionEditModal'
 
 interface SectorViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
+  isAdmin: boolean
+  onMissionUpdated?: () => void
 }
 
-export default function SectorView({ missions }: SectorViewProps) {
+export default function SectorView({ missions, users, isAdmin, onMissionUpdated }: SectorViewProps) {
+  const [selectedMission, setSelectedMission] = useState<PlanningMission | null>(null)
   
   // Catégoriser les missions par secteur (basé sur les mots-clés du titre ou lieu)
   const missionsBySector = useMemo(() => {
@@ -215,10 +219,19 @@ export default function SectorView({ missions }: SectorViewProps) {
               <div className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {sectorMissions.map((mission) => (
-                    <div key={mission.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div 
+                      key={mission.id} 
+                      className={`bg-white rounded-lg p-4 border border-gray-200 ${isAdmin ? 'cursor-pointer hover:shadow-md transition-shadow relative group' : ''}`}
+                      onClick={isAdmin ? () => setSelectedMission(mission) : undefined}
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 mb-1">{mission.title}</h4>
+                          <h4 className="font-medium text-gray-900 mb-1 flex items-center gap-2">
+                            {mission.title}
+                            {isAdmin && (
+                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 text-xs">✏️</span>
+                            )}
+                          </h4>
                           <div className="text-sm text-gray-600 space-y-1">
                             <div>🕐 {formatTime(mission.start_time)}</div>
                             {mission.location && (
@@ -241,20 +254,38 @@ export default function SectorView({ missions }: SectorViewProps) {
                       
                       {/* Bénévoles assignés */}
                       {mission.volunteers.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {mission.volunteers.slice(0, 3).map((volunteer) => (
-                            <span
-                              key={volunteer.user_id}
-                              className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded"
-                            >
-                              {volunteer.first_name} {volunteer.last_name}
-                            </span>
-                          ))}
-                          {mission.volunteers.length > 3 && (
-                            <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                              +{mission.volunteers.length - 3}
-                            </span>
-                          )}
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <h5 className="text-xs font-medium text-gray-700 mb-2">
+                            Bénévoles participants ({mission.volunteers.length})
+                          </h5>
+                          <div className="flex flex-wrap gap-1">
+                            {mission.volunteers.slice(0, 3).map((volunteer) => (
+                              <span
+                                key={volunteer.user_id}
+                                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                              >
+                                {volunteer.first_name} {volunteer.last_name}
+                              </span>
+                            ))}
+                            {mission.volunteers.length > 3 && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                +{mission.volunteers.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Affichage du responsable */}
+                      {mission.manager && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <h5 className="text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <span>👑</span>
+                            Responsable
+                          </h5>
+                          <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                            {mission.manager.first_name} {mission.manager.last_name}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -312,6 +343,19 @@ export default function SectorView({ missions }: SectorViewProps) {
           </table>
         </div>
       </div>
+
+      {/* Modale d'édition */}
+      {selectedMission && (
+        <MissionEditModal
+          mission={selectedMission}
+          users={users}
+          onClose={() => setSelectedMission(null)}
+          onMissionUpdated={() => {
+            // Rafraîchir les données sans recharger la page
+            onMissionUpdated?.()
+          }}
+        />
+      )}
     </div>
   )
 } 

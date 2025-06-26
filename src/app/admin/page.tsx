@@ -9,9 +9,7 @@ import MembershipSettings from '@/components/admin/MembershipSettings'
 import VolunteerPreferencesView from '@/components/admin/VolunteerPreferencesView'
 import { createMissionActionSafe } from './actions-safe'
 import { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types'
-import MissionRow from './MissionRow'
-import UserRow from '@/components/admin/UserRow'
-import CallToVolunteers from '@/components/admin/CallToVolunteers'
+import AdminPageClient from './AdminPageClient'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -90,107 +88,5 @@ export default async function AdminPage() {
     : [];
 
   // Si l'utilisateur est un admin, afficher le tableau de bord
-  return (
-    <div className="min-h-screen">
-      <Header user={session.user} title="Tableau de bord Administrateur" showBackToSite={true} />
-      
-      <main className="py-8">
-        <Container maxWidth="xl">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Actions Rapides</h2>
-          <p className="text-gray-600 mb-6">Générez facilement des appels à bénévoles pour les missions à pourvoir</p>
-          <div className="flex gap-4 mb-4">
-            <CallToVolunteers missions={missionsWithVolunteers} users={typedUsers} />
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Missions</h2>
-          <p className="text-gray-600 mb-6">Créez, modifiez et suivez toutes vos missions</p>
-        </div>
-        
-        <CreateMissionForm onMissionCreated={createMissionActionSafe} users={typedUsers} />
-
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4">Toutes les missions</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-4 py-2 text-left">Titre</th>
-                  <th className="px-4 py-2 text-left">Date</th>
-                  <th className="px-4 py-2 text-left">Créneau</th>
-                  <th className="px-4 py-2 text-center">Inscrits</th>
-                  <th className="px-4 py-2 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {typedMissions && typedMissions.length > 0 ? (
-                  typedMissions.map((mission) => (
-                    <MissionRow key={mission.id} mission={mission} users={typedUsers} />
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="p-4 text-center text-gray-500">
-                      Aucune mission créée pour le moment.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-
-
-        <div className="mt-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Paramètres de Cotisation</h2>
-            <p className="text-gray-600 mb-6">Configurez le montant de la cotisation annuelle</p>
-            <MembershipSettings />
-        </div>
-
-        <div className="mt-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Utilisateurs</h2>
-            <p className="text-gray-600 mb-6">Créez et gérez les comptes des bénévoles et responsables</p>
-            <CreateUserForm />
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border">
-                    <thead className="bg-gray-200">
-                        <tr>
-                            <th className="px-4 py-2 text-left">Nom</th>
-                            <th className="px-4 py-2 text-left">Téléphone</th>
-                            <th className="px-4 py-2 text-center">Rôle</th>
-                            <th className="px-4 py-2 text-center">Disponibilités</th>
-                            <th className="px-4 py-2 text-center">Compétences principales</th>
-                            <th className="px-4 py-2 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {uniqueUsers.length > 0 ? (
-                            uniqueUsers.map(user => {
-                                // On filtre les missions où ce bénévole est inscrit
-                                const userMissions = typedMissions
-                                    ? typedMissions.filter(mission =>
-                                        mission.inscriptions && mission.inscriptions.some((i: any) => i.user_id === user.id)
-                                    )
-                                    : [];
-                                return (
-                                    <UserRow key={user.id} user={user} missions={userMissions} />
-                                );
-                            })
-                        ) : (
-                            <tr>
-                                <td colSpan={7} className="p-4 text-center text-gray-500">
-                                    Aucun utilisateur trouvé.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        </Container>
-      </main>
-    </div>
-  )
+  return <AdminPageClient missions={typedMissions || []} users={typedUsers || []} missionsWithVolunteers={missionsWithVolunteers || []} uniqueUsers={uniqueUsers || []} session={session} />
 } 

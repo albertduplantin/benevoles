@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
 export default function AuthButton({ user }: { user: User | null }) {
   const router = useRouter()
@@ -22,9 +23,11 @@ export default function AuthButton({ user }: { user: User | null }) {
       </div>
       <button
         onClick={handleSignOut}
-        className="group px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-red-500/25 border border-red-500/30 relative overflow-hidden"
+        title="Déconnexion"
+        className="group px-2 py-2 sm:px-4 sm:py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-red-500/25 border border-red-500/30 relative overflow-hidden flex items-center justify-center"
       >
-        <span className="relative z-10">Déconnexion</span>
+        <ArrowRightOnRectangleIcon className="w-6 h-6 sm:hidden" />
+        <span className="hidden sm:inline relative z-10">Déconnexion</span>
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
       </button>
     </div>

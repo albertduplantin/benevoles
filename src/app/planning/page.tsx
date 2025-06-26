@@ -98,6 +98,7 @@ export default async function PlanningPage() {
             missions={planningMissions} 
             users={users}
             currentUser={session.user}
+            isAdmin={userProfile.role === 'admin'}
           />
         </Container>
       </main>

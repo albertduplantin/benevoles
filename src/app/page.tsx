@@ -4,28 +4,12 @@ import Header from '@/components/Header'
 import Container from '@/components/Container'
 import { MissionWithCounts } from '@/lib/types'
 import Link from 'next/link'
+import HomeHeader from '@/components/HomeHeader'
 
 // Version déployée avec interface modernisée et nettoyage complet - v2.1.0
 
 export default async function HomePage() {
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Rediriger les admins vers leur tableau de bord
-  if (user) {
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    
-    if (userProfile?.role === 'admin') {
-      redirect('/admin')
-    }
-  }
 
   // Récupérer les missions avec comptage des inscriptions
   const { data: missions, error } = await supabase
@@ -37,30 +21,16 @@ export default async function HomePage() {
     console.error('Error fetching missions:', error)
   }
 
-  // Récupérer les inscriptions de l'utilisateur connecté (si connecté)
-  let userInscriptions: number[] = []
-  if (user) {
-    const { data: inscriptions } = await supabase
-      .from('inscriptions')
-      .select('mission_id')
-      .eq('user_id', user.id)
-    
-    userInscriptions = inscriptions?.map(i => i.mission_id) || []
-  }
-  
-  // Transformer les données pour extraire le count correctement et ajouter le statut d'inscription
+  // On ne peut plus récupérer userInscriptions côté server, donc on ne met pas user_is_registered ici
   const typedMissions = missions?.map(mission => ({
     ...mission,
     inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0,
-    user_is_registered: userInscriptions.includes(mission.id)
-  })) as Array<Omit<MissionWithCounts, 'inscriptions_count'> & { 
-    inscriptions_count: number; 
-    user_is_registered: boolean 
-  }> | null
+    // user_is_registered sera géré côté client si besoin
+  })) as Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }> | null
 
   return (
     <div className="min-h-screen">
-      <Header user={user} />
+      <HomeHeader />
       
       <main className="py-8">
         <Container>
@@ -81,27 +51,11 @@ export default async function HomePage() {
                   key={mission.id} 
                   className="group block"
                 >
-                  <div className={`backdrop-blur-sm border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02] h-full overflow-hidden relative ${
-                    mission.user_is_registered 
-                      ? 'bg-blue-50/90 border-blue-300 ring-2 ring-blue-500/20' 
-                      : 'bg-white/80 border-gray-200'
-                  }`}>
-                    {/* Badge "Inscrit" */}
-                    {mission.user_is_registered && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white shadow-lg">
-                          ✓ Inscrit
-                        </span>
-                      </div>
-                    )}
-                    
+                  <div className={`backdrop-blur-sm border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02] h-full overflow-hidden relative bg-white/80 border-gray-200`}>
+                    {/* Badge "Inscrit" supprimé côté server */}
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-3 pr-16">
-                        <h3 className={`text-xl font-bold transition-colors ${
-                          mission.user_is_registered 
-                            ? 'text-blue-800 group-hover:text-blue-900' 
-                            : 'text-gray-900 group-hover:text-blue-600'
-                        }`}>
+                        <h3 className={`text-xl font-bold transition-colors text-gray-900 group-hover:text-blue-600`}>
                           {mission.title}
                         </h3>
                         <div className="flex-shrink-0 ml-2">
@@ -114,18 +68,12 @@ export default async function HomePage() {
                           </span>
                         </div>
                       </div>
-                      
                       {mission.description && (
-                        <p className={`mb-4 line-clamp-2 ${
-                          mission.user_is_registered ? 'text-blue-700' : 'text-gray-600'
-                        }`}>
+                        <p className={`mb-4 line-clamp-2 text-gray-600`}>
                           {mission.description}
                         </p>
                       )}
-                      
-                      <div className={`space-y-2 text-sm mb-4 ${
-                        mission.user_is_registered ? 'text-blue-600' : 'text-gray-600'
-                      }`}>
+                      <div className={`space-y-2 text-sm mb-4 text-gray-600`}>
                         <div className="flex items-center">
                           <span className="w-4 h-4 mr-2">📍</span>
                           <span>{mission.location}</span>
@@ -145,27 +93,18 @@ export default async function HomePage() {
                           </span>
                         </div>
                       </div>
-                      
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">
-                          <span className={`text-sm font-medium ${
-                            mission.user_is_registered ? 'text-blue-700' : 'text-gray-700'
-                          }`}>
+                          <span className={`text-sm font-medium text-gray-700`}>
                             Places
                           </span>
-                          <span className={`text-sm ${
-                            mission.user_is_registered ? 'text-blue-600' : 'text-gray-600'
-                          }`}>
+                          <span className={`text-sm text-gray-600`}>
                             {mission.inscriptions_count}/{mission.max_volunteers}
                           </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              mission.user_is_registered 
-                                ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
-                                : 'bg-gradient-to-r from-blue-600 to-purple-600'
-                            }`}
+                            className={`h-2 rounded-full transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600`}
                             style={{ width: `${Math.min((mission.inscriptions_count / mission.max_volunteers) * 100, 100)}%` }}
                           />
                         </div>
