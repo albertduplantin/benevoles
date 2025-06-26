@@ -165,8 +165,8 @@ export default function VolunteerPreferencesView() {
 
       {/* Liste des bénévoles */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredVolunteers.map((volunteer) => (
-          <div key={volunteer.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+        {filteredVolunteers.map((volunteer, idx) => (
+          <div key={volunteer.id + '-' + idx} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
             <div className="p-6">
               {/* En-tête bénévole */}
               <div className="flex items-center justify-between mb-4">
@@ -200,7 +200,7 @@ export default function VolunteerPreferencesView() {
                 {volunteer.preferred_days && volunteer.preferred_days.length > 0 ? (
                   <div className="flex flex-wrap gap-1 mb-2">
                     {volunteer.preferred_days.map((day) => (
-                      <span key={day} className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                      <span key={volunteer.id + '-' + day} className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
                         {WEEK_DAYS_LABELS[day]}
                       </span>
                     ))}
@@ -294,7 +294,7 @@ export default function VolunteerPreferencesView() {
                       <div className="flex flex-wrap gap-1 mt-1">
                         {selectedVolunteer.preferred_days && selectedVolunteer.preferred_days.length > 0 ? (
                           selectedVolunteer.preferred_days.map((day) => (
-                            <span key={day} className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded">
+                            <span key={selectedVolunteer.id + '-' + day} className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded">
                               {WEEK_DAYS_LABELS[day]}
                             </span>
                           ))

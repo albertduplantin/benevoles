@@ -8,9 +8,9 @@ import CreateUserForm from '@/components/admin/CreateUserForm'
 import MembershipSettings from '@/components/admin/MembershipSettings'
 import VolunteerPreferencesView from '@/components/admin/VolunteerPreferencesView'
 import { createMissionActionSafe } from './actions-safe'
-import { MissionWithCounts, MissionWithVolunteers, UserProfile } from '@/lib/types'
+import { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types'
 import MissionRow from './MissionRow'
-import UserRow from './UserRow'
+import UserRow from '@/components/admin/UserRow'
 import CallToVolunteers from '@/components/admin/CallToVolunteers'
 
 export default async function AdminPage() {
@@ -56,7 +56,7 @@ export default async function AdminPage() {
     .order('start_time', { ascending: false })
 
   const { data: usersData, error: usersError } = await supabase
-    .from('users')
+    .from('volunteer_complete_profile')
     .select('*')
     .order('last_name', { ascending: true })
 
@@ -77,7 +77,17 @@ export default async function AdminPage() {
     inscriptions: mission.inscriptions || []
   })) as MissionWithVolunteers[] | null
 
-  const typedUsers = usersData as UserProfile[] | null
+  const typedUsers = usersData as any[] | null
+
+  // Déduplication par id
+  const uniqueUsers: VolunteerCompleteProfile[] = typedUsers
+    ? Object.values(
+        typedUsers.reduce((acc, user) => {
+          acc[user.id] = user;
+          return acc;
+        }, {} as Record<string, VolunteerCompleteProfile>)
+      )
+    : [];
 
   // Si l'utilisateur est un admin, afficher le tableau de bord
   return (
@@ -140,12 +150,6 @@ export default async function AdminPage() {
         </div>
 
         <div className="mt-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Préférences des Bénévoles</h2>
-            <p className="text-gray-600 mb-6">Consultez les disponibilités et compétences de vos bénévoles</p>
-            <VolunteerPreferencesView />
-        </div>
-
-        <div className="mt-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Utilisateurs</h2>
             <p className="text-gray-600 mb-6">Créez et gérez les comptes des bénévoles et responsables</p>
             <CreateUserForm />
@@ -154,20 +158,29 @@ export default async function AdminPage() {
                     <thead className="bg-gray-200">
                         <tr>
                             <th className="px-4 py-2 text-left">Nom</th>
-                            <th className="px-4 py-2 text-left">Email</th>
                             <th className="px-4 py-2 text-left">Téléphone</th>
                             <th className="px-4 py-2 text-center">Rôle</th>
+                            <th className="px-4 py-2 text-center">Disponibilités</th>
+                            <th className="px-4 py-2 text-center">Compétences principales</th>
                             <th className="px-4 py-2 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {typedUsers && typedUsers.length > 0 ? (
-                            typedUsers.map(user => (
-                                <UserRow key={user.id} user={user} />
-                            ))
+                        {uniqueUsers.length > 0 ? (
+                            uniqueUsers.map(user => {
+                                // On filtre les missions où ce bénévole est inscrit
+                                const userMissions = typedMissions
+                                    ? typedMissions.filter(mission =>
+                                        mission.inscriptions && mission.inscriptions.some((i: any) => i.user_id === user.id)
+                                    )
+                                    : [];
+                                return (
+                                    <UserRow key={user.id} user={user} missions={userMissions} />
+                                );
+                            })
                         ) : (
-                             <tr>
-                                <td colSpan={5} className="p-4 text-center text-gray-500">
+                            <tr>
+                                <td colSpan={7} className="p-4 text-center text-gray-500">
                                     Aucun utilisateur trouvé.
                                 </td>
                             </tr>

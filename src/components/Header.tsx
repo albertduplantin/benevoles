@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import AuthButton from './AuthButton'
-import NotificationBell from './NotificationBell'
 import { User } from '@supabase/supabase-js'
 import Image from 'next/image'
 
@@ -74,13 +73,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               )}
               
               <div className="flex items-center space-x-3">
-                {/* Notifications */}
-                {user && (
-                  <div className="relative">
-                    <NotificationBell userId={user.id} />
-                  </div>
-                )}
-                
                 {/* Menu mobile */}
                 {user && (
                   <div className="lg:hidden flex items-center space-x-2">

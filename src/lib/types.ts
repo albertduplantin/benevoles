@@ -229,26 +229,6 @@ export type Inscription = Database['public']['Tables']['inscriptions']['Row'];
 export type MembershipSetting = Database['public']['Tables']['membership_settings']['Row'];
 export type MembershipPayment = Database['public']['Tables']['membership_payments']['Row'];
 
-// Types pour le système de notifications
-export interface Notification {
-  id: number;
-  user_id: string;
-  title: string;
-  message: string;
-  type: 'new_mission' | 'mission_reminder' | 'schedule_change' | 'new_message' | 'weekly_digest' | 'volunteer_registration';
-  is_read: boolean;
-  created_at: string;
-  mission_id?: number | null;
-}
-
-export interface NotificationInsert {
-  user_id: string;
-  title: string;
-  message: string;
-  type: 'new_mission' | 'mission_reminder' | 'schedule_change' | 'new_message' | 'weekly_digest' | 'volunteer_registration';
-  mission_id?: number | null;
-}
-
 // Types pour les missions avec compteurs et volontaires
 export interface MissionWithCounts extends Mission {
   inscriptions_count: number;

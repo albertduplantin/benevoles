@@ -192,10 +192,17 @@ SELECT
 FROM users u
 LEFT JOIN user_availability av ON u.id = av.user_id
 LEFT JOIN user_sector_preferences sp ON u.id = sp.user_id
-WHERE u.role = 'benevole';
+WHERE u.role = 'benevole' OR u.role = 'responsable' OR u.role = 'admin';
 
 -- ============================================
 -- 9. MESSAGE DE CONFIRMATION
 -- ============================================
 
-SELECT 'Système de disponibilités et compétences créé avec succès!' as status; 
+SELECT 'Système de disponibilités et compétences créé avec succès!' as status;
+
+-- Ajout des contraintes d'unicité
+ALTER TABLE user_availability
+ADD CONSTRAINT unique_user_availability UNIQUE (user_id);
+
+ALTER TABLE user_sector_preferences
+ADD CONSTRAINT unique_user_sector_preferences UNIQUE (user_id); 

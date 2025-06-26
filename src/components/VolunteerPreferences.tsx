@@ -148,9 +148,13 @@ export default function VolunteerPreferences({ userId }: VolunteerPreferencesPro
           .maybeSingle();
 
         if (availError) {
-          console.error('Erreur chargement disponibilités:', availError);
+          // Si les tables n'existent pas, on charge des valeurs par défaut sans afficher d'erreur
           if (availError.code === 'PGRST116' || availError.message.includes('does not exist')) {
-            setMessage({ type: 'error', text: 'Les tables de préférences n\'existent pas encore. Veuillez exécuter le script SQL dans Supabase.' });
+            console.log('ℹ️ Tables de préférences non créées, utilisation des valeurs par défaut');
+            // Pas de message d'erreur visible pour l'utilisateur
+          } else {
+            console.error('Erreur chargement disponibilités:', availError);
+            setMessage({ type: 'error', text: 'Erreur lors du chargement des disponibilités' });
           }
         } else if (availData) {
           console.log('✅ Disponibilités chargées:', availData);
@@ -172,9 +176,13 @@ export default function VolunteerPreferences({ userId }: VolunteerPreferencesPro
           .maybeSingle();
 
         if (sectorError) {
-          console.error('Erreur chargement secteurs:', sectorError);
+          // Si les tables n'existent pas, on charge des valeurs par défaut sans afficher d'erreur
           if (sectorError.code === 'PGRST116' || sectorError.message.includes('does not exist')) {
-            setMessage({ type: 'error', text: 'Les tables de préférences n\'existent pas encore. Veuillez exécuter le script SQL dans Supabase.' });
+            console.log('ℹ️ Tables de secteurs non créées, utilisation des valeurs par défaut');
+            // Pas de message d'erreur visible pour l'utilisateur
+          } else {
+            console.error('Erreur chargement secteurs:', sectorError);
+            setMessage({ type: 'error', text: 'Erreur lors du chargement des secteurs' });
           }
         } else if (sectorData) {
           console.log('✅ Secteurs chargés:', sectorData);
@@ -225,6 +233,11 @@ export default function VolunteerPreferences({ userId }: VolunteerPreferencesPro
         });
 
       if (availError) {
+        // Si les tables n'existent pas, on affiche un message informatif
+        if (availError.code === 'PGRST116' || availError.message.includes('does not exist')) {
+          setMessage({ type: 'error', text: 'Les tables de préférences doivent être créées en base de données. Contactez l\'administrateur.' });
+          return;
+        }
         console.error('Erreur sauvegarde disponibilités:', availError);
         throw availError;
       }
@@ -239,6 +252,11 @@ export default function VolunteerPreferences({ userId }: VolunteerPreferencesPro
         });
 
       if (sectorError) {
+        // Si les tables n'existent pas, on affiche un message informatif
+        if (sectorError.code === 'PGRST116' || sectorError.message.includes('does not exist')) {
+          setMessage({ type: 'error', text: 'Les tables de préférences doivent être créées en base de données. Contactez l\'administrateur.' });
+          return;
+        }
         console.error('Erreur sauvegarde secteurs:', sectorError);
         throw sectorError;
       }
