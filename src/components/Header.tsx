@@ -5,6 +5,8 @@ import AuthButton from './AuthButton'
 import { User } from '@supabase/supabase-js'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 interface HeaderProps {
@@ -16,6 +18,21 @@ interface HeaderProps {
 
 export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false, isAdmin = false }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error)
+      // Même en cas d'erreur, on redirige vers login
+      router.push('/login')
+    }
+  }
+
   return (
     <>
       {/* Header principal */}
@@ -51,10 +68,21 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               {/* Navigation principale */}
               {user && (
                 <div className="hidden lg:flex items-center space-x-1">
-                  <NavLink href="/" icon="🎯" text="Missions" />
-                  <NavLink href="/profile" icon="👤" text="Mon Profil" />
-                  <NavLink href="/planning" icon="📅" text="Planning" />
-                  {isAdmin && <NavLink href="/admin" icon="🛠️" text="Admin" />}
+                  {isAdmin ? (
+                    <>
+                      <NavLink href="/admin" icon="🛠️" text="Admin" />
+                      <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
+                      <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                      <NavLink href="/planning" icon="📅" text="Planning" />
+                    </>
+                  ) : (
+                    <>
+                      <NavLink href="/" icon="🎯" text="Missions" />
+                      <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
+                      <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                      <NavLink href="/planning" icon="📅" text="Planning" />
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -93,7 +121,7 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                 
                 {/* Bouton d'authentification */}
                 <div className="relative">
-                  <AuthButton user={user} />
+                  <AuthButton user={user} onSignOut={handleSignOut} />
                 </div>
               </div>
             </div>
@@ -120,15 +148,25 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                     <span>Retour au site</span>
                   </Link>
                 )}
-                <NavLink href="/" icon="🎯" text="Missions" />
-                <NavLink href="/profile" icon="👤" text="Mon Profil" />
-                <NavLink href="/planning" icon="📅" text="Planning" />
-                {isAdmin && <NavLink href="/admin" icon="🛠️" text="Admin" />}
+                {isAdmin ? (
+                  <>
+                    <NavLink href="/admin" icon="🛠️" text="Admin" />
+                    <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
+                    <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                    <NavLink href="/planning" icon="📅" text="Planning" />
+                  </>
+                ) : (
+                  <>
+                    <NavLink href="/" icon="🎯" text="Missions" />
+                    <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
+                    <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                    <NavLink href="/planning" icon="📅" text="Planning" />
+                  </>
+                )}
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setMenuOpen(false);
-                    const btn = document.querySelector('[title="Déconnexion"]') as HTMLButtonElement | null;
-                    if (btn) btn.click();
+                    await handleSignOut();
                   }}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-400 hover:text-white hover:bg-red-600/20 transition-all duration-200 mt-8"
                 >

@@ -22,15 +22,12 @@ export default async function PlanningPage() {
     .eq('id', session.user.id)
     .single()
 
-  if (error || !userProfile || !['admin', 'responsable'].includes(userProfile.role)) {
+  if (error || !userProfile) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-center">
-        <h1 className="text-2xl font-bold text-red-600">Accès Refusé</h1>
+        <h1 className="text-2xl font-bold text-red-600">Erreur</h1>
         <p className="mt-2">
-          Vous n&apos;avez pas les permissions nécessaires pour voir le planning.
-        </p>
-        <p className="text-sm text-gray-600 mt-2">
-          Seuls les administrateurs et responsables peuvent accéder à cette page.
+          Impossible de charger votre profil utilisateur.
         </p>
       </div>
     )

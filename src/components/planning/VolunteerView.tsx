@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { User } from '@supabase/supabase-js'
 import { PlanningMission, UserProfile } from '@/lib/types'
 
 interface VolunteerViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
+  isAdmin: boolean
+  currentUser: User
+  onMissionUpdated?: () => void
 }
 
-export default function VolunteerView({ missions, users }: VolunteerViewProps) {
+export default function VolunteerView({ missions, users, isAdmin, currentUser, onMissionUpdated }: VolunteerViewProps) {
   const [expandedVolunteer, setExpandedVolunteer] = useState<string | null>(null)
 
   // Grouper les missions par bénévole

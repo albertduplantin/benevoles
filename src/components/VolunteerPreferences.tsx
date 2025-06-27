@@ -219,48 +219,133 @@ export default function VolunteerPreferences({ userId }: VolunteerPreferencesPro
     setMessage(null);
 
     try {
-      console.log('💾 Sauvegarde préférences...');
-      console.log('Disponibilités à sauver:', availability);
-      console.log('Secteurs à sauver:', sectorPrefs);
+      console.log('🔍 Debugging sauvegarde:');
+      console.log('- userId:', userId);
+      console.log('- typeof userId:', typeof userId);
+      console.log('- availability:', availability);
+      console.log('- sectorPrefs:', sectorPrefs);
 
-      // Sauvegarder disponibilités
-      const { error: availError } = await supabase
+      // Vérifier que userId est valide
+      if (!userId) {
+        setMessage({ type: 'error', text: 'Erreur: Utilisateur non identifié' });
+        return;
+      }
+
+      // Sauvegarder disponibilités avec gestion des conflits
+      console.log('💾 Tentative sauvegarde disponibilités...');
+      
+      // D'abord, essayer de mettre à jour
+      const { data: existingAvail } = await supabase
         .from('user_availability')
-        .upsert({
-          user_id: userId,
-          ...availability,
-          updated_at: new Date().toISOString()
-        });
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      let availError;
+      if (existingAvail) {
+        // Mise à jour
+        console.log('🔄 Mise à jour disponibilités existantes');
+        const { error } = await supabase
+          .from('user_availability')
+          .update({
+            ...availability,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', userId);
+        availError = error;
+      } else {
+        // Insertion
+        console.log('➕ Création nouvelles disponibilités');
+        const { error } = await supabase
+          .from('user_availability')
+          .insert({
+            user_id: userId,
+            ...availability,
+            updated_at: new Date().toISOString()
+          });
+        availError = error;
+      }
 
       if (availError) {
+        console.error('❌ Erreur sauvegarde disponibilités:', availError);
+        console.error('- Code erreur:', availError.code);
+        console.error('- Message:', availError.message);
+        console.error('- Details:', availError.details);
+        
         // Si les tables n'existent pas, on affiche un message informatif
         if (availError.code === 'PGRST116' || availError.message.includes('does not exist')) {
           setMessage({ type: 'error', text: 'Les tables de préférences doivent être créées en base de données. Contactez l\'administrateur.' });
           return;
         }
-        console.error('Erreur sauvegarde disponibilités:', availError);
+        
+        // Si c'est une erreur de permissions (403)
+        if (availError.code === 'PGRST301' || availError.message.includes('permission denied') || availError.message.includes('RLS')) {
+          setMessage({ type: 'error', text: 'Erreur de permissions. Les politiques RLS doivent être configurées. Contactez l\'administrateur.' });
+          return;
+        }
+        
         throw availError;
       }
 
-      // Sauvegarder préférences secteurs
-      const { error: sectorError } = await supabase
+      console.log('✅ Disponibilités sauvegardées');
+
+      // Sauvegarder préférences secteurs avec gestion des conflits
+      console.log('💾 Tentative sauvegarde secteurs...');
+      
+      // D'abord, essayer de trouver l'enregistrement existant
+      const { data: existingSector } = await supabase
         .from('user_sector_preferences')
-        .upsert({
-          user_id: userId,
-          ...sectorPrefs,
-          updated_at: new Date().toISOString()
-        });
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      let sectorError;
+      if (existingSector) {
+        // Mise à jour
+        console.log('🔄 Mise à jour secteurs existants');
+        const { error } = await supabase
+          .from('user_sector_preferences')
+          .update({
+            ...sectorPrefs,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', userId);
+        sectorError = error;
+      } else {
+        // Insertion
+        console.log('➕ Création nouveaux secteurs');
+        const { error } = await supabase
+          .from('user_sector_preferences')
+          .insert({
+            user_id: userId,
+            ...sectorPrefs,
+            updated_at: new Date().toISOString()
+          });
+        sectorError = error;
+      }
 
       if (sectorError) {
+        console.error('❌ Erreur sauvegarde secteurs:', sectorError);
+        console.error('- Code erreur:', sectorError.code);
+        console.error('- Message:', sectorError.message);
+        console.error('- Details:', sectorError.details);
+        
         // Si les tables n'existent pas, on affiche un message informatif
         if (sectorError.code === 'PGRST116' || sectorError.message.includes('does not exist')) {
           setMessage({ type: 'error', text: 'Les tables de préférences doivent être créées en base de données. Contactez l\'administrateur.' });
           return;
         }
-        console.error('Erreur sauvegarde secteurs:', sectorError);
+        
+        // Si c'est une erreur de permissions (403)
+        if (sectorError.code === 'PGRST301' || sectorError.message.includes('permission denied') || sectorError.message.includes('RLS')) {
+          setMessage({ type: 'error', text: 'Erreur de permissions. Les politiques RLS doivent être configurées. Contactez l\'administrateur.' });
+          return;
+        }
+        
         throw sectorError;
       }
 
+      console.log('✅ Secteurs sauvegardés');
       console.log('✅ Préférences sauvegardées avec succès !');
       
       // Animation de succès
@@ -274,7 +359,7 @@ export default function VolunteerPreferences({ userId }: VolunteerPreferencesPro
       }, 3000);
 
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      console.error('💥 Erreur générale sauvegarde:', error);
       setMessage({ type: 'error', text: 'Erreur lors de la sauvegarde' });
     } finally {
       setSaving(false);

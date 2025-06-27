@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Container from '@/components/Container';
 import CreateMissionForm from '@/components/admin/CreateMissionForm';
@@ -43,9 +44,15 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         <Container maxWidth="xl">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Actions Rapides</h2>
-          <p className="text-gray-600 mb-6">Générez facilement des appels à bénévoles pour les missions à pourvoir</p>
-          <div className="flex gap-4 mb-4">
+          <p className="text-gray-600 mb-6">Accédez rapidement aux fonctionnalités principales</p>
+          <div className="flex flex-wrap gap-4 mb-4">
             <CallToVolunteers missions={missionsWithVolunteers} users={users} />
+            <Link
+              href="/"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold"
+            >
+              🎯 Voir toutes les missions disponibles
+            </Link>
           </div>
         </div>
 

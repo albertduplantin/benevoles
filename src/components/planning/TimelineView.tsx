@@ -1,17 +1,20 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { User } from '@supabase/supabase-js'
 import { PlanningMission, UserProfile } from '@/lib/types'
 import MissionEditModal from '@/components/admin/MissionEditModal'
+import MissionDetailsModal from '@/components/MissionDetailsModal'
 
 interface TimelineViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
   isAdmin: boolean
+  currentUser: User
   onMissionUpdated?: () => void
 }
 
-export default function TimelineView({ missions, users, isAdmin, onMissionUpdated }: TimelineViewProps) {
+export default function TimelineView({ missions, users, isAdmin, currentUser, onMissionUpdated }: TimelineViewProps) {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [selectedMission, setSelectedMission] = useState<PlanningMission | null>(null)
 
@@ -53,6 +56,14 @@ export default function TimelineView({ missions, users, isAdmin, onMissionUpdate
   }
 
   const getMissionColor = (mission: PlanningMission) => {
+    // Vérifier si l'utilisateur actuel est inscrit à cette mission
+    const isUserRegistered = mission.volunteers.some(volunteer => volunteer.user_id === currentUser.id)
+    
+    if (isUserRegistered) {
+      // Couleur spéciale pour les missions auxquelles l'utilisateur est inscrit
+      return 'border-l-purple-500 bg-purple-50 ring-2 ring-purple-200'
+    }
+    
     const coverage = mission.inscriptions_count / mission.max_volunteers
     if (coverage >= 1) return 'border-l-green-500 bg-green-50'
     if (coverage >= 0.7) return 'border-l-yellow-500 bg-yellow-50'
@@ -106,11 +117,31 @@ export default function TimelineView({ missions, users, isAdmin, onMissionUpdate
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Légende */}
+          <div className="flex items-center gap-6 mb-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-purple-50 border-l-4 border-purple-500 ring-1 ring-purple-200"></div>
+              <span className="text-gray-600">Mes missions</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-50 border-l-4 border-green-500"></div>
+              <span className="text-gray-600">Complet</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-yellow-50 border-l-4 border-yellow-500"></div>
+              <span className="text-gray-600">Partiellement couvert</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-50 border-l-4 border-red-500"></div>
+              <span className="text-gray-600">Places disponibles</span>
+            </div>
+          </div>
+
           {selectedMissions.map((mission) => (
             <div
               key={mission.id}
-              className={`border-l-4 p-4 rounded-lg shadow-sm ${getMissionColor(mission)} ${isAdmin ? 'cursor-pointer hover:shadow-md transition-shadow relative group' : ''}`}
-              onClick={isAdmin ? () => setSelectedMission(mission) : undefined}
+              className={`border-l-4 p-4 rounded-lg shadow-sm ${getMissionColor(mission)} cursor-pointer hover:shadow-md transition-shadow relative group`}
+              onClick={() => setSelectedMission(mission)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -252,15 +283,26 @@ export default function TimelineView({ missions, users, isAdmin, onMissionUpdate
         </div>
       )}
 
-      {/* Modale d'édition */}
-      {selectedMission && (
+      {/* Modale de détails */}
+      {selectedMission && !isAdmin && (
+        <MissionDetailsModal
+          mission={selectedMission}
+          currentUser={currentUser}
+          onClose={() => setSelectedMission(null)}
+          onMissionUpdated={onMissionUpdated}
+          showVolunteerDetails={true}
+        />
+      )}
+
+      {/* Modale d'édition pour admin */}
+      {selectedMission && isAdmin && (
         <MissionEditModal
           mission={selectedMission}
           users={users}
           onClose={() => setSelectedMission(null)}
           onMissionUpdated={() => {
-            // Optionnel : rafraîchir les données si nécessaire
-            window.location.reload()
+            setSelectedMission(null)
+            onMissionUpdated?.()
           }}
         />
       )}

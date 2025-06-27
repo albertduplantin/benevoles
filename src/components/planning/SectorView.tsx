@@ -1,17 +1,20 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { User } from '@supabase/supabase-js'
 import { PlanningMission, UserProfile } from '@/lib/types'
 import MissionEditModal from '@/components/admin/MissionEditModal'
+import MissionDetailsModal from '@/components/MissionDetailsModal'
 
 interface SectorViewProps {
   missions: PlanningMission[]
   users: UserProfile[]
   isAdmin: boolean
+  currentUser: User
   onMissionUpdated?: () => void
 }
 
-export default function SectorView({ missions, users, isAdmin, onMissionUpdated }: SectorViewProps) {
+export default function SectorView({ missions, users, isAdmin, currentUser, onMissionUpdated }: SectorViewProps) {
   const [selectedMission, setSelectedMission] = useState<PlanningMission | null>(null)
   
   // Catégoriser les missions par secteur (basé sur les mots-clés du titre ou lieu)
@@ -221,8 +224,8 @@ export default function SectorView({ missions, users, isAdmin, onMissionUpdated 
                   {sectorMissions.map((mission) => (
                     <div 
                       key={mission.id} 
-                      className={`bg-white rounded-lg p-4 border border-gray-200 ${isAdmin ? 'cursor-pointer hover:shadow-md transition-shadow relative group' : ''}`}
-                      onClick={isAdmin ? () => setSelectedMission(mission) : undefined}
+                      className={`bg-white rounded-lg p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow relative group`}
+                      onClick={() => setSelectedMission(mission)}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
@@ -344,14 +347,25 @@ export default function SectorView({ missions, users, isAdmin, onMissionUpdated 
         </div>
       </div>
 
-      {/* Modale d'édition */}
-      {selectedMission && (
+      {/* Modale de détails */}
+      {selectedMission && !isAdmin && (
+        <MissionDetailsModal
+          mission={selectedMission}
+          currentUser={currentUser}
+          onClose={() => setSelectedMission(null)}
+          onMissionUpdated={onMissionUpdated}
+          showVolunteerDetails={true}
+        />
+      )}
+
+      {/* Modale d'édition pour admin */}
+      {selectedMission && isAdmin && (
         <MissionEditModal
           mission={selectedMission}
           users={users}
           onClose={() => setSelectedMission(null)}
           onMissionUpdated={() => {
-            // Rafraîchir les données sans recharger la page
+            setSelectedMission(null)
             onMissionUpdated?.()
           }}
         />

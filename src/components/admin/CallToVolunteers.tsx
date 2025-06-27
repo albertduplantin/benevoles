@@ -19,11 +19,16 @@ export default function CallToVolunteers({ missions, users }: CallToVolunteersPr
       return "Toutes les missions sont complètes ! 🎉"
     }
 
+    // Détecter l'URL de base selon l'environnement
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
     let text = "📢 Appel à Bénévoles pour le Festival du Film Court ! 🎬\n\n"
     text += "Nous avons encore besoin de vous pour faire de cette édition un succès ! Voici les missions où il reste des places :\n\n"
 
     incompleteMissions.forEach(m => {
-      const missionUrl = `${window.location.origin}/mission/${m.id}`
+      const missionUrl = `${baseUrl}/mission/${m.id}`
       const placesRestantes = m.max_volunteers - m.inscriptions_count;
       
       // Trouver le responsable de la mission
@@ -66,12 +71,15 @@ export default function CallToVolunteers({ missions, users }: CallToVolunteersPr
         }
       }
       
-      text += `   - S'inscrire ici : ${missionUrl}\n\n`
+      text += `   - 👆 S'inscrire ici : ${missionUrl}\n\n`
     })
 
-    text += "Merci pour votre aide précieuse ! ❤️"
+    text += "Merci pour votre aide précieuse ! ❤️\n\n"
+    text += "🔗 Portail bénévoles : " + baseUrl
     return text
   }
+
+
 
   const handleCopy = () => {
     const textToCopy = generateText();
@@ -106,15 +114,17 @@ export default function CallToVolunteers({ missions, users }: CallToVolunteersPr
                     onClick={handleCopy}
                     className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700"
                 >
-                    Copier le texte
+                    📋 Copier le texte
                 </button>
-                {copySuccess && <span className="text-sm text-green-600">{copySuccess}</span>}
-                <button
-                    onClick={() => setIsOpen(false)}
-                    className="px-4 py-2 font-semibold text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300"
-                >
-                    Fermer
-                </button>
+                <div className="flex items-center gap-4">
+                  {copySuccess && <span className="text-sm text-green-600">{copySuccess}</span>}
+                  <button
+                      onClick={() => setIsOpen(false)}
+                      className="px-4 py-2 font-semibold text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300"
+                  >
+                      Fermer
+                  </button>
+                </div>
             </div>
           </div>
         </div>

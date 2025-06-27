@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { User } from '@supabase/supabase-js'
 import { PlanningMission, UserProfile, PlanningView as ViewType, PlanningFilters as PlanningFiltersType, ConflictDetection, PlanningStats as PlanningStatsType } from '@/lib/types'
 import PlanningFilters from './PlanningFilters'
@@ -19,7 +20,8 @@ interface PlanningViewProps {
   isAdmin: boolean
 }
 
-export default function PlanningView({ missions, users, isAdmin }: PlanningViewProps) {
+export default function PlanningView({ missions, users, currentUser, isAdmin }: PlanningViewProps) {
+  const router = useRouter()
   const [currentView, setCurrentView] = useState<ViewType>('calendar')
   const [filters, setFilters] = useState<PlanningFiltersType>({})
   const [showStats, setShowStats] = useState(false)
@@ -33,9 +35,9 @@ export default function PlanningView({ missions, users, isAdmin }: PlanningViewP
 
   // Fonction pour rafraîchir les données
   const handleMissionUpdated = () => {
-    // Optionnel : on pourrait faire un appel API ici pour rafraîchir les données
-    // Pour l'instant, on laisse les données se rafraîchir naturellement
-    console.log('Mission mise à jour, données rafraîchies')
+    // Utiliser router.refresh() pour recharger les données serveur 
+    // sans perdre l'état du composant client
+    router.refresh()
   }
 
   // Filtrer les missions selon les critères
@@ -188,12 +190,10 @@ export default function PlanningView({ missions, users, isAdmin }: PlanningViewP
           
           {/* Boutons d'action */}
           <div className="flex gap-2">
-            {isAdmin && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm">
-                <span>✏️</span>
-                <span>Cliquez sur une mission pour l'éditer</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm">
+              <span>{isAdmin ? '✏️' : '👁️'}</span>
+              <span>Cliquez sur une mission pour {isAdmin ? 'l\'éditer' : 'voir les détails'}</span>
+            </div>
             <button
               onClick={() => setShowStats(!showStats)}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -247,7 +247,8 @@ export default function PlanningView({ missions, users, isAdmin }: PlanningViewP
           <CalendarView 
             missions={filteredMissions} 
             users={users} 
-            isAdmin={isAdmin} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
             onMissionUpdated={handleMissionUpdated}
           />
         )}
@@ -255,18 +256,26 @@ export default function PlanningView({ missions, users, isAdmin }: PlanningViewP
           <TimelineView 
             missions={filteredMissions} 
             users={users} 
-            isAdmin={isAdmin} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
             onMissionUpdated={handleMissionUpdated}
           />
         )}
         {currentView === 'volunteer' && (
-          <VolunteerView missions={filteredMissions} users={users} />
+          <VolunteerView 
+            missions={filteredMissions} 
+            users={users} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
+            onMissionUpdated={handleMissionUpdated}
+          />
         )}
         {currentView === 'sector' && (
           <SectorView 
             missions={filteredMissions} 
             users={users} 
-            isAdmin={isAdmin} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
             onMissionUpdated={handleMissionUpdated}
           />
         )}

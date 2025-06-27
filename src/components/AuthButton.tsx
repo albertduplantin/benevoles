@@ -6,13 +6,22 @@ import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
 
-export default function AuthButton({ user }: { user: User | null }) {
+export default function AuthButton({ user, onSignOut }: { user: User | null, onSignOut?: () => Promise<void> }) {
   const router = useRouter()
   const supabase = createClient()
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.refresh()
+    if (onSignOut) return onSignOut()
+    
+    try {
+      await supabase.auth.signOut()
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error)
+      // Même en cas d'erreur, on redirige vers login
+      router.push('/login')
+    }
   }
 
   return user ? (
