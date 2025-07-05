@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Container from '@/components/Container';
 import CreateMissionForm from '@/components/admin/CreateMissionForm';
+import { createMissionAction } from './actions';
 import CreateUserForm from '@/components/admin/CreateUserForm';
 import MembershipSettings from '@/components/admin/MembershipSettings';
 import MissionRow from './MissionRow';
@@ -61,7 +62,17 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
           <p className="text-gray-600 mb-6">Créez, modifiez et suivez toutes vos missions</p>
         </div>
         
-        <CreateMissionForm onMissionCreated={() => Promise.resolve().then(() => { window.location.reload(); return undefined; })} users={users} />
+        <CreateMissionForm
+          onMissionCreated={async (formData) => {
+            const result = await createMissionAction(formData);
+            // Rechargement si succès pour rafraîchir la liste
+            if (result?.toString().startsWith('Succès')) {
+              window.location.reload();
+            }
+            return result;
+          }}
+          users={users}
+        />
 
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Toutes les missions</h3>

@@ -5,6 +5,7 @@ import Container from '@/components/Container'
 import { MissionWithCounts } from '@/lib/types'
 import Link from 'next/link'
 import HomeHeader from '@/components/HomeHeader'
+import Tooltip from '@/components/Tooltip'
 
 // Version déployée avec interface modernisée et nettoyage complet - v2.1.0
 
@@ -58,14 +59,23 @@ export default async function HomePage() {
                         <h3 className={`text-xl font-bold transition-colors text-gray-900 group-hover:text-blue-600`}>
                           {mission.title}
                         </h3>
-                        <div className="flex-shrink-0 ml-2">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            mission.inscriptions_count >= mission.max_volunteers 
-                              ? 'bg-red-100 text-red-800' 
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {mission.inscriptions_count >= mission.max_volunteers ? 'Complet' : 'Disponible'}
-                          </span>
+                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                          {mission.is_urgent && (
+                            <Tooltip content="Besoin de bénévoles rapidement">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white animate-pulse">
+                                Urgent
+                              </span>
+                            </Tooltip>
+                          )}
+                          <Tooltip content={mission.inscriptions_count >= mission.max_volunteers ? 'Aucune place restante' : 'Places disponibles'}>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              mission.inscriptions_count >= mission.max_volunteers 
+                                ? 'bg-red-100 text-red-800' 
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {mission.inscriptions_count >= mission.max_volunteers ? 'Complet' : 'Disponible'}
+                            </span>
+                          </Tooltip>
                         </div>
                       </div>
                       {mission.description && (
@@ -78,20 +88,29 @@ export default async function HomePage() {
                           <span className="w-4 h-4 mr-2">📍</span>
                           <span>{mission.location}</span>
                         </div>
-                        <div className="flex items-center">
-                          <span className="w-4 h-4 mr-2">📅</span>
-                          <span>{new Date(mission.start_time).toLocaleDateString('fr-FR', { 
-                            weekday: 'long', 
-                            day: 'numeric', 
-                            month: 'long' 
-                          })}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="w-4 h-4 mr-2">⏰</span>
-                          <span>
-                            {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
+                        {mission.start_time === mission.end_time ? (
+                          <div className="flex items-center text-blue-700 font-medium">
+                            <span className="w-4 h-4 mr-2">🔄</span>
+                            <span>Mission au long cours</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center">
+                              <span className="w-4 h-4 mr-2">📅</span>
+                              <span>{new Date(mission.start_time).toLocaleDateString('fr-FR', { 
+                                weekday: 'long', 
+                                day: 'numeric', 
+                                month: 'long' 
+                              })}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="w-4 h-4 mr-2">⏰</span>
+                              <span>
+                                {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          </>
+                        )}
                       </div>
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">

@@ -54,6 +54,7 @@ export interface Database {
           location: string | null
           manager_id: string | null
           max_volunteers: number
+          is_urgent: boolean // nouveau champ
           start_time: string
           title: string
         }
@@ -65,6 +66,7 @@ export interface Database {
           location?: string | null
           manager_id?: string | null
           max_volunteers: number
+          is_urgent?: boolean
           start_time: string
           title: string
         }
@@ -76,6 +78,7 @@ export interface Database {
           location?: string | null
           manager_id?: string | null
           max_volunteers?: number
+          is_urgent?: boolean
           start_time?: string
           title?: string
         }

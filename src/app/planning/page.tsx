@@ -57,17 +57,19 @@ export default async function PlanningPage() {
     console.error('Error fetching planning data:', missionsError || usersError)
   }
 
-  // Transformer les données pour le format PlanningMission
-  const planningMissions: PlanningMission[] = missionsData?.map(mission => ({
-    ...mission,
-    inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0,
-    volunteers: mission.volunteers?.map((inscription: { user_id: string; users?: { first_name?: string; last_name?: string; phone?: string } }) => ({
-      user_id: inscription.user_id,
-      first_name: inscription.users?.first_name,
-      last_name: inscription.users?.last_name,
-      phone: inscription.users?.phone,
-    })) || []
-  })) || []
+  // Transformer les données pour le format PlanningMission et exclure les missions sans date (start_time == end_time)
+  const planningMissions: PlanningMission[] = (missionsData || [])
+    .filter(m => m.start_time !== m.end_time)
+    .map(mission => ({
+      ...mission,
+      inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0,
+      volunteers: mission.volunteers?.map((inscription: { user_id: string; users?: { first_name?: string; last_name?: string; phone?: string } }) => ({
+        user_id: inscription.user_id,
+        first_name: inscription.users?.first_name,
+        last_name: inscription.users?.last_name,
+        phone: inscription.users?.phone,
+      })) || []
+    }))
 
   const users = usersData as UserProfile[] || []
 

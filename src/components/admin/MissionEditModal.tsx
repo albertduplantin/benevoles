@@ -108,6 +108,18 @@ export default function MissionEditModal({ mission, users, onClose, onMissionUpd
 
         <form action={handleSave} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Urgent */}
+            <div className="md:col-span-2">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="is_urgent"
+                  defaultChecked={mission.is_urgent}
+                  className="h-4 w-4 text-red-600"
+                />
+                <span className="ml-2 text-sm text-red-700 font-semibold">Marquer comme Urgent</span>
+              </label>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
               <input

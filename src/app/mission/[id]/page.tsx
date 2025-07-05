@@ -67,20 +67,25 @@ export default async function MissionDetailsPage({
 
       <main className="p-8">
         <header className="pb-6 mb-6 border-b">
-          <h1 className="text-4xl font-bold">{mission.title}</h1>
+          <h1 className="text-4xl font-bold flex items-center gap-3">{mission.title} {mission.is_urgent && <span className="px-3 py-1 text-sm font-semibold bg-red-600 text-white rounded-full">Urgent</span>}</h1>
           <p className="mt-2 text-lg text-gray-600">{mission.description}</p>
           <div className="mt-4 text-gray-800">
              <p><strong>Lieu :</strong> {mission.location}</p>
-             <p>
-                <strong>Date :</strong>{' '}
-                {new Date(mission.start_time).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
-            <p>
-                <strong>Créneau :</strong>{' '}
-                de {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                {' à '}
-                {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-            </p>
+             {mission.start_time === mission.end_time ? (
+               <p className="text-blue-700 font-medium">Mission au long cours (sans date spécifique)</p>
+             ) : (
+               <>
+                 <p>
+                   <strong>Date :</strong>{' '}
+                   {new Date(mission.start_time).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                 </p>
+                 <p>
+                   <strong>Créneau :</strong>{' '}
+                   de {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}{' à '}
+                   {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                 </p>
+               </>
+             )}
           </div>
           <JoinMissionButton
             userId={user?.id}

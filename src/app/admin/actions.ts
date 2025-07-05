@@ -3,6 +3,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+// Valeur sentinelle utilisée pour identifier les missions « sans date »
+const NO_DATE_SENTINEL = '1970-01-01T00:00:00Z'
+
 
 export async function createMissionAction(formData: FormData) {
   const supabase = await createClient()
@@ -14,18 +17,20 @@ export async function createMissionAction(formData: FormData) {
   if (profile?.role !== 'admin') return "Action non autorisée."
 
   const managerId = formData.get('manager_id') as string
+  const isLongTerm = formData.get('long_term') === 'on'
   const rawData = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     location: formData.get('location') as string,
-    start_time: formData.get('start_time') as string,
-    end_time: formData.get('end_time') as string,
+    start_time: isLongTerm ? NO_DATE_SENTINEL : (formData.get('start_time') as string),
+    end_time: isLongTerm ? NO_DATE_SENTINEL : (formData.get('end_time') as string),
     max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
-    manager_id: managerId || null
+    manager_id: managerId || null,
+    is_urgent: formData.get('is_urgent') === 'on'
   }
 
   // Validation simple
-  if (!rawData.title || !rawData.start_time || !rawData.end_time || !rawData.max_volunteers) {
+  if (!rawData.title || (!isLongTerm && (!rawData.start_time || !rawData.end_time)) || !rawData.max_volunteers) {
     return "Erreur : Champs requis manquants."
   }
   
@@ -214,18 +219,20 @@ export async function updateMissionAction(missionId: number, formData: FormData)
   if (profile?.role !== 'admin') return "Action non autorisée."
 
   const managerId = formData.get('manager_id') as string
+  const isLongTermUpdate = formData.get('long_term') === 'on'
   const rawData = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     location: formData.get('location') as string,
-    start_time: formData.get('start_time') as string,
-    end_time: formData.get('end_time') as string,
+    start_time: isLongTermUpdate ? NO_DATE_SENTINEL : (formData.get('start_time') as string),
+    end_time: isLongTermUpdate ? NO_DATE_SENTINEL : (formData.get('end_time') as string),
     max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
-    manager_id: managerId || null
+    manager_id: managerId || null,
+    is_urgent: formData.get('is_urgent') === 'on'
   }
 
   // Validation simple
-  if (!rawData.title || !rawData.start_time || !rawData.end_time || !rawData.max_volunteers) {
+  if (!rawData.title || (!isLongTermUpdate && (!rawData.start_time || !rawData.end_time)) || !rawData.max_volunteers) {
     return "Erreur : Champs requis manquants."
   }
   

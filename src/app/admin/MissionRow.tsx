@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { MissionWithCounts, UserProfile } from '@/lib/types'
 import { deleteMissionAction } from './actions'
+import Tooltip from '@/components/Tooltip'
 import MissionEditModal from '@/components/admin/MissionEditModal'
 
 interface MissionRowProps {
@@ -44,33 +45,48 @@ export default function MissionRow({ mission, users, onEdit }: MissionRowProps) 
         pour éviter toute erreur d'hydratation ou de structure HTML invalide.
       */}
       <tr className="border-t">
-        <td className="px-4 py-2 font-medium">{mission.title}</td>
-        <td className="px-4 py-2">{new Date(mission.start_time).toLocaleDateString('fr-FR')}</td>
-        <td className="px-4 py-2">
-          {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-          {' - '}
-          {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+        <td className="px-4 py-2 font-medium flex items-center gap-2">
+          {mission.title}
+          {mission.is_urgent && (
+            <span className="px-2 py-0.5 text-xs font-semibold bg-red-600 text-white rounded-full">Urgent</span>
+          )}
         </td>
+        {mission.start_time === mission.end_time ? (
+          <>
+            <td className="px-4 py-2 text-blue-700 font-medium" colSpan={2}>Mission au long cours</td>
+          </>
+        ) : (
+          <>
+            <td className="px-4 py-2">{new Date(mission.start_time).toLocaleDateString('fr-FR')}</td>
+            <td className="px-4 py-2">
+              {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              {' - '}
+              {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </td>
+          </>
+        )}
         <td className="px-4 py-2 text-center">
           {mission.inscriptions_count} / {mission.max_volunteers}
         </td>
         <td className="px-4 py-2 text-center">
           <div className="flex items-center justify-center gap-2">
-            <button 
-              onClick={handleEdit} 
-              className="text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors"
-              title="Éditer la mission"
-            >
-              ✏️
-            </button>
-            <form action={handleDelete} className="inline">
+            <Tooltip content="Éditer la mission">
               <button 
-                type="submit" 
-                className="text-red-600 hover:bg-red-50 p-2 rounded transition-colors"
-                title="Supprimer la mission"
+                onClick={handleEdit} 
+                className="text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors"
               >
-                🗑️
+                ✏️
               </button>
+            </Tooltip>
+            <form action={handleDelete} className="inline">
+              <Tooltip content="Supprimer (irréversible)">
+                <button 
+                  type="submit" 
+                  className="text-red-600 hover:bg-red-50 p-2 rounded transition-colors"
+                >
+                  🗑️
+                </button>
+              </Tooltip>
             </form>
           </div>
         </td>
