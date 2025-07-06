@@ -1,15 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import type { MissionWithCounts, UserProfile } from '@/lib/types'
+import type { MissionWithCounts, UserProfile, PlanningMission } from '@/lib/types'
 import { deleteMissionAction } from './actions'
 import Tooltip from '@/components/Tooltip'
-import MissionEditModal from '@/components/admin/MissionEditModal'
+// import MissionEditModal from '@/components/admin/MissionEditModal'
 
 interface MissionRowProps {
   mission: MissionWithCounts;
   users?: UserProfile[] | null;
-  onEdit?: (planningMission: any) => void;
+  onEdit?: (planningMission: PlanningMission) => void;
 }
 
 export default function MissionRow({ mission, users, onEdit }: MissionRowProps) {
@@ -176,7 +176,7 @@ export default function MissionRow({ mission, users, onEdit }: MissionRowProps) 
                                 📞 {inscription.users.phone}
                               </a>
                             ) : (
-                              <span className="text-gray-400">Non renseigné</span>
+                              <span className="text-gray-600">Non renseigné</span>
                             )}
                           </td>
                         </tr>
@@ -186,7 +186,7 @@ export default function MissionRow({ mission, users, onEdit }: MissionRowProps) 
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {mission.inscriptions.map((inscription, index) => (
+                  {mission.inscriptions.map((inscription) => (
                     <div key={inscription.user_id} className="flex items-center p-3 bg-gray-50 rounded border">
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">

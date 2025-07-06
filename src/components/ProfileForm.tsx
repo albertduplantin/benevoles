@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import NextImage from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { UserProfile } from '@/lib/types'
 
@@ -142,9 +143,11 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
           <div className="relative">
                          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                {avatarUrl ? (
-                 <img
+                 <NextImage
                    src={avatarUrl}
                    alt="Photo de profil"
+                   width={96}
+                   height={96}
                    className="w-full h-full object-cover"
                  />
                ) : (

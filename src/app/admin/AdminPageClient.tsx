@@ -12,13 +12,14 @@ import UserRow from '@/components/admin/UserRow';
 import CallToVolunteers from '@/components/admin/CallToVolunteers';
 import MissionEditModal from '@/components/admin/MissionEditModal';
 import type { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile, PlanningMission } from '@/lib/types';
+import type { Session } from '@supabase/supabase-js';
 
 interface AdminPageClientProps {
   missions: MissionWithCounts[];
   users: UserProfile[];
   missionsWithVolunteers: MissionWithVolunteers[];
   uniqueUsers: VolunteerCompleteProfile[];
-  session: any;
+  session: Session;
 }
 
 export default function AdminPageClient({ missions, users, missionsWithVolunteers, uniqueUsers, session }: AdminPageClientProps) {
@@ -94,7 +95,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="p-4 text-center text-gray-500">
+                    <td colSpan={5} className="p-4 text-center text-gray-600">
                       Aucune mission créée pour le moment.
                     </td>
                   </tr>
@@ -141,7 +142,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
                                 // On filtre les missions où ce bénévole est inscrit
                                 const userMissions = missions
                                     ? missions.filter((mission: MissionWithCounts) =>
-                                        mission.inscriptions && mission.inscriptions.some((i: any) => i.user_id === user.id)
+                                        mission.inscriptions && mission.inscriptions.some((i) => i.user_id === user.id)
                                     )
                                     : [];
                                 return (
@@ -150,7 +151,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
                             })
                         ) : (
                             <tr>
-                                <td colSpan={7} className="p-4 text-center text-gray-500">
+                                <td colSpan={7} className="p-4 text-center text-gray-600">
                                     Aucun utilisateur trouvé.
                                 </td>
                             </tr>
