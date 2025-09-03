@@ -44,6 +44,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
   const [view, setView] = useState<'month' | 'week' | 'day' | 'work_week' | 'agenda'>('month')
   const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null)
   const [conflicts, setConflicts] = useState<Map<number, number[]>>(new Map())
+  const [userMissionIds, setUserMissionIds] = useState<Set<number>>(new Set())
   const supabase = createClient()
 
   const getViewStartDate = (date: Date, view: string): Date => {
@@ -125,7 +126,8 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         .eq('user_id', userId)
         .eq('status', 'confirmed')
 
-      const userMissionIds = new Set(userInscriptions?.map(ins => ins.mission_id) || [])
+      const newUserMissionIds = new Set(userInscriptions?.map(ins => ins.mission_id) || [])
+      setUserMissionIds(newUserMissionIds)
 
       // Convertir en événements calendrier
       const calendarEvents: CalendarEvent[] = (missions || [])
@@ -139,7 +141,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         .map(mission => {
           const start = new Date(mission.start_time)
           const end = new Date(mission.end_time)
-          const isUserMission = userMissionIds.has(mission.id)
+          const isUserMission = newUserMissionIds.has(mission.id)
 
           return {
             id: mission.id,
@@ -187,11 +189,234 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       borderColor: event.isConflict ? '#E0A800' : event.color,
       borderWidth: '1px',
       borderStyle: 'solid',
+      cursor: 'pointer', // Curseur pointer pour indiquer l'interactivité
     }
     return {
       style: style,
     }
   }, [])
+
+  const handleEventClick = (event: CalendarEvent) => {
+    // Actions selon le rôle
+    switch (userRole) {
+      case 'admin':
+        // Admin : Peut voir tous les détails et gérer
+        showMissionDetails(event.mission, 'admin')
+        break
+      case 'responsable':
+        // Responsable : Peut voir les détails et gérer ses missions
+        if (event.mission.manager_id === userId) {
+          showMissionDetails(event.mission, 'responsable')
+        } else {
+          showMissionDetails(event.mission, 'view')
+        }
+        break
+      case 'benevole':
+        // Bénévole : Peut s'inscrire/se désinscrire
+        showMissionDetails(event.mission, 'benevole')
+        break
+      default:
+        showMissionDetails(event.mission, 'view')
+    }
+  }
+
+  const showMissionDetails = (mission: any, mode: 'admin' | 'responsable' | 'benevole' | 'view') => {
+    // Créer un modal avec les détails de la mission
+    const modal = document.createElement('div')
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+    modal.innerHTML = `
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold">${mission.title}</h3>
+          <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+            ✕
+          </button>
+        </div>
+        
+        <div class="space-y-3">
+          <p><strong>Description:</strong> ${mission.description || 'Aucune description'}</p>
+          <p><strong>Lieu:</strong> ${mission.location || 'Non spécifié'}</p>
+          <p><strong>Début:</strong> ${new Date(mission.start_time).toLocaleString('fr-FR')}</p>
+          <p><strong>Fin:</strong> ${new Date(mission.end_time).toLocaleString('fr-FR')}</p>
+          <p><strong>Bénévoles max:</strong> ${mission.max_volunteers}</p>
+          ${mission.is_urgent ? '<p class="text-red-600 font-bold">⚠️ Mission urgente</p>' : ''}
+        </div>
+
+        <div class="mt-6 flex gap-2">
+          ${getActionButtons(mission, mode)}
+        </div>
+      </div>
+    `
+    
+    document.body.appendChild(modal)
+    
+    // Gérer les actions des boutons
+    modal.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (target.classList.contains('action-btn')) {
+        const action = target.dataset.action
+        const missionId = target.dataset.missionId
+        handleMissionAction(action, missionId, mission)
+      }
+    })
+  }
+
+  const getActionButtons = (mission: any, mode: string): string => {
+    switch (mode) {
+      case 'admin':
+        return `
+          <button class="action-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" 
+                  data-action="edit" data-mission-id="${mission.id}">
+            ✏️ Modifier
+          </button>
+          <button class="action-btn bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" 
+                  data-action="delete" data-mission-id="${mission.id}">
+            🗑️ Supprimer
+          </button>
+          <button class="action-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" 
+                  data-action="view-volunteers" data-mission-id="${mission.id}">
+            👥 Bénévoles
+          </button>
+        `
+      case 'responsable':
+        if (mission.manager_id === userId) {
+          return `
+            <button class="action-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" 
+                    data-action="edit" data-mission-id="${mission.id}">
+              ✏️ Modifier
+            </button>
+            <button class="action-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" 
+                    data-action="view-volunteers" data-mission-id="${mission.id}">
+              👥 Bénévoles
+            </button>
+          `
+        } else {
+          return `
+            <button class="action-btn bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" 
+                    data-action="view-only" data-mission-id="${mission.id}">
+              👁️ Voir seulement
+            </button>
+          `
+        }
+      case 'benevole':
+        // Vérifier si l'utilisateur est inscrit à cette mission
+        const isUserMission = userMissionIds.has(mission.id)
+        if (isUserMission) {
+          return `
+            <button class="action-btn bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" 
+                    data-action="unregister" data-mission-id="${mission.id}">
+              ❌ Se désinscrire
+            </button>
+          `
+        } else {
+          return `
+            <button class="action-btn bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" 
+                    data-action="register" data-mission-id="${mission.id}">
+              ✅ S'inscrire
+            </button>
+          `
+        }
+      default:
+        return `
+          <button class="action-btn bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" 
+                  data-action="view-only" data-mission-id="${mission.id}">
+            👁️ Voir seulement
+          </button>
+        `
+    }
+  }
+
+  const handleMissionAction = async (action: string, missionId: string, mission: any) => {
+    try {
+      switch (action) {
+        case 'register':
+          await registerToMission(parseInt(missionId))
+          break
+        case 'unregister':
+          await unregisterFromMission(parseInt(missionId))
+          break
+        case 'edit':
+          // Rediriger vers la page d'édition
+          window.location.href = `/admin?edit=${missionId}`
+          break
+        case 'delete':
+          if (confirm('Êtes-vous sûr de vouloir supprimer cette mission ?')) {
+            await deleteMission(parseInt(missionId))
+          }
+          break
+        case 'view-volunteers':
+          await showVolunteersList(parseInt(missionId))
+          break
+        case 'view-only':
+          // Fermer le modal
+          document.querySelector('.fixed')?.remove()
+          break
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'action:', error)
+      alert('Une erreur est survenue. Veuillez réessayer.')
+    }
+  }
+
+  const registerToMission = async (missionId: number) => {
+    const { error } = await supabase
+      .from('inscriptions')
+      .insert({
+        mission_id: missionId,
+        user_id: userId,
+        status: 'confirmed'
+      })
+    
+    if (error) throw error
+    
+    alert('Inscription réussie !')
+    loadMissions() // Recharger les missions
+    document.querySelector('.fixed')?.remove() // Fermer le modal
+  }
+
+  const unregisterFromMission = async (missionId: number) => {
+    const { error } = await supabase
+      .from('inscriptions')
+      .delete()
+      .eq('mission_id', missionId)
+      .eq('user_id', userId)
+    
+    if (error) throw error
+    
+    alert('Désinscription réussie !')
+    loadMissions() // Recharger les missions
+    document.querySelector('.fixed')?.remove() // Fermer le modal
+  }
+
+  const deleteMission = async (missionId: number) => {
+    const { error } = await supabase
+      .from('missions')
+      .delete()
+      .eq('id', missionId)
+    
+    if (error) throw error
+    
+    alert('Mission supprimée !')
+    loadMissions() // Recharger les missions
+    document.querySelector('.fixed')?.remove() // Fermer le modal
+  }
+
+  const showVolunteersList = async (missionId: number) => {
+    const { data: volunteers } = await supabase
+      .from('inscriptions')
+      .select(`
+        *,
+        users(first_name, last_name, email, phone)
+      `)
+      .eq('mission_id', missionId)
+      .eq('status', 'confirmed')
+    
+    const volunteersList = volunteers?.map(v => 
+      `${v.users?.first_name} ${v.users?.last_name} (${v.users?.email})`
+    ).join('\n') || 'Aucun bénévole inscrit'
+    
+    alert(`Bénévoles inscrits:\n\n${volunteersList}`)
+  }
 
   const detectConflicts = (events: CalendarEvent[]): CalendarEvent[] => {
     const eventsWithConflicts = [...events]
@@ -662,6 +887,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
             date={currentDate}
             onNavigate={setCurrentDate}
             onView={handleViewChange}
+            onSelectEvent={handleEventClick}
             messages={{
               next: 'Suivant',
               previous: 'Précédent',
