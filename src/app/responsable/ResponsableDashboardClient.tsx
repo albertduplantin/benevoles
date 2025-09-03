@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { MissionWithCounts, UserProfile } from '@/lib/types'
+import { MissionWithCounts } from '@/lib/types'
 import WelcomeMessage from '@/components/WelcomeMessage'
 import SendNotification from '@/components/SendNotification'
 import AdminExportData from '@/components/AdminExportData'
@@ -62,7 +62,7 @@ export default function ResponsableDashboardClient({
   return (
     <div className="space-y-8">
       {/* Message de bienvenue */}
-      <WelcomeMessage user={{ id: userId } as any} page="responsable" />
+      <WelcomeMessage user={{ id: userId } as { id: string }} page="responsable" />
 
       {/* Statistiques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

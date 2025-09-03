@@ -10,11 +10,11 @@ interface ContactVolunteersProps {
   volunteers: Array<{
     user_id: string
     users: {
-      first_name: string
-      last_name: string
-      phone?: string
-      email?: string
-    }
+      first_name: string | null
+      last_name: string | null
+      phone?: string | null
+      email?: string | null
+    } | null
   }>
   userRole?: string
 }
@@ -79,7 +79,7 @@ export default function ContactVolunteers({ missionId, missionTitle, volunteers,
       if (form.contactMethod === 'email' || form.contactMethod === 'both') {
         // Ici, vous pourriez intégrer un service d'email comme SendGrid, Resend, etc.
         // Pour l'instant, on simule l'envoi d'emails
-        console.log('Envoi d\'emails aux bénévoles:', volunteers.map(v => v.users.email))
+        console.log('Envoi d\'emails aux bénévoles:', volunteers.map(v => v.users?.email).filter(Boolean))
         alert('Fonctionnalité d\'envoi d\'emails à implémenter')
       }
 
@@ -191,8 +191,8 @@ export default function ContactVolunteers({ missionId, missionTitle, volunteers,
               <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2">
                 {volunteers.map((volunteer, index) => (
                   <div key={volunteer.user_id} className="text-sm text-gray-600 py-1">
-                    {index + 1}. {volunteer.users.first_name} {volunteer.users.last_name}
-                    {volunteer.users.phone && ` (${volunteer.users.phone})`}
+                    {index + 1}. {volunteer.users?.first_name || 'N/A'} {volunteer.users?.last_name || 'N/A'}
+                    {volunteer.users?.phone && ` (${volunteer.users.phone})`}
                   </div>
                 ))}
               </div>
