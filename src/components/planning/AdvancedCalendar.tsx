@@ -124,7 +124,6 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         .from('inscriptions')
         .select('mission_id')
         .eq('user_id', userId)
-        .eq('status', 'confirmed')
 
       const newUserMissionIds = new Set(userInscriptions?.map(ins => ins.mission_id) || [])
       setUserMissionIds(newUserMissionIds)
@@ -365,8 +364,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       .from('inscriptions')
       .insert({
         mission_id: missionId,
-        user_id: userId,
-        status: 'confirmed'
+        user_id: userId
       })
     
     if (error) throw error
@@ -411,7 +409,6 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         users(first_name, last_name, email, phone)
       `)
       .eq('mission_id', missionId)
-      .eq('status', 'confirmed')
     
     const volunteersList = volunteers?.map(v => 
       `${v.users?.first_name} ${v.users?.last_name} (${v.users?.email})`
