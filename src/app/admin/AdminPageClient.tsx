@@ -15,7 +15,7 @@ import UserRow from '@/components/admin/UserRow';
 import CallToVolunteers from '@/components/admin/CallToVolunteers';
 import MissionEditModal from '@/components/admin/MissionEditModal';
 import SendNotification from '@/components/SendNotification';
-import type { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types';
+import type { Mission, MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types';
 import type { Session } from '@supabase/supabase-js';
 
 interface AdminPageClientProps {
