@@ -8,7 +8,7 @@ import Tooltip from '@/components/Tooltip'
 import { SkeletonCard } from '@/components/ui/Skeleton'
 import { CardSpinner } from '@/components/ui/Spinner'
 import SearchAndFilters from '@/components/SearchAndFilters'
-import ExportData from '@/components/ExportData'
+import AdminExportData from '@/components/AdminExportData'
 
 interface MissionsListProps {
   initialMissions: Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }> | null
@@ -100,7 +100,7 @@ export default function MissionsList({ initialMissions, userId, userRole }: Miss
     <>
       {/* Composant d'export de données (pour admins et responsables) */}
       {(userRole === 'admin' || userRole === 'responsable') && (
-        <ExportData 
+        <AdminExportData 
           missions={missions}
           userRole={userRole}
         />
