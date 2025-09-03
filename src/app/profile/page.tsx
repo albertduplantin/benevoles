@@ -51,7 +51,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen">
-      <Header user={user} title="Mon Profil" />
+      <Header user={user} title="Mon Profil" userRole={userProfile?.role} />
       <WelcomeMessage user={user} page="profile" />
       
       <main className="py-8">

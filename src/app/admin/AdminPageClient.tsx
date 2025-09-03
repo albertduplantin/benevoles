@@ -14,6 +14,7 @@ import MissionRow from './MissionRow';
 import UserRow from '@/components/admin/UserRow';
 import CallToVolunteers from '@/components/admin/CallToVolunteers';
 import MissionEditModal from '@/components/admin/MissionEditModal';
+import SendNotification from '@/components/SendNotification';
 import type { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile, PlanningMission } from '@/lib/types';
 import type { Session } from '@supabase/supabase-js';
 
@@ -45,7 +46,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
 
   return (
     <div className="min-h-screen">
-      <Header user={session.user} title="Tableau de bord Administrateur" showBackToSite={true} />
+      <Header user={session.user} title="Tableau de bord Administrateur" showBackToSite={true} userRole="admin" />
       <WelcomeMessage user={session.user} page="admin" />
       <main className="py-8">
         <Container maxWidth="xl">
@@ -54,6 +55,10 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
           <p className="text-gray-600 mb-6">🚀 Accédez rapidement aux fonctionnalités principales</p>
           <div className="flex flex-wrap gap-4 mb-4">
             <CallToVolunteers missions={missionsWithVolunteers} users={users} />
+            <SendNotification 
+              missions={missions}
+              userRole="admin"
+            />
             <Link
               href="/"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-semibold"

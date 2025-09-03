@@ -8,15 +8,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import NotificationCenter from './NotificationCenter'
 
 interface HeaderProps {
   user: User | null;
   title?: string;
   showBackToSite?: boolean;
   isAdmin?: boolean;
+  userRole?: string;
 }
 
-export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false, isAdmin = false }: HeaderProps) {
+export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false, isAdmin = false, userRole }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -108,6 +110,14 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
               )}
               
               <div className="flex items-center space-x-3">
+                {/* Centre de notifications */}
+                {user && (
+                  <NotificationCenter 
+                    userRole={userRole}
+                    userId={user.id}
+                  />
+                )}
+                
                 {/* Menu burger mobile */}
                 {user && (
                   <button

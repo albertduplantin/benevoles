@@ -76,7 +76,7 @@ export default async function PlanningPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header user={session.user} title="Planning Global" />
+      <Header user={session.user} title="Planning Global" userRole={userProfile?.role} />
       <WelcomeMessage user={session.user} page="planning" />
       
       <main className="py-6">

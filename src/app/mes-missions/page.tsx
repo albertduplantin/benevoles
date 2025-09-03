@@ -72,7 +72,7 @@ export default async function PersonalMissionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header user={user} title="Mes Missions" />
+      <Header user={user} title="Mes Missions" userRole={userProfile?.role} />
       <WelcomeMessage user={user} page="missions" />
       
       <main className="py-6">
