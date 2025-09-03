@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Header from '@/components/Header'
 import Container from '@/components/Container'
 import PlanningView from '@/components/planning/PlanningView'
+import AdvancedCalendar from '@/components/planning/AdvancedCalendar'
 import WelcomeMessage from '@/components/WelcomeMessage'
 import { PlanningMission, UserProfile } from '@/lib/types'
 

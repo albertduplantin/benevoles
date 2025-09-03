@@ -10,6 +10,7 @@ import VolunteerPreferencesView from '@/components/admin/VolunteerPreferencesVie
 import { createMissionActionSafe } from './actions-safe'
 import { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types'
 import AdminPageClient from './AdminPageClient'
+import MissionTemplateManager from '@/components/admin/MissionTemplateManager'
 
 export default async function AdminPage() {
   const supabase = await createClient()

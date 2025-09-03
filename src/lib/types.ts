@@ -458,6 +458,159 @@ export interface GamificationDashboard {
   recent_notifications: GamificationNotification[];
   leaderboard: LeaderboardEntry[];
 }
+
+// =====================================================
+// TYPES POUR LES FONCTIONNALITÉS AVANCÉES
+// =====================================================
+
+export interface MissionTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  location: string;
+  required_volunteers: number;
+  duration_hours: number;
+  skills_required: string[];
+  equipment_needed: string[];
+  instructions?: string;
+  is_urgent: boolean;
+  category: string;
+  created_at: string;
+  created_by?: string;
+  usage_count: number;
+  is_active: boolean;
+}
+
+export interface UserPattern {
+  id: number;
+  user_id: string;
+  preferred_times: string[];
+  preferred_locations: string[];
+  preferred_categories: string[];
+  average_availability: number;
+  response_rate: number;
+  mission_completion_rate: number;
+  last_updated: string;
+}
+
+export interface AISuggestion {
+  id: number;
+  user_id: string;
+  type: 'mission_recommendation' | 'availability_prediction' | 'conflict_warning' | 'optimization_tip';
+  title: string;
+  description?: string;
+  confidence: number;
+  priority: 'low' | 'medium' | 'high';
+  action?: string;
+  data?: any;
+  is_read: boolean;
+  created_at: string;
+  expires_at?: string;
+}
+
+export interface PlanningConflict {
+  id: number;
+  user_id: string;
+  mission1_id: number;
+  mission2_id: number;
+  conflict_type: 'time_overlap' | 'location_conflict' | 'capacity_exceeded';
+  severity: 'low' | 'medium' | 'high';
+  description?: string;
+  is_resolved: boolean;
+  resolved_at?: string;
+  created_at: string;
+  // Relations
+  mission1?: Mission;
+  mission2?: Mission;
+}
+
+export interface UserFavorite {
+  id: number;
+  user_id: string;
+  mission_id: number;
+  created_at: string;
+  // Relations
+  mission?: Mission;
+}
+
+export interface MissionTag {
+  id: number;
+  name: string;
+  color: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface MissionTagRelation {
+  id: number;
+  mission_id: number;
+  tag_id: number;
+  created_at: string;
+  // Relations
+  tag?: MissionTag;
+}
+
+export interface MissionComment {
+  id: number;
+  mission_id: number;
+  user_id: string;
+  comment: string;
+  is_internal: boolean;
+  created_at: string;
+  updated_at: string;
+  // Relations
+  user?: UserProfile;
+  mission?: Mission;
+}
+
+export interface EmailNotification {
+  id: number;
+  user_id: string;
+  type: 'mission_reminder' | 'new_mission' | 'conflict_warning' | 'achievement';
+  subject: string;
+  content: string;
+  status: 'pending' | 'sent' | 'failed';
+  sent_at?: string;
+  error_message?: string;
+  created_at: string;
+}
+
+export interface UserLevel {
+  id: number;
+  user_id: string;
+  level: number;
+  experience_points: number;
+  level_name: string;
+  badge_color: string;
+  benefits: any;
+  achieved_at: string;
+}
+
+// Types pour les composants avancés
+export interface CalendarEvent {
+  id: number;
+  title: string;
+  start: Date;
+  end: Date;
+  mission: Mission;
+  isConflict: boolean;
+  isUserMission: boolean;
+  color: string;
+}
+
+export interface CreateTemplateForm {
+  name: string;
+  description: string;
+  location: string;
+  required_volunteers: number;
+  duration_hours: number;
+  skills_required: string;
+  equipment_needed: string;
+  instructions: string;
+  is_urgent: boolean;
+  category: string;
+}
 export type Inscription = Database['public']['Tables']['inscriptions']['Row'];
 export type MembershipSetting = Database['public']['Tables']['membership_settings']['Row'];
 export type MembershipPayment = Database['public']['Tables']['membership_payments']['Row'];
