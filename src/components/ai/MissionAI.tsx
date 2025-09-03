@@ -26,11 +26,11 @@ interface UserPattern {
 }
 
 interface AIDashboardProps {
-  user: UserProfile
+  userId: string
   userRole: string
 }
 
-export default function MissionAI({ user, userRole }: AIDashboardProps) {
+export default function MissionAI({ userId, userRole }: AIDashboardProps) {
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([])
   const [userPattern, setUserPattern] = useState<UserPattern | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -72,7 +72,7 @@ export default function MissionAI({ user, userRole }: AIDashboardProps) {
           *,
           mission:missions(*)
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('status', 'confirmed')
 
       if (missionsError) {
@@ -83,7 +83,7 @@ export default function MissionAI({ user, userRole }: AIDashboardProps) {
       const { data: preferences, error: prefsError } = await supabase
         .from('user_preferences')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single()
 
       if (prefsError) {
@@ -94,7 +94,7 @@ export default function MissionAI({ user, userRole }: AIDashboardProps) {
       const { data: availabilities, error: availError } = await supabase
         .from('user_availability')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
 
       if (availError) {
         console.warn('Erreur lors du chargement des disponibilités:', availError)

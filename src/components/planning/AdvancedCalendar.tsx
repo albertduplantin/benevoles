@@ -6,7 +6,7 @@ import { Mission, UserProfile } from '@/lib/types'
 import { ButtonSpinner } from '@/components/ui/Spinner'
 
 interface AdvancedCalendarProps {
-  user: UserProfile
+  userId: string
   userRole: string
   onMissionUpdate?: () => void
 }
@@ -22,7 +22,7 @@ interface CalendarEvent {
   color: string
 }
 
-export default function AdvancedCalendar({ user, userRole, onMissionUpdate }: AdvancedCalendarProps) {
+export default function AdvancedCalendar({ userId, userRole, onMissionUpdate }: AdvancedCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -61,7 +61,7 @@ export default function AdvancedCalendar({ user, userRole, onMissionUpdate }: Ad
         const start = new Date(`${mission.date}T${mission.start_time}`)
         const end = new Date(`${mission.date}T${mission.end_time}`)
         const isUserMission = mission.inscriptions?.some((inscription: any) => 
-          inscription.user_id === user.id && inscription.status === 'confirmed'
+          inscription.user_id === userId && inscription.status === 'confirmed'
         ) || false
 
         return {

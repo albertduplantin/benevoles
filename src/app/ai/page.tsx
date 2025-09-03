@@ -37,7 +37,7 @@ export default async function AIPage() {
           </div>
 
           <MissionAI
-            user={userProfile}
+            userId={session.user.id}
             userRole={userProfile.role}
           />
         </Container>

@@ -37,7 +37,7 @@ export default async function CalendarPage() {
           </div>
 
           <AdvancedCalendar
-            user={userProfile}
+            userId={session.user.id}
             userRole={userProfile.role}
             onMissionUpdate={() => {
               // Cette fonction sera appelée après une mise à jour de mission
