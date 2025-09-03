@@ -23,16 +23,18 @@ export default function MissionRow({ mission, users, onEdit }: MissionRowProps) 
 
   const handleEdit = () => {
     if (onEdit) {
-      const planningMission = {
+      const missionWithVolunteers = {
         ...mission,
-        volunteers: mission.inscriptions?.map(inscription => ({
+        inscriptions: mission.inscriptions?.map(inscription => ({
           user_id: inscription.user_id,
-          first_name: inscription.users?.first_name ?? null,
-          last_name: inscription.users?.last_name ?? null,
-          phone: inscription.users?.phone ?? null,
+          users: {
+            first_name: inscription.users?.first_name ?? null,
+            last_name: inscription.users?.last_name ?? null,
+            phone: inscription.users?.phone ?? null,
+          }
         })) || []
       }
-      onEdit(planningMission)
+      onEdit(missionWithVolunteers)
     }
   }
 
