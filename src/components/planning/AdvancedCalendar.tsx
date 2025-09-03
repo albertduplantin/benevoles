@@ -106,10 +106,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       // Charger les missions dans la plage de dates
       const { data: missions, error } = await supabase
         .from('missions')
-        .select(`
-          *,
-          inscriptions(user_id, status)
-        `)
+        .select('*')
         .gte('start_time', startDate.toISOString())
         .lte('start_time', endDate.toISOString())
         .order('start_time', { ascending: true })
@@ -120,6 +117,15 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       }
 
 
+
+      // Charger les inscriptions de l'utilisateur séparément
+      const { data: userInscriptions } = await supabase
+        .from('inscriptions')
+        .select('mission_id')
+        .eq('user_id', userId)
+        .eq('status', 'confirmed')
+
+      const userMissionIds = new Set(userInscriptions?.map(ins => ins.mission_id) || [])
 
       // Convertir en événements calendrier
       const calendarEvents: CalendarEvent[] = (missions || [])
@@ -133,9 +139,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         .map(mission => {
           const start = new Date(mission.start_time)
           const end = new Date(mission.end_time)
-          const isUserMission = mission.inscriptions?.some((inscription: any) => 
-            inscription.user_id === userId && inscription.status === 'confirmed'
-          ) || false
+          const isUserMission = userMissionIds.has(mission.id)
 
           return {
             id: mission.id,
