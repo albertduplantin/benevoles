@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { MissionWithCounts, UserProfile, Mission } from '@/lib/types'
+import type { MissionWithCounts, UserProfile, MissionWithVolunteers } from '@/lib/types'
 import { deleteMissionAction } from './actions'
 import Tooltip from '@/components/Tooltip'
 // import MissionEditModal from '@/components/admin/MissionEditModal'
@@ -9,7 +9,7 @@ import Tooltip from '@/components/Tooltip'
 interface MissionRowProps {
   mission: MissionWithCounts;
   users?: UserProfile[] | null;
-  onEdit?: (mission: Mission) => void;
+  onEdit?: (mission: MissionWithVolunteers) => void;
 }
 
 export default function MissionRow({ mission, users, onEdit }: MissionRowProps) {

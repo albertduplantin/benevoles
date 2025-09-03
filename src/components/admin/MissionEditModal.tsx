@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import type { Mission, UserProfile } from '@/lib/types'
+import type { MissionWithVolunteers, UserProfile } from '@/lib/types'
 import { updateMissionAction } from '@/app/admin/actions'
 
 interface MissionEditModalProps {
-  mission: Mission
+  mission: MissionWithVolunteers
   users: UserProfile[]
   onClose: () => void
   onMissionUpdated?: () => void

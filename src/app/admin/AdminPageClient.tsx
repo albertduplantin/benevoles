@@ -15,7 +15,7 @@ import UserRow from '@/components/admin/UserRow';
 import CallToVolunteers from '@/components/admin/CallToVolunteers';
 import MissionEditModal from '@/components/admin/MissionEditModal';
 import SendNotification from '@/components/SendNotification';
-import type { Mission, MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types';
+import type { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types';
 import type { Session } from '@supabase/supabase-js';
 
 interface AdminPageClientProps {
@@ -27,18 +27,19 @@ interface AdminPageClientProps {
 }
 
 export default function AdminPageClient({ missions, users, missionsWithVolunteers, uniqueUsers, session }: AdminPageClientProps) {
-  const [editingMission, setEditingMission] = useState<Mission | null>(null);
+  const [editingMission, setEditingMission] = useState<MissionWithVolunteers | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Fonction pour transformer MissionWithCounts en Mission
+  // Fonction pour transformer MissionWithCounts en MissionWithVolunteers
   const handleEditMission = (mission: MissionWithCounts) => {
-    const missionData: Mission = {
+    const missionData: MissionWithVolunteers = {
       ...mission,
-      volunteers: mission.inscriptions?.map(inscription => ({
+      inscriptions: mission.inscriptions?.map(inscription => ({
         user_id: inscription.user_id,
-        first_name: inscription.users?.first_name ?? null,
-        last_name: inscription.users?.last_name ?? null,
-        phone: inscription.users?.phone ?? null,
+        users: {
+          first_name: inscription.users?.first_name ?? null,
+          last_name: inscription.users?.last_name ?? null,
+        }
       })) || []
     };
     setEditingMission(missionData);
