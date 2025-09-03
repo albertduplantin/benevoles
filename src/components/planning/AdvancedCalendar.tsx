@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Calendar, dateFnsLocalizer, Event } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, addHours, addMinutes } from 'date-fns'
-import fr from 'date-fns/locale/fr'
+import { fr } from 'date-fns/locale/fr'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { createClient } from '@/lib/supabase/client'
 import { Mission, UserProfile } from '@/lib/types'
