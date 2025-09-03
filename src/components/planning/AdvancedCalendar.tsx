@@ -92,6 +92,13 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       const startDate = getViewStartDate(currentDate, view)
       const endDate = getViewEndDate(currentDate, view)
 
+      console.log('🔍 Chargement missions:', {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        view,
+        currentDate: currentDate.toISOString()
+      })
+
       // Charger les missions dans la plage de dates
       const { data: missions, error } = await supabase
         .from('missions')
@@ -99,35 +106,50 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
           *,
           inscriptions(user_id, status)
         `)
-        .gte('date', startDate.toISOString().split('T')[0])
-        .lte('date', endDate.toISOString().split('T')[0])
-        .order('date', { ascending: true })
+        .gte('start_time', startDate.toISOString())
+        .lte('start_time', endDate.toISOString())
+        .order('start_time', { ascending: true })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Erreur Supabase:', error)
+        throw error
+      }
 
-      // Convertir en événements calendrier
-      const calendarEvents: CalendarEvent[] = (missions || []).map(mission => {
-        const start = new Date(`${mission.date}T${mission.start_time}`)
-        const end = new Date(`${mission.date}T${mission.end_time}`)
-        const isUserMission = mission.inscriptions?.some((inscription: any) => 
-          inscription.user_id === userId && inscription.status === 'confirmed'
-        ) || false
+      console.log('📅 Missions trouvées:', missions?.length || 0, missions)
 
-        return {
-          id: mission.id,
-          title: mission.title,
-          start,
-          end,
-          mission,
-          isConflict: false,
-          isUserMission,
-          color: getMissionColor(mission, isUserMission)
-        }
-      })
+      // Convertir en événements calendrier (filtrer les missions sans date valide)
+      const calendarEvents: CalendarEvent[] = (missions || [])
+        .filter(mission => {
+          // Filtrer les missions avec des timestamps valides
+          const start = new Date(mission.start_time)
+          const end = new Date(mission.end_time)
+          return !isNaN(start.getTime()) && !isNaN(end.getTime()) && 
+                 mission.start_time !== '1970-01-01T00:00:00Z'
+        })
+        .map(mission => {
+          const start = new Date(mission.start_time)
+          const end = new Date(mission.end_time)
+          const isUserMission = mission.inscriptions?.some((inscription: any) => 
+            inscription.user_id === userId && inscription.status === 'confirmed'
+          ) || false
+
+          return {
+            id: mission.id,
+            title: mission.title,
+            start,
+            end,
+            mission,
+            isConflict: false,
+            isUserMission,
+            color: getMissionColor(mission, isUserMission)
+          }
+        })
 
       // Détecter les conflits
       const eventsWithConflicts = detectConflicts(calendarEvents)
       setEvents(eventsWithConflicts)
+      
+      console.log('📊 Événements calendrier créés:', eventsWithConflicts.length, eventsWithConflicts)
       
       // Calculer les conflits pour l'affichage
       calculateConflicts(eventsWithConflicts)
@@ -620,6 +642,10 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
             startAccessor="start"
             endAccessor="end"
             style={{ height: '100%' }}
+            view={view}
+            date={currentDate}
+            onNavigate={setCurrentDate}
+            onView={setView}
             messages={{
               next: 'Suivant',
               previous: 'Précédent',
