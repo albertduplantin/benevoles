@@ -228,6 +228,106 @@ export interface Database {
 // Nos types personnalisés pour l'application
 export type Mission = Database['public']['Tables']['missions']['Row'];
 export type UserProfile = Database['public']['Tables']['users']['Row'];
+
+// =====================================================
+// TYPES POUR LE SYSTÈME DE CHAT
+// =====================================================
+
+export interface ChatRoom {
+  id: number;
+  name: string;
+  description?: string;
+  type: 'mission' | 'global' | 'admin' | 'responsable';
+  mission_id?: number;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
+}
+
+export interface ChatMessage {
+  id: number;
+  room_id: number;
+  user_id: string;
+  message: string;
+  message_type: 'text' | 'image' | 'file' | 'system';
+  file_url?: string;
+  file_name?: string;
+  file_size?: number;
+  reply_to_id?: number;
+  is_edited: boolean;
+  edited_at?: string;
+  created_at: string;
+  updated_at: string;
+  // Relations
+  user?: UserProfile;
+  reply_to?: ChatMessage;
+  reactions?: ChatReaction[];
+  is_pinned?: boolean;
+}
+
+export interface ChatParticipant {
+  id: number;
+  room_id: number;
+  user_id: string;
+  role: 'admin' | 'moderator' | 'member';
+  joined_at: string;
+  last_read_at: string;
+  is_muted: boolean;
+  // Relations
+  user?: UserProfile;
+}
+
+export interface ChatReaction {
+  id: number;
+  message_id: number;
+  user_id: string;
+  emoji: string;
+  created_at: string;
+  // Relations
+  user?: UserProfile;
+}
+
+export interface ChatPinnedMessage {
+  id: number;
+  message_id: number;
+  pinned_by: string;
+  pinned_at: string;
+  // Relations
+  message?: ChatMessage;
+  pinned_by_user?: UserProfile;
+}
+
+// Types pour les composants
+export interface ChatRoomWithDetails extends ChatRoom {
+  participants: ChatParticipant[];
+  last_message?: ChatMessage;
+  unread_count: number;
+  mission?: Mission;
+}
+
+export interface ChatMessageWithDetails extends ChatMessage {
+  user: UserProfile;
+  reply_to?: ChatMessageWithDetails;
+  reactions: ChatReaction[];
+  is_pinned: boolean;
+}
+
+// Types pour les formulaires
+export interface SendMessageForm {
+  message: string;
+  message_type: 'text' | 'image' | 'file';
+  file?: File;
+  reply_to_id?: number;
+}
+
+export interface CreateRoomForm {
+  name: string;
+  description?: string;
+  type: 'mission' | 'global' | 'admin' | 'responsable';
+  mission_id?: number;
+  participant_ids: string[];
+}
 export type Inscription = Database['public']['Tables']['inscriptions']['Row'];
 export type MembershipSetting = Database['public']['Tables']['membership_settings']['Row'];
 export type MembershipPayment = Database['public']['Tables']['membership_payments']['Row'];
