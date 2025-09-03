@@ -130,6 +130,7 @@ export default function SearchAndFilters({ missions, onFilteredMissions }: Searc
     const locations = missions
       .map(m => m.location)
       .filter((location, index, self) => location && self.indexOf(location) === index)
+      .filter((location): location is string => location !== null)
     return locations.sort()
   }
 
