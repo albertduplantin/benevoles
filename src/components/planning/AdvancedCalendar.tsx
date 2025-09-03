@@ -48,7 +48,7 @@ export default function AdvancedCalendar({ user, userRole, onMissionUpdate }: Ad
         .from('missions')
         .select(`
           *,
-          inscriptions!inner(user_id, status)
+          inscriptions(user_id, status)
         `)
         .gte('date', startDate.toISOString().split('T')[0])
         .lte('date', endDate.toISOString().split('T')[0])
@@ -60,9 +60,9 @@ export default function AdvancedCalendar({ user, userRole, onMissionUpdate }: Ad
       const calendarEvents: CalendarEvent[] = (missions || []).map(mission => {
         const start = new Date(`${mission.date}T${mission.start_time}`)
         const end = new Date(`${mission.date}T${mission.end_time}`)
-        const isUserMission = mission.inscriptions.some((inscription: any) => 
+        const isUserMission = mission.inscriptions?.some((inscription: any) => 
           inscription.user_id === user.id && inscription.status === 'confirmed'
-        )
+        ) || false
 
         return {
           id: mission.id,

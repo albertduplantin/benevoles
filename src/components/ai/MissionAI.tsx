@@ -64,33 +64,54 @@ export default function MissionAI({ user, userRole }: AIDashboardProps) {
   }
 
   const loadUserData = async () => {
-    // Charger l'historique des missions de l'utilisateur
-    const { data: userMissions } = await supabase
-      .from('inscriptions')
-      .select(`
-        *,
-        mission:missions(*)
-      `)
-      .eq('user_id', user.id)
-      .eq('status', 'confirmed')
+    try {
+      // Charger l'historique des missions de l'utilisateur
+      const { data: userMissions, error: missionsError } = await supabase
+        .from('inscriptions')
+        .select(`
+          *,
+          mission:missions(*)
+        `)
+        .eq('user_id', user.id)
+        .eq('status', 'confirmed')
 
-    // Charger les préférences utilisateur
-    const { data: preferences } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+      if (missionsError) {
+        console.warn('Erreur lors du chargement des missions utilisateur:', missionsError)
+      }
 
-    // Charger les disponibilités
-    const { data: availabilities } = await supabase
-      .from('user_availability')
-      .select('*')
-      .eq('user_id', user.id)
+      // Charger les préférences utilisateur
+      const { data: preferences, error: prefsError } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
 
-    return {
-      missions: userMissions || [],
-      preferences: preferences || {},
-      availabilities: availabilities || []
+      if (prefsError) {
+        console.warn('Erreur lors du chargement des préférences:', prefsError)
+      }
+
+      // Charger les disponibilités
+      const { data: availabilities, error: availError } = await supabase
+        .from('user_availability')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (availError) {
+        console.warn('Erreur lors du chargement des disponibilités:', availError)
+      }
+
+      return {
+        missions: userMissions || [],
+        preferences: preferences || {},
+        availabilities: availabilities || []
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des données utilisateur:', error)
+      return {
+        missions: [],
+        preferences: {},
+        availabilities: []
+      }
     }
   }
 
