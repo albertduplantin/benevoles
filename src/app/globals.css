@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Force le thème clair pour tous les champs de saisie */
+input, textarea, select {
+  color-scheme: light !important;
+}
+
+/* S'assurer que les champs ont un fond blanc et un texte sombre */
+input:not([type="checkbox"]):not([type="radio"]), 
+textarea, 
+select {
+  background-color: white !important;
+  color: #111827 !important;
+}
+
+/* Pour les champs de type date et datetime-local */
+input[type="date"], 
+input[type="datetime-local"], 
+input[type="time"] {
+  background-color: white !important;
+  color: #111827 !important;
+}
