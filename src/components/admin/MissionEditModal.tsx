@@ -14,7 +14,7 @@ interface MissionEditModalProps {
 export default function MissionEditModal({ mission, users, onClose, onMissionUpdated }: MissionEditModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
-  const [volunteers, setVolunteers] = useState(mission.volunteers)
+  const [volunteers, setVolunteers] = useState(mission.inscriptions || [])
   const [search, setSearch] = useState('')
   const [searchResult, setSearchResult] = useState<UserProfile[]>([])
   const [actionLoading, setActionLoading] = useState(false)
@@ -43,9 +43,11 @@ export default function MissionEditModal({ mission, users, onClose, onMissionUpd
     // Simule l'ajout local pour l'instant
     setVolunteers([...volunteers, {
       user_id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      phone: user.phone || null,
+      users: {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone: user.phone || null,
+      }
     }])
     setSearch('')
     setSearchResult([])
@@ -286,17 +288,17 @@ export default function MissionEditModal({ mission, users, onClose, onMissionUpd
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">
-                          {volunteer.first_name} {volunteer.last_name}
+                          {volunteer.users?.first_name} {volunteer.users?.last_name}
                         </div>
-                        {volunteer.phone && (
+                        {volunteer.users?.phone && (
                           <div className="text-sm text-gray-600 flex items-center gap-1">
                             <span>📞</span>
                             <a 
-                              href={`tel:${volunteer.phone}`}
+                              href={`tel:${volunteer.users.phone}`}
                               className="text-blue-600 hover:text-blue-800 transition-colors"
                               title="Cliquer pour appeler"
                             >
-                              {volunteer.phone}
+                              {volunteer.users.phone}
                             </a>
                           </div>
                         )}
