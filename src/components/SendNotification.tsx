@@ -93,7 +93,7 @@ export default function SendNotification({ missions, userRole }: SendNotificatio
 
       if (error) {
         console.error('Erreur lors de l\'envoi de la notification:', error)
-        alert('Erreur lors de l\'envoi de la notification')
+        alert(`Erreur lors de l'envoi de la notification: ${error.message || 'Vérifiez que la table notifications existe dans Supabase'}`)
         return
       }
 
@@ -111,7 +111,7 @@ export default function SendNotification({ missions, userRole }: SendNotificatio
       alert(`Notification envoyée à ${targetUsers.length} utilisateur(s)`)
     } catch (error) {
       console.error('Erreur lors de l\'envoi de la notification:', error)
-      alert('Erreur lors de l\'envoi de la notification')
+      alert(`Erreur lors de l'envoi de la notification: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
     } finally {
       setIsSending(false)
     }
