@@ -24,7 +24,7 @@ interface MissionWithVolunteers extends Omit<MissionWithCounts, 'inscriptions_co
   }>
 }
 
-export default function AdminExportData({ missions, userRole }: AdminExportDataProps) {
+export default function AdminExportData({ missions }: AdminExportDataProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [exportType, setExportType] = useState<'excel' | 'pdf'>('excel')
 
@@ -54,7 +54,7 @@ export default function AdminExportData({ missions, userRole }: AdminExportDataP
 
         // Récupérer les emails depuis auth.users
         const volunteers = await Promise.all(
-          (inscriptions || []).map(async (inscription) => {
+          (inscriptions || []).map(async (inscription: any) => {
             const { data: authUser } = await supabase.auth.admin.getUserById(inscription.user_id)
             return {
               user_id: inscription.user_id,
@@ -124,7 +124,18 @@ export default function AdminExportData({ missions, userRole }: AdminExportDataP
       XLSX.utils.book_append_sheet(wb, wsMissions, 'Missions détaillées')
 
       // 3. Feuille "Liste des bénévoles par mission"
-      const volunteersData: any[] = []
+      const volunteersData: Array<{
+        Mission: string
+        Date: string
+        Heure: string
+        Localisation: string
+        Prénom: string
+        Nom: string
+        Email: string
+        Téléphone: string
+        Rôle: string
+        'Date d\'inscription': string
+      }> = []
       missionsWithVolunteers.forEach(mission => {
         if (mission.volunteers.length === 0) {
           volunteersData.push({
