@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+/* Force le thème clair sur tous les appareils */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -12,10 +14,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Désactiver le mode sombre automatique */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
+    color-scheme: light;
   }
 }
 
@@ -23,4 +27,46 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Forcer les inputs à rester en mode clair */
+input, textarea, select {
+  color-scheme: light !important;
+  background-color: white !important;
+  color: #171717 !important;
+}
+
+/* Styles spécifiques pour les inputs sur mobile */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="datetime-local"],
+textarea,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: white !important;
+  color: #171717 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* Forcer les placeholders à être visibles */
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Styles pour les inputs focus sur mobile */
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: white !important;
+  color: #171717 !important;
+  border-color: #3b82f6 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
