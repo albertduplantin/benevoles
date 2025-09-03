@@ -5,6 +5,8 @@ import Header from '@/components/Header';
 import Container from '@/components/Container';
 import CreateMissionForm from '@/components/admin/CreateMissionForm';
 import WelcomeMessage from '@/components/WelcomeMessage';
+import { SkeletonTable } from '@/components/ui/Skeleton';
+import { ButtonSpinner } from '@/components/ui/Spinner';
 import { createMissionAction } from './actions';
 import CreateUserForm from '@/components/admin/CreateUserForm';
 import MembershipSettings from '@/components/admin/MembershipSettings';
@@ -25,6 +27,7 @@ interface AdminPageClientProps {
 
 export default function AdminPageClient({ missions, users, missionsWithVolunteers, uniqueUsers, session }: AdminPageClientProps) {
   const [editingPlanningMission, setEditingPlanningMission] = useState<PlanningMission | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Fonction pour transformer MissionWithCounts en PlanningMission
   const handleEditMission = (mission: MissionWithCounts) => {
@@ -67,10 +70,15 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         
         <CreateMissionForm
           onMissionCreated={async (formData) => {
+            setIsRefreshing(true);
             const result = await createMissionAction(formData);
             // Rechargement si succès pour rafraîchir la liste
             if (result?.toString().startsWith('Succès')) {
-              window.location.reload();
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            } else {
+              setIsRefreshing(false);
             }
             return result;
           }}
@@ -79,32 +87,36 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
 
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">📋 Toutes les missions</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-4 py-2 text-left">Titre</th>
-                  <th className="px-4 py-2 text-left">Date</th>
-                  <th className="px-4 py-2 text-left">Créneau</th>
-                  <th className="px-4 py-2 text-center">Inscrits</th>
-                  <th className="px-4 py-2 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {missions && missions.length > 0 ? (
-                  missions.map((mission: MissionWithCounts) => (
-                    <MissionRow key={mission.id} mission={mission} users={users} onEdit={handleEditMission} />
-                  ))
-                ) : (
+          {isRefreshing ? (
+            <SkeletonTable rows={3} columns={5} />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white border">
+                <thead className="bg-gray-200">
                   <tr>
-                    <td colSpan={5} className="p-4 text-center text-gray-600">
-                      Aucune mission créée pour le moment.
-                    </td>
+                    <th className="px-4 py-2 text-left">Titre</th>
+                    <th className="px-4 py-2 text-left">Date</th>
+                    <th className="px-4 py-2 text-left">Créneau</th>
+                    <th className="px-4 py-2 text-center">Inscrits</th>
+                    <th className="px-4 py-2 text-center">Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {missions && missions.length > 0 ? (
+                    missions.map((mission: MissionWithCounts) => (
+                      <MissionRow key={mission.id} mission={mission} users={users} onEdit={handleEditMission} />
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="p-4 text-center text-gray-600">
+                        Aucune mission créée pour le moment.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {editingPlanningMission && (

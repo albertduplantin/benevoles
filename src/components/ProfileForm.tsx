@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import NextImage from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { UserProfile } from '@/lib/types'
+import { ButtonSpinner } from '@/components/ui/Spinner'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 interface ProfileFormProps {
   userProfile: UserProfile | null;
@@ -11,6 +13,7 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ userProfile }: ProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [message, setMessage] = useState('')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -27,7 +30,7 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
     const file = event.target.files?.[0]
     if (!file) return
 
-    setIsLoading(true)
+    setIsUploading(true)
     try {
       // Vérifier le format de fichier (plus spécifique)
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -99,7 +102,7 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
       console.error('Erreur upload:', error)
       setMessage(`Erreur lors de l'upload: ${error instanceof Error ? error.message : 'Erreur inconnue'}`)
     } finally {
-      setIsLoading(false)
+      setIsUploading(false)
     }
   }
 
@@ -159,9 +162,10 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition-colors shadow-lg"
+              disabled={isUploading}
+              className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition-colors shadow-lg disabled:opacity-50 flex items-center justify-center"
             >
-              📷
+              {isUploading ? <ButtonSpinner size="sm" /> : '📷'}
             </button>
           </div>
           <div>
@@ -277,8 +281,9 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200"
+            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 flex items-center gap-2"
           >
+            {isLoading && <ButtonSpinner size="sm" />}
             {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
           </button>
         </div>
