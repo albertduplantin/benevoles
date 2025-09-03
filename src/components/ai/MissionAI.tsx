@@ -39,7 +39,7 @@ export default function MissionAI({ userId, userRole }: AIDashboardProps) {
 
   useEffect(() => {
     loadAIData()
-  }, [user.id])
+  }, [userId])
 
   const loadAIData = async () => {
     try {
