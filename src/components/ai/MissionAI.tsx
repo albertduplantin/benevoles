@@ -224,7 +224,7 @@ export default function MissionAI({ userId, userRole }: AIDashboardProps) {
         *,
         mission:missions(*)
       `)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('status', 'confirmed')
       .gte('mission.date', new Date().toISOString().split('T')[0])
 
