@@ -39,6 +39,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         users: {
           first_name: inscription.users?.first_name ?? null,
           last_name: inscription.users?.last_name ?? null,
+          phone: inscription.users?.phone ?? null,
         }
       })) || []
     };

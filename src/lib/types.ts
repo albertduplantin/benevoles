@@ -508,6 +508,7 @@ export type MissionWithVolunteers = Mission & {
     users: {
       first_name: string | null;
       last_name: string | null;
+      phone: string | null;
     } | null;
   }>;
 };
