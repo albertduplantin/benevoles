@@ -256,7 +256,6 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
 
       // Recharger les missions
       await loadMissions()
-      onMissionUpdate?.()
 
     } catch (error) {
       console.error('Erreur lors de la mise à jour de la mission:', error)
