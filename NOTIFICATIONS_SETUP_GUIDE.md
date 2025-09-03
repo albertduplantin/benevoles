@@ -15,13 +15,24 @@ L'erreur "Could not find the 'read' column of 'notifications' in the schema cach
 1. Dans le menu de gauche, cliquez sur **"SQL Editor"**
 2. Cliquez sur **"New query"**
 
-### **Étape 3 : Exécuter le Script de Correction**
-1. Copiez tout le contenu du fichier `notifications_fix.sql`
+### **Étape 3 : Exécuter le Script de Diagnostic et Correction**
+
+**⚠️ IMPORTANT : Si l'erreur persiste, utilisez ce script complet :**
+
+1. Copiez tout le contenu du fichier `notifications_diagnostic.sql`
 2. Collez-le dans l'éditeur SQL
 3. Cliquez sur **"Run"** pour exécuter le script
 
-**OU** si la table n'existe pas du tout :
-1. Copiez tout le contenu du fichier `notifications_setup.sql`
+**Ce script va :**
+- ✅ Diagnostiquer l'état actuel de la table
+- ✅ Supprimer et recréer la table complètement
+- ✅ Créer toutes les colonnes nécessaires
+- ✅ Configurer les index et politiques RLS
+- ✅ Créer les triggers automatiques
+- ✅ Vérifier que tout fonctionne
+
+**OU** pour une correction légère :
+1. Copiez tout le contenu du fichier `notifications_fix.sql`
 2. Collez-le dans l'éditeur SQL
 3. Cliquez sur **"Run"** pour exécuter le script
 

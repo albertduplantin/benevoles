@@ -73,6 +73,15 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                   {isAdmin ? (
                     <>
                       <NavLink href="/admin" icon="🛠️" text="Admin" />
+                      <NavLink href="/responsable" icon="👨‍💼" text="Responsable" />
+                      <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
+                      <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                      <NavLink href="/planning" icon="📅" text="Planning" />
+                    </>
+                  ) : userRole === 'responsable' ? (
+                    <>
+                      <NavLink href="/" icon="🎯" text="Missions" />
+                      <NavLink href="/responsable" icon="👨‍💼" text="Responsable" />
                       <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
                       <NavLink href="/profile" icon="👤" text="Mon Profil" />
                       <NavLink href="/planning" icon="📅" text="Planning" />
@@ -161,6 +170,15 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                 {isAdmin ? (
                   <>
                     <NavLink href="/admin" icon="🛠️" text="Admin" />
+                    <NavLink href="/responsable" icon="👨‍💼" text="Responsable" />
+                    <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
+                    <NavLink href="/profile" icon="👤" text="Mon Profil" />
+                    <NavLink href="/planning" icon="📅" text="Planning" />
+                  </>
+                ) : userRole === 'responsable' ? (
+                  <>
+                    <NavLink href="/" icon="🎯" text="Missions" />
+                    <NavLink href="/responsable" icon="👨‍💼" text="Responsable" />
                     <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
                     <NavLink href="/profile" icon="👤" text="Mon Profil" />
                     <NavLink href="/planning" icon="📅" text="Planning" />
