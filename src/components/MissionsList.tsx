@@ -16,7 +16,7 @@ interface MissionsListProps {
 export default function MissionsList({ initialMissions, userId }: MissionsListProps) {
   const [missions, setMissions] = useState(initialMissions)
   const [isLoading, setIsLoading] = useState(false)
-  const [userInscriptions, setUserInscriptions] = useState<Set<string>>(new Set())
+  const [userInscriptions, setUserInscriptions] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     if (userId) {

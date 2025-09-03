@@ -134,4 +134,4 @@ export function ListSpinner({ count = 3 }: { count?: number }) {
 }
 
 // Import du Skeleton pour ListSpinner
-import { Skeleton } from './Skeleton';
+import Skeleton from './Skeleton';
