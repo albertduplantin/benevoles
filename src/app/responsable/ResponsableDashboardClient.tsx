@@ -62,7 +62,7 @@ export default function ResponsableDashboardClient({
   return (
     <div className="space-y-8">
       {/* Message de bienvenue */}
-      <WelcomeMessage user={{ id: userId } as { id: string }} page="responsable" />
+      <WelcomeMessage user={{ id: userId } as any} page="responsable" />
 
       {/* Statistiques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
