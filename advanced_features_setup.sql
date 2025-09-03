@@ -441,7 +441,7 @@ DECLARE
     level_name VARCHAR(50);
     badge_color VARCHAR(20);
 BEGIN
-    -- Calculer le total de points de gamification
+    -- Calculer le total de points d'expérience
     SELECT COALESCE(SUM(up.points * pt.points_value), 0) INTO total_points
     FROM user_points up
     JOIN point_types pt ON up.point_type_id = pt.id
@@ -528,4 +528,4 @@ COMMENT ON COLUMN ai_suggestions.confidence IS 'Niveau de confiance de la sugges
 COMMENT ON COLUMN planning_conflicts.severity IS 'Gravité du conflit: low, medium, high';
 COMMENT ON COLUMN mission_comments.is_internal IS 'Commentaire visible uniquement par les responsables/admin';
 COMMENT ON COLUMN email_notifications.status IS 'Statut de l''envoi: pending, sent, failed';
-COMMENT ON COLUMN user_levels.experience_points IS 'Points d''expérience basés sur la gamification';
+COMMENT ON COLUMN user_levels.experience_points IS 'Points d''expérience utilisateur';
