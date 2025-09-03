@@ -2,33 +2,53 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { translateAuthError, successMessages } from '@/lib/errorMessages'
+import ErrorMessage from '@/components/ui/ErrorMessage'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const router = useRouter()
   const supabase = createClient()
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
 
   useEffect(() => {
     const msg = searchParams.get('message')
-    if (msg) setMessage(msg)
+    if (msg) {
+      setMessage({
+        message: msg,
+        type: 'info',
+        icon: 'ℹ️'
+      })
+    }
   }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setMessage('')
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    setMessage(null)
+    setIsLoading(true)
 
-    if (error) {
-      setMessage('Erreur de connexion : ' + error.message)
-    } else {
-      router.push('/')
-      router.refresh()
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setMessage(translateAuthError(error))
+      } else {
+        setMessage(successMessages.login)
+        setTimeout(() => {
+          router.push('/')
+          router.refresh()
+        }, 1500)
+      }
+    } catch (error) {
+      setMessage(translateAuthError(error))
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -89,14 +109,13 @@ export default function LoginForm() {
             </div>
             <button
               type="submit"
-              className="w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+              disabled={isLoading}
+              className="w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Se connecter
+              {isLoading ? 'Connexion en cours...' : 'Se connecter'}
             </button>
             {message && (
-              <div className="p-3 text-sm text-red-800 bg-red-100 border border-red-200 rounded-lg">
-                {message}
-              </div>
+              <ErrorMessage error={message} />
             )}
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -115,7 +134,7 @@ export default function LoginForm() {
                     redirectTo: `${location.origin}/auth/callback`,
                   },
                 })
-                if (error) setMessage('Erreur OAuth : ' + error.message)
+                if (error) setMessage(translateAuthError(error))
               }}
               className="w-full px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
             >

@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { translateAuthError, successMessages } from '@/lib/errorMessages'
+import ErrorMessage from '@/components/ui/ErrorMessage'
 
 export default function SignupPage() {
   const supabase = createClient()
@@ -12,31 +14,37 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [acceptsContactSharing, setAcceptsContactSharing] = useState(false)
-  const [message, setMessage] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
+  const [message, setMessage] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setMessage('')
-    setErrorMsg('')
+    setMessage(null)
+    setIsLoading(true)
     
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          phone,
-          accepts_contact_sharing: acceptsContactSharing,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            phone,
+            accepts_contact_sharing: acceptsContactSharing,
+          },
         },
-      },
-    })
+      })
 
-    if (error) {
-      setErrorMsg("Erreur lors de l'inscription : " + error.message)
-    } else if (data.user) {
-      setMessage("Inscription réussie ! Veuillez vérifier vos e-mails pour confirmer votre compte.")
+      if (error) {
+        setMessage(translateAuthError(error))
+      } else if (data.user) {
+        setMessage(successMessages.signup)
+      }
+    } catch (error) {
+      setMessage(translateAuthError(error))
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -147,15 +155,13 @@ export default function SignupPage() {
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={isLoading}
+            className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            S&apos;inscrire
+            {isLoading ? 'Inscription en cours...' : "S'inscrire"}
           </button>
           {message && (
-            <p className="mt-2 text-sm text-center text-green-600">{message}</p>
-          )}
-          {errorMsg && (
-            <p className="mt-2 text-sm text-center text-red-600">{errorMsg}</p>
+            <ErrorMessage error={message} />
           )}
         </form>
         <div className="relative my-4">
@@ -175,7 +181,7 @@ export default function SignupPage() {
                 redirectTo: `${location.origin}/auth/callback`,
               },
             })
-            if (error) setErrorMsg('Erreur OAuth : ' + error.message)
+            if (error) setMessage(translateAuthError(error))
           }}
           className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
         >
