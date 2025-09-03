@@ -31,6 +31,40 @@ export default function AdvancedCalendar({ userId, userRole, onMissionUpdate }: 
   const [conflicts, setConflicts] = useState<Map<number, number[]>>(new Map())
   const supabase = createClient()
 
+  const getViewStartDate = (date: Date, view: string): Date => {
+    const start = new Date(date)
+    switch (view) {
+      case 'week':
+        start.setDate(date.getDate() - date.getDay())
+        break
+      case 'day':
+        // Pas de modification pour la vue jour
+        break
+      case 'month':
+      default:
+        start.setDate(1)
+        break
+    }
+    return start
+  }
+
+  const getViewEndDate = (date: Date, view: string): Date => {
+    const end = new Date(date)
+    switch (view) {
+      case 'week':
+        end.setDate(date.getDate() - date.getDay() + 6)
+        break
+      case 'day':
+        // Pas de modification pour la vue jour
+        break
+      case 'month':
+      default:
+        end.setMonth(date.getMonth() + 1, 0)
+        break
+    }
+    return end
+  }
+
   useEffect(() => {
     loadMissions()
   }, [currentDate, view])
@@ -88,40 +122,6 @@ export default function AdvancedCalendar({ userId, userRole, onMissionUpdate }: 
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const getViewStartDate = (date: Date, view: string): Date => {
-    const start = new Date(date)
-    switch (view) {
-      case 'week':
-        start.setDate(date.getDate() - date.getDay())
-        break
-      case 'day':
-        // Pas de modification pour la vue jour
-        break
-      case 'month':
-      default:
-        start.setDate(1)
-        break
-    }
-    return start
-  }
-
-  const getViewEndDate = (date: Date, view: string): Date => {
-    const end = new Date(date)
-    switch (view) {
-      case 'week':
-        end.setDate(date.getDate() - date.getDay() + 6)
-        break
-      case 'day':
-        // Pas de modification pour la vue jour
-        break
-      case 'month':
-      default:
-        end.setMonth(date.getMonth() + 1, 0)
-        break
-    }
-    return end
   }
 
   const getMissionColor = (mission: any, isUserMission: boolean): string => {
