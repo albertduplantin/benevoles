@@ -1,14 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { MissionWithCounts, UserProfile } from '@/lib/types'
 import WelcomeMessage from '@/components/WelcomeMessage'
-import Container from '@/components/Container'
 import SendNotification from '@/components/SendNotification'
 import AdminExportData from '@/components/AdminExportData'
 import ContactVolunteers from '@/components/ContactVolunteers'
 import { ButtonSpinner } from '@/components/ui/Spinner'
-import { SkeletonCard } from '@/components/ui/Skeleton'
 
 interface ResponsableDashboardClientProps {
   assignedMissions: Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }>
@@ -29,8 +28,6 @@ interface ResponsableDashboardClientProps {
 
 export default function ResponsableDashboardClient({ 
   assignedMissions, 
-  allMissions, 
-  volunteers, 
   stats, 
   userRole, 
   userId 
@@ -54,7 +51,7 @@ export default function ResponsableDashboardClient({
   }
 
   // Obtenir le statut d'une mission
-  const getMissionStatus = (mission: any) => {
+  const getMissionStatus = (mission: { start_time: string; end_time: string }) => {
     const now = new Date()
     const start = new Date(mission.start_time)
     const end = new Date(mission.end_time)
@@ -155,7 +152,7 @@ export default function ResponsableDashboardClient({
               </>
             )}
           </button>
-          <a
+          <Link
             href="/"
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm"
           >
@@ -164,7 +161,7 @@ export default function ResponsableDashboardClient({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
             Voir toutes les missions
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -194,7 +191,7 @@ export default function ResponsableDashboardClient({
             </div>
           ) : (
             <div className="space-y-4">
-              {assignedMissions.map((mission) => {
+              {assignedMissions.map((mission: any) => {
                 const status = getMissionStatus(mission)
                 const volunteersCount = mission.inscriptions?.length || 0
                 
@@ -240,12 +237,12 @@ export default function ResponsableDashboardClient({
                       </div>
                       
                       <div className="ml-4 flex flex-col gap-2">
-                        <a
+                        <Link
                           href={`/mission/${mission.id}`}
                           className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors"
                         >
                           Voir détails
-                        </a>
+                        </Link>
                         {volunteersCount > 0 && (
                           <ContactVolunteers
                             missionId={mission.id}

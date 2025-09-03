@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import Header from '@/components/Header'
 import Container from '@/components/Container'
 import ResponsableDashboardClient from './ResponsableDashboardClient'
-import { MissionWithCounts, UserProfile } from '@/lib/types'
 
 export default async function ResponsablePage() {
   const supabase = await createClient()
@@ -30,15 +30,15 @@ export default async function ResponsablePage() {
         <p className="mt-2">
           Vous n'avez pas les permissions nécessaires pour voir cette page.
         </p>
-        <a href="/" className="mt-4 text-blue-600 underline">
+        <Link href="/" className="mt-4 text-blue-600 underline">
           Retour à l'accueil
-        </a>
+        </Link>
       </div>
     )
   }
 
   // Récupérer les missions assignées au responsable
-  const { data: missionsData, error: missionsError } = await supabase
+  const { data: missionsData } = await supabase
     .from('missions')
     .select(`
       *, 
@@ -86,8 +86,6 @@ export default async function ResponsablePage() {
         <Container maxWidth="xl">
           <ResponsableDashboardClient 
             assignedMissions={assignedMissions}
-            allMissions={totalMissions}
-            volunteers={volunteersData}
             stats={stats}
             userRole={userProfile?.role}
             userId={session.user.id}
