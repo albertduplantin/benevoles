@@ -11,8 +11,6 @@ import { ButtonSpinner } from '@/components/ui/Spinner'
 
 interface ResponsableDashboardClientProps {
   assignedMissions: Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }>
-  allMissions: Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }>
-  volunteers: UserProfile[]
   stats: {
     assignedMissions: number
     totalVolunteers: number
@@ -51,7 +49,7 @@ export default function ResponsableDashboardClient({
   }
 
   // Obtenir le statut d'une mission
-  const getMissionStatus = (mission: { start_time: string; end_time: string }) => {
+  const getMissionStatus = (mission: { start_time: string; end_time: string; is_urgent?: boolean }) => {
     const now = new Date()
     const start = new Date(mission.start_time)
     const end = new Date(mission.end_time)
@@ -191,7 +189,7 @@ export default function ResponsableDashboardClient({
             </div>
           ) : (
             <div className="space-y-4">
-              {assignedMissions.map((mission: any) => {
+              {assignedMissions.map((mission) => {
                 const status = getMissionStatus(mission)
                 const volunteersCount = mission.inscriptions?.length || 0
                 

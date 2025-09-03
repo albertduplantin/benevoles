@@ -59,11 +59,11 @@ export default async function ResponsablePage() {
     `)
     .order('start_time', { ascending: false })
 
-  // Récupérer les bénévoles inscrits aux missions du responsable
-  const { data: volunteersData } = await supabase
-    .from('volunteer_complete_profile')
-    .select('*')
-    .order('last_name', { ascending: true })
+  // Récupérer les bénévoles inscrits aux missions du responsable (pour usage futur)
+  // const { data: volunteersData } = await supabase
+  //   .from('volunteer_complete_profile')
+  //   .select('*')
+  //   .order('last_name', { ascending: true })
 
   // Calculer les statistiques
   const assignedMissions = missionsData || []
