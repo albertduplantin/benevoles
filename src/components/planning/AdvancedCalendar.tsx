@@ -256,7 +256,9 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       if (target.classList.contains('action-btn')) {
         const action = target.dataset.action
         const missionId = target.dataset.missionId
-        handleMissionAction(action, missionId, mission)
+        if (action && missionId) {
+          handleMissionAction(action, missionId, mission)
+        }
       }
     })
   }
