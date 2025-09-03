@@ -24,7 +24,6 @@ const localizer = dateFnsLocalizer({
 interface AdvancedCalendarProps {
   userId: string
   userRole: string
-  onMissionUpdate?: () => void
 }
 
 interface CalendarEvent {
@@ -38,7 +37,7 @@ interface CalendarEvent {
   color: string
 }
 
-export default function AdvancedCalendar({ userId, userRole, onMissionUpdate }: AdvancedCalendarProps) {
+export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)

@@ -39,10 +39,6 @@ export default async function CalendarPage() {
           <AdvancedCalendar
             userId={session.user.id}
             userRole={userProfile.role}
-            onMissionUpdate={() => {
-              // Cette fonction sera appelée après une mise à jour de mission
-              // En production, on pourrait utiliser un système de revalidation plus sophistiqué
-            }}
           />
         </Container>
       </main>
