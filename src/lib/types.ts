@@ -328,6 +328,136 @@ export interface CreateRoomForm {
   mission_id?: number;
   participant_ids: string[];
 }
+
+// =====================================================
+// TYPES POUR LE SYSTÈME DE GAMIFICATION
+// =====================================================
+
+export interface PointType {
+  id: number;
+  name: string;
+  description?: string;
+  points_value: number;
+  icon: string;
+  color: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Badge {
+  id: number;
+  name: string;
+  description?: string;
+  icon: string;
+  color: string;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  requirements?: any; // JSONB
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UserPoint {
+  id: number;
+  user_id: string;
+  point_type_id: number;
+  points: number;
+  source_type: string;
+  source_id?: number;
+  description?: string;
+  earned_at: string;
+  // Relations
+  point_type?: PointType;
+}
+
+export interface UserBadge {
+  id: number;
+  user_id: string;
+  badge_id: number;
+  earned_at: string;
+  // Relations
+  badge?: Badge;
+}
+
+export interface Challenge {
+  id: number;
+  name: string;
+  description?: string;
+  type: 'mission_count' | 'points_total' | 'streak' | 'special';
+  target_value: number;
+  reward_points: number;
+  reward_badge_id?: number;
+  start_date?: string;
+  end_date?: string;
+  is_active: boolean;
+  is_recurring: boolean;
+  created_at: string;
+  // Relations
+  reward_badge?: Badge;
+}
+
+export interface ChallengeProgress {
+  id: number;
+  user_id: string;
+  challenge_id: number;
+  current_value: number;
+  is_completed: boolean;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+  // Relations
+  challenge?: Challenge;
+}
+
+export interface UserStreak {
+  id: number;
+  user_id: string;
+  streak_type: 'missions' | 'days_active' | 'weeks_active';
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GamificationNotification {
+  id: number;
+  user_id: string;
+  type: 'points_earned' | 'badge_earned' | 'challenge_completed' | 'streak_milestone';
+  title: string;
+  message?: string;
+  points: number;
+  badge_id?: number;
+  is_read: boolean;
+  created_at: string;
+  // Relations
+  badge?: Badge;
+}
+
+// Types pour les composants
+export interface UserGamificationStats {
+  total_points: number;
+  badges_count: number;
+  current_streaks: UserStreak[];
+  recent_achievements: (UserPoint | UserBadge)[];
+  leaderboard_position?: number;
+}
+
+export interface LeaderboardEntry {
+  user_id: string;
+  user_name: string;
+  total_points: number;
+  badges_count: number;
+  rank: number;
+  avatar?: string;
+}
+
+export interface GamificationDashboard {
+  user_stats: UserGamificationStats;
+  available_challenges: Challenge[];
+  user_challenges: ChallengeProgress[];
+  recent_notifications: GamificationNotification[];
+  leaderboard: LeaderboardEntry[];
+}
 export type Inscription = Database['public']['Tables']['inscriptions']['Row'];
 export type MembershipSetting = Database['public']['Tables']['membership_settings']['Row'];
 export type MembershipPayment = Database['public']['Tables']['membership_payments']['Row'];
