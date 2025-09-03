@@ -2,7 +2,7 @@
 
 ## ⚠️ **Problème Identifié**
 
-L'erreur "Erreur lors de l'envoi de la notification" indique que la table `notifications` n'existe pas encore dans votre base de données Supabase.
+L'erreur "Could not find the 'read' column of 'notifications' in the schema cache" indique que la table `notifications` existe mais qu'il manque des colonnes importantes.
 
 ## 🛠️ **Solution : Exécuter le Script SQL**
 
@@ -15,7 +15,12 @@ L'erreur "Erreur lors de l'envoi de la notification" indique que la table `notif
 1. Dans le menu de gauche, cliquez sur **"SQL Editor"**
 2. Cliquez sur **"New query"**
 
-### **Étape 3 : Exécuter le Script**
+### **Étape 3 : Exécuter le Script de Correction**
+1. Copiez tout le contenu du fichier `notifications_fix.sql`
+2. Collez-le dans l'éditeur SQL
+3. Cliquez sur **"Run"** pour exécuter le script
+
+**OU** si la table n'existe pas du tout :
 1. Copiez tout le contenu du fichier `notifications_setup.sql`
 2. Collez-le dans l'éditeur SQL
 3. Cliquez sur **"Run"** pour exécuter le script
@@ -25,9 +30,16 @@ L'erreur "Erreur lors de l'envoi de la notification" indique que la table `notif
 2. Vérifiez que la table `notifications` a été créée
 3. Vérifiez que les triggers ont été créés
 
-## 📋 **Contenu du Script SQL**
+## 📋 **Scripts SQL Disponibles**
 
-Le script `notifications_setup.sql` contient :
+### **Script de Correction (`notifications_fix.sql`)**
+Pour corriger une table existante avec des colonnes manquantes :
+- Ajoute les colonnes manquantes (`read`, `type`, `mission_id`, `updated_at`)
+- Crée les index et politiques RLS
+- Vérifie l'existence avant d'ajouter
+
+### **Script Complet (`notifications_setup.sql`)**
+Pour créer la table depuis zéro :
 
 ### **Table Notifications**
 ```sql
