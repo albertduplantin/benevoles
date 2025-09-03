@@ -108,15 +108,10 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         currentDate: currentDate.toISOString()
       })
 
-      // Charger les missions dans la plage de dates
+      // Charger les missions dans la plage de dates (requête simplifiée pour debug)
       const { data: missions, error } = await supabase
         .from('missions')
-        .select(`
-          *,
-          inscriptions(user_id, status)
-        `)
-        .gte('start_time', startDate.toISOString())
-        .lte('start_time', endDate.toISOString())
+        .select('*')
         .order('start_time', { ascending: true })
 
       if (error) {
@@ -126,7 +121,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
 
       console.log('📅 Missions trouvées:', missions?.length || 0, missions)
 
-      // Convertir en événements calendrier (filtrer les missions sans date valide)
+      // Convertir en événements calendrier (logique simplifiée pour debug)
       const calendarEvents: CalendarEvent[] = (missions || [])
         .filter(mission => {
           // Filtrer les missions avec des timestamps valides
@@ -138,9 +133,9 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         .map(mission => {
           const start = new Date(mission.start_time)
           const end = new Date(mission.end_time)
-          const isUserMission = mission.inscriptions?.some((inscription: any) => 
-            inscription.user_id === userId && inscription.status === 'confirmed'
-          ) || false
+          
+          // Pour l'instant, on ne charge pas les inscriptions pour simplifier
+          const isUserMission = false
 
           return {
             id: mission.id,
