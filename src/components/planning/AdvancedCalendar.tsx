@@ -1,9 +1,25 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Calendar, dateFnsLocalizer, Event } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay, addHours, addMinutes } from 'date-fns'
+import fr from 'date-fns/locale/fr'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { createClient } from '@/lib/supabase/client'
 import { Mission, UserProfile } from '@/lib/types'
 import { ButtonSpinner } from '@/components/ui/Spinner'
+
+const locales = {
+  'fr': fr,
+}
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+})
 
 interface AdvancedCalendarProps {
   userId: string
@@ -130,6 +146,23 @@ export default function AdvancedCalendar({ userId, userRole, onMissionUpdate }: 
     if (mission.status === 'completed') return '#6B7280' // Gris pour les missions terminées
     return '#3B82F6' // Bleu par défaut
   }
+
+  const eventPropGetter = useCallback((event: CalendarEvent) => {
+    const style = {
+      backgroundColor: event.isConflict ? '#FFC107' : event.color, // Jaune pour les conflits
+      borderRadius: '5px',
+      opacity: 0.8,
+      color: 'white',
+      border: '0px',
+      display: 'block',
+      borderColor: event.isConflict ? '#E0A800' : event.color,
+      borderWidth: '1px',
+      borderStyle: 'solid',
+    }
+    return {
+      style: style,
+    }
+  }, [])
 
   const detectConflicts = (events: CalendarEvent[]): CalendarEvent[] => {
     const eventsWithConflicts = [...events]
@@ -582,9 +615,31 @@ export default function AdvancedCalendar({ userId, userRole, onMissionUpdate }: 
 
       {/* Vue du calendrier */}
       <div className="bg-white rounded-lg shadow">
-        {view === 'month' && renderMonthView()}
-        {view === 'week' && renderWeekView()}
-        {view === 'day' && renderDayView()}
+        <div className="h-[700px]">
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            messages={{
+              next: 'Suivant',
+              previous: 'Précédent',
+              today: 'Aujourd\'hui',
+              month: 'Mois',
+              week: 'Semaine',
+              day: 'Jour',
+              agenda: 'Agenda',
+              date: 'Date',
+              time: 'Heure',
+              event: 'Événement',
+              noEventsInRange: 'Aucune mission dans cette période.',
+              showMore: (total) => `+ Voir ${total} de plus`,
+            }}
+            culture="fr"
+            eventPropGetter={eventPropGetter}
+          />
+        </div>
       </div>
 
       {/* Statistiques des conflits */}
