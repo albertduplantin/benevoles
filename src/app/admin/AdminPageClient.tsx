@@ -15,7 +15,7 @@ import UserRow from '@/components/admin/UserRow';
 import CallToVolunteers from '@/components/admin/CallToVolunteers';
 import MissionEditModal from '@/components/admin/MissionEditModal';
 import SendNotification from '@/components/SendNotification';
-import type { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile, PlanningMission } from '@/lib/types';
+import type { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types';
 import type { Session } from '@supabase/supabase-js';
 
 interface AdminPageClientProps {
@@ -27,12 +27,12 @@ interface AdminPageClientProps {
 }
 
 export default function AdminPageClient({ missions, users, missionsWithVolunteers, uniqueUsers, session }: AdminPageClientProps) {
-  const [editingPlanningMission, setEditingPlanningMission] = useState<PlanningMission | null>(null);
+  const [editingMission, setEditingMission] = useState<Mission | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Fonction pour transformer MissionWithCounts en PlanningMission
+  // Fonction pour transformer MissionWithCounts en Mission
   const handleEditMission = (mission: MissionWithCounts) => {
-    const planningMission: PlanningMission = {
+    const missionData: Mission = {
       ...mission,
       volunteers: mission.inscriptions?.map(inscription => ({
         user_id: inscription.user_id,
@@ -41,7 +41,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         phone: inscription.users?.phone ?? null,
       })) || []
     };
-    setEditingPlanningMission(planningMission);
+    setEditingMission(missionData);
   };
 
   return (
@@ -124,11 +124,11 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
           )}
         </div>
 
-        {editingPlanningMission && (
+        {editingMission && (
           <MissionEditModal
-            mission={editingPlanningMission}
+            mission={editingMission}
             users={users || []}
-            onClose={() => setEditingPlanningMission(null)}
+            onClose={() => setEditingMission(null)}
             onMissionUpdated={() => window.location.reload()}
           />
         )}
