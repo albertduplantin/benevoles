@@ -5,7 +5,7 @@ import NextImage from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { UserProfile } from '@/lib/types'
 import { ButtonSpinner } from '@/components/ui/Spinner'
-import { Skeleton } from '@/components/ui/Skeleton'
+import Skeleton from '@/components/ui/Skeleton'
 
 interface ProfileFormProps {
   userProfile: UserProfile | null;
