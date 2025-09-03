@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Container from '@/components/Container';
 import CreateMissionForm from '@/components/admin/CreateMissionForm';
+import WelcomeMessage from '@/components/WelcomeMessage';
 import { createMissionAction } from './actions';
 import CreateUserForm from '@/components/admin/CreateUserForm';
 import MembershipSettings from '@/components/admin/MembershipSettings';
@@ -42,11 +43,12 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
   return (
     <div className="min-h-screen">
       <Header user={session.user} title="Tableau de bord Administrateur" showBackToSite={true} />
+      <WelcomeMessage user={session.user} page="admin" />
       <main className="py-8">
         <Container maxWidth="xl">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Actions Rapides</h2>
-          <p className="text-gray-600 mb-6">Accédez rapidement aux fonctionnalités principales</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">⚡ Actions Rapides</h2>
+          <p className="text-gray-600 mb-6">🚀 Accédez rapidement aux fonctionnalités principales</p>
           <div className="flex flex-wrap gap-4 mb-4">
             <CallToVolunteers missions={missionsWithVolunteers} users={users} />
             <Link
@@ -59,8 +61,8 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         </div>
 
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Missions</h2>
-          <p className="text-gray-600 mb-6">Créez, modifiez et suivez toutes vos missions</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">🎯 Gestion des Missions</h2>
+          <p className="text-gray-600 mb-6">✏️ Créez, modifiez et suivez toutes vos missions</p>
         </div>
         
         <CreateMissionForm
@@ -76,7 +78,7 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         />
 
         <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4">Toutes les missions</h3>
+          <h3 className="text-xl font-semibold mb-4">📋 Toutes les missions</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border">
               <thead className="bg-gray-200">
@@ -115,14 +117,14 @@ export default function AdminPageClient({ missions, users, missionsWithVolunteer
         )}
 
         <div className="mt-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Paramètres de Cotisation</h2>
-            <p className="text-gray-600 mb-6">Configurez le montant de la cotisation annuelle</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">💳 Paramètres de Cotisation</h2>
+            <p className="text-gray-600 mb-6">⚙️ Configurez le montant de la cotisation annuelle</p>
             <MembershipSettings />
         </div>
 
         <div className="mt-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Gestion des Utilisateurs</h2>
-            <p className="text-gray-600 mb-6">Créez et gérez les comptes des bénévoles et responsables</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">👥 Gestion des Utilisateurs</h2>
+            <p className="text-gray-600 mb-6">🔧 Créez et gérez les comptes des bénévoles et responsables</p>
             <CreateUserForm />
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border">

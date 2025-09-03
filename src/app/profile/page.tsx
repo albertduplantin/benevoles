@@ -5,7 +5,7 @@ import Container from '@/components/Container'
 import ProfileForm from '@/components/ProfileForm'
 import MissionHistory from '@/components/MissionHistory'
 import MembershipButton from '@/components/MembershipButton'
-
+import WelcomeMessage from '@/components/WelcomeMessage'
 import VolunteerPreferences from '@/components/VolunteerPreferences'
 
 export default async function ProfilePage() {
@@ -52,6 +52,7 @@ export default async function ProfilePage() {
   return (
     <div className="min-h-screen">
       <Header user={user} title="Mon Profil" />
+      <WelcomeMessage user={user} page="profile" />
       
       <main className="py-8">
         <Container maxWidth="lg">
@@ -59,16 +60,16 @@ export default async function ProfilePage() {
             {/* Colonne principale - Profil */}
             <div className="lg:col-span-2 space-y-8">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Mon Profil</h2>
-                <p className="text-gray-600 mb-6">Gérez vos informations personnelles et vos préférences</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">👤 Mon Profil</h2>
+                <p className="text-gray-600 mb-6">⚙️ Gérez vos informations personnelles et vos préférences</p>
                 <ProfileForm userProfile={userProfile} />
               </div>
               
               {/* Disponibilités et compétences - seulement pour les bénévoles */}
               {userProfile?.role === 'benevole' && (
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Mes Disponibilités & Compétences</h2>
-                  <p className="text-gray-600 mb-6">Aidez-nous à vous proposer des missions adaptées à vos disponibilités et compétences</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">📅 Mes Disponibilités & Compétences</h2>
+                  <p className="text-gray-600 mb-6">🎯 Aidez-nous à vous proposer des missions adaptées à vos disponibilités et compétences</p>
                   <VolunteerPreferences userId={user.id} />
                 </div>
               )}
@@ -81,7 +82,7 @@ export default async function ProfilePage() {
               
               {/* Historique */}
               <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Mon Historique</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">📊 Mon Historique</h3>
                 <MissionHistory missions={missionsHistory} />
               </div>
             </div>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Header from '@/components/Header'
 import Container from '@/components/Container'
 import PlanningView from '@/components/planning/PlanningView'
+import WelcomeMessage from '@/components/WelcomeMessage'
 import { PlanningMission, UserProfile } from '@/lib/types'
 
 export default async function PlanningPage() {
@@ -76,19 +77,20 @@ export default async function PlanningPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header user={session.user} title="Planning Global" />
+      <WelcomeMessage user={session.user} page="planning" />
       
       <main className="py-6">
         <Container maxWidth="full">
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Planning Global</h1>
+                <h1 className="text-3xl font-bold text-gray-900">📅 Planning Global</h1>
                 <p className="text-gray-600 mt-1">
-                  Vue d&apos;ensemble des missions et bénévoles
+                  🎯 Vue d&apos;ensemble des missions et bénévoles
                 </p>
               </div>
               <div className="text-sm text-gray-500">
-                {planningMissions.length} mission{planningMissions.length > 1 ? 's' : ''} au total
+                📊 {planningMissions.length} mission{planningMissions.length > 1 ? 's' : ''} au total
               </div>
             </div>
           </div>

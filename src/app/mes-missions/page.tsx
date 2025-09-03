@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Header from '@/components/Header'
 import Container from '@/components/Container'
 import PersonalMissionsView from '@/components/PersonalMissionsView'
+import WelcomeMessage from '@/components/WelcomeMessage'
 
 export default async function PersonalMissionsPage() {
   const supabase = await createClient()
@@ -72,19 +73,20 @@ export default async function PersonalMissionsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header user={user} title="Mes Missions" />
+      <WelcomeMessage user={user} page="missions" />
       
       <main className="py-6">
         <Container maxWidth="2xl">
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Mes Missions</h1>
+                <h1 className="text-3xl font-bold text-gray-900">📋 Mes Missions</h1>
                 <p className="text-gray-600 mt-1">
-                  Voici toutes les missions auxquelles vous êtes inscrit(e)
+                  🎯 Voici toutes les missions auxquelles vous êtes inscrit(e)
                 </p>
               </div>
               <div className="text-sm text-gray-500">
-                {missions.length} mission{missions.length > 1 ? 's' : ''} 
+                📊 {missions.length} mission{missions.length > 1 ? 's' : ''} 
               </div>
             </div>
           </div>

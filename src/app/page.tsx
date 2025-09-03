@@ -37,10 +37,10 @@ export default async function HomePage() {
         <Container>
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              Missions Disponibles
+              🎯 Missions Disponibles
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Rejoignez notre équipe de bénévoles et contribuez au succès du Festival du Film Court
+              🤝 Rejoignez notre équipe de bénévoles et contribuez au succès du Festival du Film Court
             </p>
           </div>
 
@@ -63,7 +63,7 @@ export default async function HomePage() {
                           {mission.is_urgent && (
                             <Tooltip content="Besoin de bénévoles rapidement">
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white animate-pulse">
-                                Urgent
+                                🚨 Urgent
                               </span>
                             </Tooltip>
                           )}
@@ -73,7 +73,7 @@ export default async function HomePage() {
                                 ? 'bg-red-100 text-red-800' 
                                 : 'bg-green-100 text-green-800'
                             }`}>
-                              {mission.inscriptions_count >= mission.max_volunteers ? 'Complet' : 'Disponible'}
+                              {mission.inscriptions_count >= mission.max_volunteers ? '❌ Complet' : '✅ Disponible'}
                             </span>
                           </Tooltip>
                         </div>
@@ -115,7 +115,7 @@ export default async function HomePage() {
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">
                           <span className={`text-sm font-medium text-gray-700`}>
-                            Places
+                            👥 Places
                           </span>
                           <span className={`text-sm text-gray-600`}>
                             {mission.inscriptions_count}/{mission.max_volunteers}
