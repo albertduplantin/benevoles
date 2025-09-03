@@ -7,6 +7,7 @@ import { MissionWithCounts } from '@/lib/types'
 import Tooltip from '@/components/Tooltip'
 import { SkeletonCard } from '@/components/ui/Skeleton'
 import { CardSpinner } from '@/components/ui/Spinner'
+import SearchAndFilters from '@/components/SearchAndFilters'
 
 interface MissionsListProps {
   initialMissions: Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }> | null
@@ -15,6 +16,7 @@ interface MissionsListProps {
 
 export default function MissionsList({ initialMissions, userId }: MissionsListProps) {
   const [missions, setMissions] = useState(initialMissions)
+  const [filteredMissions, setFilteredMissions] = useState(initialMissions)
   const [isLoading, setIsLoading] = useState(false)
   const [userInscriptions, setUserInscriptions] = useState<Set<number>>(new Set())
 
@@ -93,8 +95,23 @@ export default function MissionsList({ initialMissions, userId }: MissionsListPr
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {missions.map((mission) => (
+    <>
+      {/* Composant de recherche et filtres */}
+      <SearchAndFilters 
+        missions={missions}
+        onFilteredMissions={setFilteredMissions}
+      />
+
+      {/* Affichage des missions filtrées */}
+      {!filteredMissions || filteredMissions.length === 0 ? (
+        <div className="col-span-full text-center py-12">
+          <div className="text-6xl mb-4">🔍</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucune mission trouvée</h3>
+          <p className="text-gray-600">Essayez de modifier vos critères de recherche</p>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredMissions.map((mission) => (
         <Link 
           href={`/mission/${mission.id}`} 
           key={mission.id} 
@@ -188,6 +205,8 @@ export default function MissionsList({ initialMissions, userId }: MissionsListPr
           </div>
         </Link>
       ))}
-    </div>
+        </div>
+      )}
+    </>
   )
 }
