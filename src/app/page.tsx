@@ -16,6 +16,20 @@ export default async function HomePage() {
   // Récupérer l'utilisateur connecté
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Récupérer le profil utilisateur pour obtenir le rôle
+  let userRole = 'benevole'
+  if (user) {
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    if (userProfile) {
+      userRole = userProfile.role
+    }
+  }
+
   // Récupérer les missions avec comptage des inscriptions
   const { data: missions, error } = await supabase
     .from('missions')
@@ -51,6 +65,7 @@ export default async function HomePage() {
           <MissionsList 
             initialMissions={typedMissions} 
             userId={user?.id}
+            userRole={userRole}
           />
         </Container>
       </main>

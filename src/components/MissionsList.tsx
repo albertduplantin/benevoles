@@ -8,13 +8,15 @@ import Tooltip from '@/components/Tooltip'
 import { SkeletonCard } from '@/components/ui/Skeleton'
 import { CardSpinner } from '@/components/ui/Spinner'
 import SearchAndFilters from '@/components/SearchAndFilters'
+import ExportData from '@/components/ExportData'
 
 interface MissionsListProps {
   initialMissions: Array<Omit<MissionWithCounts, 'inscriptions_count'> & { inscriptions_count: number }> | null
   userId?: string
+  userRole?: string
 }
 
-export default function MissionsList({ initialMissions, userId }: MissionsListProps) {
+export default function MissionsList({ initialMissions, userId, userRole }: MissionsListProps) {
   const [missions, setMissions] = useState(initialMissions)
   const [filteredMissions, setFilteredMissions] = useState(initialMissions)
   const [isLoading, setIsLoading] = useState(false)
@@ -96,6 +98,14 @@ export default function MissionsList({ initialMissions, userId }: MissionsListPr
 
   return (
     <>
+      {/* Composant d'export de données (pour admins et responsables) */}
+      {(userRole === 'admin' || userRole === 'responsable') && (
+        <ExportData 
+          missions={missions}
+          userRole={userRole}
+        />
+      )}
+
       {/* Composant de recherche et filtres */}
       <SearchAndFilters 
         missions={missions}
