@@ -101,17 +101,17 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       const startDate = getViewStartDate(currentDate, view)
       const endDate = getViewEndDate(currentDate, view)
 
-      console.log('🔍 Chargement missions:', {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-        view,
-        currentDate: currentDate.toISOString()
-      })
 
-      // Charger les missions dans la plage de dates (requête simplifiée pour debug)
+
+      // Charger les missions dans la plage de dates
       const { data: missions, error } = await supabase
         .from('missions')
-        .select('*')
+        .select(`
+          *,
+          inscriptions(user_id, status)
+        `)
+        .gte('start_time', startDate.toISOString())
+        .lte('start_time', endDate.toISOString())
         .order('start_time', { ascending: true })
 
       if (error) {
@@ -119,9 +119,9 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         throw error
       }
 
-      console.log('📅 Missions trouvées:', missions?.length || 0, missions)
 
-      // Convertir en événements calendrier (logique simplifiée pour debug)
+
+      // Convertir en événements calendrier
       const calendarEvents: CalendarEvent[] = (missions || [])
         .filter(mission => {
           // Filtrer les missions avec des timestamps valides
@@ -133,9 +133,9 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         .map(mission => {
           const start = new Date(mission.start_time)
           const end = new Date(mission.end_time)
-          
-          // Pour l'instant, on ne charge pas les inscriptions pour simplifier
-          const isUserMission = false
+          const isUserMission = mission.inscriptions?.some((inscription: any) => 
+            inscription.user_id === userId && inscription.status === 'confirmed'
+          ) || false
 
           return {
             id: mission.id,
@@ -153,7 +153,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
       const eventsWithConflicts = detectConflicts(calendarEvents)
       setEvents(eventsWithConflicts)
       
-      console.log('📊 Événements calendrier créés:', eventsWithConflicts.length, eventsWithConflicts)
+
       
       // Calculer les conflits pour l'affichage
       calculateConflicts(eventsWithConflicts)
