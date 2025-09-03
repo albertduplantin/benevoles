@@ -41,7 +41,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
   const [currentDate, setCurrentDate] = useState(new Date())
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [view, setView] = useState<'month' | 'week' | 'day'>('month')
+  const [view, setView] = useState<'month' | 'week' | 'day' | 'work_week' | 'agenda'>('month')
   const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null)
   const [conflicts, setConflicts] = useState<Map<number, number[]>>(new Map())
   const supabase = createClient()
@@ -50,10 +50,14 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
     const start = new Date(date)
     switch (view) {
       case 'week':
+      case 'work_week':
         start.setDate(date.getDate() - date.getDay())
         break
       case 'day':
         // Pas de modification pour la vue jour
+        break
+      case 'agenda':
+        // Vue agenda sur 30 jours
         break
       case 'month':
       default:
@@ -67,10 +71,15 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
     const end = new Date(date)
     switch (view) {
       case 'week':
+      case 'work_week':
         end.setDate(date.getDate() - date.getDay() + 6)
         break
       case 'day':
         // Pas de modification pour la vue jour
+        break
+      case 'agenda':
+        // Vue agenda sur 30 jours
+        end.setDate(date.getDate() + 30)
         break
       case 'month':
       default:
@@ -531,14 +540,22 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
         newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1))
         break
       case 'week':
+      case 'work_week':
         newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7))
         break
       case 'day':
         newDate.setDate(currentDate.getDate() + (direction === 'next' ? 1 : -1))
         break
+      case 'agenda':
+        newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7))
+        break
     }
     
     setCurrentDate(newDate)
+  }
+
+  const handleViewChange = (newView: 'month' | 'week' | 'day' | 'work_week' | 'agenda') => {
+    setView(newView)
   }
 
   if (isLoading) {
@@ -560,7 +577,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
             {(['month', 'week', 'day'] as const).map(v => (
               <button
                 key={v}
-                onClick={() => setView(v)}
+                onClick={() => handleViewChange(v)}
                 className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                   view === v 
                     ? 'bg-white text-blue-600 shadow-sm' 
@@ -645,7 +662,7 @@ export default function AdvancedCalendar({ userId, userRole }: AdvancedCalendarP
             view={view}
             date={currentDate}
             onNavigate={setCurrentDate}
-            onView={setView}
+            onView={handleViewChange}
             messages={{
               next: 'Suivant',
               previous: 'Précédent',
