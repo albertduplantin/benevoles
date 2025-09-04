@@ -77,7 +77,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                       <NavLink href="/chat" icon="💬" text="Chat" />
 
             <NavLink href="/calendar" icon="📅" text="Calendrier" />
-            <NavLink href="/ai" icon="🤖" text="IA" />
                         <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
             <NavLink href="/favorites" icon="⭐" text="Favoris" />
             <NavLink href="/profile" icon="👤" text="Mon Profil" />
@@ -90,7 +89,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                       <NavLink href="/chat" icon="💬" text="Chat" />
 
             <NavLink href="/calendar" icon="📅" text="Calendrier" />
-            <NavLink href="/ai" icon="🤖" text="IA" />
                         <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
             <NavLink href="/favorites" icon="⭐" text="Favoris" />
             <NavLink href="/profile" icon="👤" text="Mon Profil" />
@@ -102,7 +100,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                       <NavLink href="/chat" icon="💬" text="Chat" />
 
             <NavLink href="/calendar" icon="📅" text="Calendrier" />
-            <NavLink href="/ai" icon="🤖" text="IA" />
                         <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
             <NavLink href="/favorites" icon="⭐" text="Favoris" />
             <NavLink href="/profile" icon="👤" text="Mon Profil" />
@@ -189,7 +186,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                     <NavLink href="/chat" icon="💬" text="Chat" />
 
             <NavLink href="/calendar" icon="📅" text="Calendrier" />
-            <NavLink href="/ai" icon="🤖" text="IA" />
                         <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
             <NavLink href="/favorites" icon="⭐" text="Favoris" />
             <NavLink href="/profile" icon="👤" text="Mon Profil" />
@@ -202,7 +198,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                     <NavLink href="/chat" icon="💬" text="Chat" />
 
             <NavLink href="/calendar" icon="📅" text="Calendrier" />
-            <NavLink href="/ai" icon="🤖" text="IA" />
                         <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
             <NavLink href="/favorites" icon="⭐" text="Favoris" />
             <NavLink href="/profile" icon="👤" text="Mon Profil" />
@@ -214,7 +209,6 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                     <NavLink href="/chat" icon="💬" text="Chat" />
 
             <NavLink href="/calendar" icon="📅" text="Calendrier" />
-            <NavLink href="/ai" icon="🤖" text="IA" />
                         <NavLink href="/mes-missions" icon="📋" text="Mes Missions" />
             <NavLink href="/favorites" icon="⭐" text="Favoris" />
             <NavLink href="/profile" icon="👤" text="Mon Profil" />

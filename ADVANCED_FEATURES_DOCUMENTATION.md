@@ -2,11 +2,10 @@
 
 ## 📋 Vue d'ensemble
 
-Ce document décrit les 3 nouvelles fonctionnalités avancées implémentées dans l'application de gestion de bénévoles :
+Ce document décrit les 2 nouvelles fonctionnalités avancées implémentées dans l'application de gestion de bénévoles :
 
 1. **📅 Calendrier Avancé** - Vue calendrier avec drag & drop et détection de conflits
 2. **📋 Système de Templates** - Templates de missions réutilisables
-3. **🤖 Intelligence Artificielle** - Suggestions et prédictions personnalisées
 
 ---
 
@@ -133,70 +132,6 @@ interface MissionTemplate {
 
 ---
 
-## 🤖 **3. Intelligence Artificielle**
-
-### 🎯 Fonctionnalités
-
-#### **Suggestions Personnalisées**
-- **Recommandations de missions** : Basées sur l'historique
-- **Prédictions de disponibilité** : Analyse des patterns
-- **Avertissements de conflits** : Détection proactive
-- **Conseils d'optimisation** : Amélioration des performances
-
-#### **Analyse des Patterns**
-- **Heures préférées** : Analyse des créneaux favoris
-- **Lieux préférés** : Zones d'activité fréquentes
-- **Catégories préférées** : Types de missions appréciés
-- **Métriques de performance** : Taux de participation, completion
-
-#### **Prédictions Intelligentes**
-- **Disponibilité future** : Probabilité d'être disponible
-- **Taux de participation** : Prédiction d'engagement
-- **Conflits potentiels** : Anticipation des problèmes
-- **Optimisations** : Suggestions d'amélioration
-
-### 🛠️ Implémentation Technique
-
-#### **Composant Principal**
-```typescript
-// src/components/ai/MissionAI.tsx
-interface AISuggestion {
-  id: string
-  type: 'mission_recommendation' | 'availability_prediction' | 'conflict_warning' | 'optimization_tip'
-  title: string
-  description: string
-  confidence: number
-  priority: 'low' | 'medium' | 'high'
-  data?: any
-}
-```
-
-#### **Algorithmes d'IA**
-- **Analyse des patterns** : Machine learning sur l'historique
-- **Calcul de confiance** : Score de fiabilité des suggestions
-- **Priorisation** : Tri par importance et urgence
-- **Apprentissage continu** : Amélioration avec l'usage
-
-#### **Base de Données**
-- **Table `user_patterns`** : Patterns d'activité
-- **Table `ai_suggestions`** : Suggestions générées
-- **Fonctions d'analyse** : Calculs automatiques
-
-### 📱 Expérience Utilisateur
-
-#### **Interface Intuitive**
-- **Onglets organisés** : Suggestions, Patterns, Prédictions
-- **Niveaux de confiance** : Indicateurs visuels
-- **Priorités claires** : Codes couleur (rouge/jaune/vert)
-- **Actions suggérées** : Boutons d'action contextuels
-
-#### **Données Personnalisées**
-- **Insights uniques** : Basés sur l'activité personnelle
-- **Recommandations pertinentes** : Missions adaptées aux préférences
-- **Conseils pratiques** : Amélioration des performances
-
----
-
 ## 🗄️ **Structure de Base de Données**
 
 ### **Nouvelles Tables**
@@ -210,17 +145,6 @@ mission_templates (
   instructions, is_urgent, category, usage_count, ...
 )
 
--- Patterns utilisateur pour l'IA
-user_patterns (
-  user_id, preferred_times, preferred_locations,
-  preferred_categories, average_availability, ...
-)
-
--- Suggestions IA
-ai_suggestions (
-  user_id, type, title, description, confidence,
-  priority, action, data, is_read, ...
-)
 ```
 
 #### **2. Tables de Support**
@@ -282,7 +206,7 @@ Aucune variable supplémentaire requise - utilise la configuration Supabase exis
 
 ### **3. Intégration**
 - **Navigation** : Liens ajoutés dans le header
-- **Pages dédiées** : `/calendar`, `/ai`, `/favorites`
+- **Pages dédiées** : `/calendar`, `/favorites`
 - **Composants réutilisables** : Intégration dans l'écosystème
 
 ---
@@ -291,7 +215,6 @@ Aucune variable supplémentaire requise - utilise la configuration Supabase exis
 
 ### **Navigation Améliorée**
 - **📅 Calendrier** : Accès direct au calendrier avancé
-- **🤖 IA** : Centre d'intelligence artificielle
 - **⭐ Favoris** : Missions favorites
 - **📊 Planning** : Vue planning classique (inchangée)
 
@@ -348,19 +271,15 @@ Aucune variable supplémentaire requise - utilise la configuration Supabase exis
 - **Versioning** : Historique des modifications
 - **Import/Export** : Échange de templates
 
-### **Intelligence Artificielle**
-- **Machine Learning** : Algorithmes plus sophistiqués
-- **Prédictions avancées** : Tendance et saisonnalité
 - **Recommandations sociales** : Basées sur les pairs
 
 ---
 
 ## 🎉 **Conclusion**
 
-Les 3 fonctionnalités avancées transforment l'application en une plateforme professionnelle de gestion de bénévoles :
+Les 2 fonctionnalités avancées transforment l'application en une plateforme professionnelle de gestion de bénévoles :
 
 - **📅 Calendrier Avancé** : Planification visuelle et interactive
 - **📋 Système de Templates** : Efficacité opérationnelle maximale  
-- **🤖 Intelligence Artificielle** : Personnalisation et optimisation
 
 **L'application est maintenant prête pour une utilisation professionnelle avancée !** 🚀
