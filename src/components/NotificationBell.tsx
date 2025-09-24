@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/lib/types'
 
@@ -8,7 +8,7 @@ interface NotificationBellProps {
   userId: string
 }
 
-export default function NotificationBell({ userId }: NotificationBellProps) {
+const NotificationBell = memo(function NotificationBell({ userId }: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -135,7 +135,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   //   }
   // }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
@@ -152,7 +152,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         minute: '2-digit'
       })
     }
-  }
+  }, [])
 
   return (
     <div className="relative">
@@ -287,4 +287,6 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
       )}
     </div>
   )
-} 
+})
+
+export default NotificationBell 

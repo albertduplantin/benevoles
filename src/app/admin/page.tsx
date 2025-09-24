@@ -44,22 +44,27 @@ export default async function AdminPage() {
     )
   }
 
-  const { data: missionsData, error: missionsError } = await supabase
-    .from('missions')
-    .select(`
-      *, 
-      inscriptions_count:inscriptions(count),
-      inscriptions(
-        user_id,
-        users(first_name, last_name)
-      )
-    `)
-    .order('start_time', { ascending: false })
+  // Requête optimisée : récupérer missions et utilisateurs en parallèle
+  const [missionsResult, usersResult] = await Promise.all([
+    supabase
+      .from('missions')
+      .select(`
+        *, 
+        inscriptions_count:inscriptions(count),
+        inscriptions(
+          user_id,
+          users(first_name, last_name)
+        )
+      `)
+      .order('start_time', { ascending: false }),
+    supabase
+      .from('users')
+      .select('*')
+      .order('last_name', { ascending: true })
+  ])
 
-  const { data: usersData, error: usersError } = await supabase
-    .from('users')
-    .select('*')
-    .order('last_name', { ascending: true })
+  const { data: missionsData, error: missionsError } = missionsResult
+  const { data: usersData, error: usersError } = usersResult
 
   if (missionsError || usersError) {
     console.error('Error fetching admin data:', missionsError || usersError)

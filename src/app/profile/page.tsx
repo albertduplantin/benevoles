@@ -17,29 +17,32 @@ export default async function ProfilePage() {
     redirect('/login?message=Vous devez être connecté pour accéder à votre profil.')
   }
 
-  // Récupérer le profil utilisateur
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // Requêtes optimisées : profil et historique en parallèle
+  const [profileResult, historyResult] = await Promise.all([
+    supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('inscriptions')
+      .select(`
+        created_at,
+        missions!inner (
+          id,
+          title,
+          description,
+          location,
+          start_time,
+          end_time
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+  ])
 
-  // Récupérer l'historique des missions
-  const { data: missionsHistory } = await supabase
-    .from('inscriptions')
-    .select(`
-      created_at,
-      missions (
-        id,
-        title,
-        description,
-        location,
-        start_time,
-        end_time
-      )
-    `)
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  const { data: userProfile } = profileResult
+  const { data: missionsHistory } = historyResult
 
   return (
     <div className="min-h-screen">

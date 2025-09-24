@@ -20,22 +20,25 @@ export default async function MissionDetailsPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 1. Récupérer les détails de la mission
-  const { data: mission, error: missionError } = await supabase
-    .from('missions')
-    .select('*')
-    .eq('id', id)
-    .single()
+  // Requêtes optimisées : mission et inscriptions en parallèle
+  const [missionResult, inscriptionsResult] = await Promise.all([
+    supabase
+      .from('missions')
+      .select('*')
+      .eq('id', id)
+      .single(),
+    supabase
+      .from('inscriptions')
+      .select('*, user:users(*)') // Jointure pour avoir les infos du bénévole
+      .eq('mission_id', id)
+  ])
+
+  const { data: mission, error: missionError } = missionResult
+  const { data: inscriptions, error: inscriptionsError } = inscriptionsResult
 
   if (missionError || !mission) {
     notFound() // Affiche une page 404 si la mission n'existe pas
   }
-
-  // 2. Récupérer les inscriptions pour cette mission
-  const { data: inscriptions, error: inscriptionsError } = await supabase
-    .from('inscriptions')
-    .select('*, user:users(*)') // Jointure pour avoir les infos du bénévole
-    .eq('mission_id', id)
 
   if (inscriptionsError) {
     console.error('Error fetching inscriptions:', inscriptionsError)
