@@ -68,7 +68,7 @@ export default async function ProfilePage() {
               {/* Historique */}
               <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Mon Historique</h3>
-                <MissionHistory missions={missionsHistory} />
+                <MissionHistory missions={missionsHistory as any} />
               </div>
             </div>
           </div>

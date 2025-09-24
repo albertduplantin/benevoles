@@ -1,0 +1,25 @@
+
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond avec coins arrondis -->
+  <rect width="192" height="192" rx="38.400000000000006" ry="38.400000000000006" fill="url(#gradient)"/>
+  
+  <!-- Icône film -->
+  <g transform="translate(38.400000000000006, 38.400000000000006)">
+    <rect x="19.200000000000003" y="19.200000000000003" width="115.19999999999999" height="115.19999999999999" rx="9.600000000000001" fill="white" opacity="0.9"/>
+    
+    <!-- Détails du film -->
+    <rect x="38.400000000000006" y="48" width="19.200000000000003" height="96" fill="url(#gradient)"/>
+    <rect x="67.19999999999999" y="48" width="19.200000000000003" height="96" fill="url(#gradient)"/>
+    <rect x="96" y="48" width="19.200000000000003" height="96" fill="url(#gradient)"/>
+    
+    <!-- Titre -->
+    <text x="96" y="153.60000000000002" text-anchor="middle" font-family="Arial, sans-serif" font-size="23.04" font-weight="bold" fill="white">FESTIVAL</text>
+  </g>
+</svg>
