@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 
+<<<<<<< HEAD
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
 })
@@ -9,6 +10,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(request: NextRequest) {
   try {
     const { amount, year, userId, userName } = await request.json()
+=======
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+export async function POST(request: NextRequest) {
+  try {
+    const { amount, year, userId } = await request.json()
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 
     if (!amount || !year || !userId) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
@@ -16,7 +24,11 @@ export async function POST(request: NextRequest) {
 
     // Récupérer le vrai email de l'utilisateur depuis Supabase Auth
     const supabaseAuth = await createClient()
+<<<<<<< HEAD
     const { data: { user }, error: userError } = await supabaseAuth.auth.admin.getUserById(userId)
+=======
+    const { data: { user } } = await supabaseAuth.auth.admin.getUserById(userId)
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
     
     const userRealEmail = user?.email || 'no-email@example.com'
 
@@ -89,8 +101,13 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'payment',
+<<<<<<< HEAD
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile?payment=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile?payment=cancelled`,
+=======
+      success_url: `https://benevoles.vercel.app/profile?payment=success`,
+      cancel_url: `https://benevoles.vercel.app/profile?payment=cancelled`,
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
       metadata: {
         payment_id: paymentRecord.id.toString(),
         user_id: userId,

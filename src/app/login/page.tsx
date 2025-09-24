@@ -1,33 +1,9 @@
-'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { Suspense } from 'react';
+import LoginForm from './LoginForm';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const router = useRouter()
-  const supabase = createClient()
-  const [message, setMessage] = useState('')
-
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setMessage('')
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      setMessage('Erreur de connexion : ' + error.message)
-    } else {
-      router.push('/')
-      router.refresh()
-    }
-  }
-
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
@@ -100,4 +76,10 @@ export default function LoginPage() {
       </div>
     </div>
   )
+=======
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 } 

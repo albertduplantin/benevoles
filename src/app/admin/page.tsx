@@ -6,12 +6,19 @@ import Container from '@/components/Container'
 import CreateMissionForm from '@/components/admin/CreateMissionForm'
 import CreateUserForm from '@/components/admin/CreateUserForm'
 import MembershipSettings from '@/components/admin/MembershipSettings'
+<<<<<<< HEAD
 import SendNotificationForm from '@/components/admin/SendNotificationForm'
 import { createMissionAction } from './actions'
 import { MissionWithCounts, MissionWithVolunteers, UserProfile } from '@/lib/types'
 import MissionRow from './MissionRow'
 import UserRow from './UserRow'
 import CallToVolunteers from '@/components/admin/CallToVolunteers'
+=======
+import VolunteerPreferencesView from '@/components/admin/VolunteerPreferencesView'
+import { createMissionActionSafe } from './actions-safe'
+import { MissionWithCounts, MissionWithVolunteers, UserProfile, VolunteerCompleteProfile } from '@/lib/types'
+import AdminPageClient from './AdminPageClient'
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -48,16 +55,22 @@ export default async function AdminPage() {
     .from('missions')
     .select(`
       *, 
+<<<<<<< HEAD
       inscriptions_count:inscriptions(count),
       inscriptions(
         user_id,
         users(first_name, last_name)
+=======
+      inscriptions(
+        user_id,
+        users(first_name, last_name, phone)
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
       )
     `)
     .order('start_time', { ascending: false })
 
   const { data: usersData, error: usersError } = await supabase
-    .from('users')
+    .from('volunteer_complete_profile')
     .select('*')
     .order('last_name', { ascending: true })
 
@@ -65,15 +78,23 @@ export default async function AdminPage() {
     console.error('Error fetching admin data:', missionsError || usersError)
   }
 
+<<<<<<< HEAD
   // Transformer les données pour extraire le count correctement
   const typedMissions = missionsData?.map(mission => ({
     ...mission,
     inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0
+=======
+  // Transformer les données pour compter les inscriptions correctement
+  const typedMissions = missionsData?.map(mission => ({
+    ...mission,
+    inscriptions_count: mission.inscriptions ? mission.inscriptions.length : 0
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   })) as MissionWithCounts[] | null
 
   // Missions avec détails des bénévoles pour l'appel à bénévoles
   const missionsWithVolunteers = missionsData?.map(mission => ({
     ...mission,
+<<<<<<< HEAD
     inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0,
     inscriptions: mission.inscriptions || []
   })) as MissionWithVolunteers[] | null
@@ -174,4 +195,24 @@ export default async function AdminPage() {
       </main>
     </div>
   )
+=======
+    inscriptions_count: mission.inscriptions ? mission.inscriptions.length : 0,
+    inscriptions: mission.inscriptions || []
+  })) as MissionWithVolunteers[] | null
+
+  const typedUsers = usersData as any[] | null
+
+  // Déduplication par id
+  const uniqueUsers: VolunteerCompleteProfile[] = typedUsers
+    ? Object.values(
+        typedUsers.reduce((acc, user) => {
+          acc[user.id] = user;
+          return acc;
+        }, {} as Record<string, VolunteerCompleteProfile>)
+      )
+    : [];
+
+  // Si l'utilisateur est un admin, afficher le tableau de bord
+  return <AdminPageClient missions={typedMissions || []} users={typedUsers || []} missionsWithVolunteers={missionsWithVolunteers || []} uniqueUsers={uniqueUsers || []} session={session} />
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 } 

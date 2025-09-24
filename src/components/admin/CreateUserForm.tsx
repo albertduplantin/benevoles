@@ -58,8 +58,12 @@ export default function CreateUserForm() {
               id="first_name"
               name="first_name"
               required
+<<<<<<< HEAD
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
               style={{ colorScheme: 'light' }}
+=======
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             />
           </div>
           
@@ -72,8 +76,12 @@ export default function CreateUserForm() {
               id="last_name"
               name="last_name"
               required
+<<<<<<< HEAD
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
               style={{ colorScheme: 'light' }}
+=======
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             />
           </div>
         </div>
@@ -87,8 +95,12 @@ export default function CreateUserForm() {
             id="email"
             name="email"
             required
+<<<<<<< HEAD
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
             style={{ colorScheme: 'light' }}
+=======
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
           />
         </div>
 
@@ -102,8 +114,12 @@ export default function CreateUserForm() {
             name="password"
             required
             minLength={6}
+<<<<<<< HEAD
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
             style={{ colorScheme: 'light' }}
+=======
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
           />
           <p className="mt-1 text-sm text-gray-500">
             Minimum 6 caractères. L&apos;utilisateur pourra le changer après connexion.
@@ -118,8 +134,12 @@ export default function CreateUserForm() {
             type="tel"
             id="phone"
             name="phone"
+<<<<<<< HEAD
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
             style={{ colorScheme: 'light' }}
+=======
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
           />
         </div>
 
@@ -131,8 +151,12 @@ export default function CreateUserForm() {
             id="role"
             name="role"
             defaultValue="benevole"
+<<<<<<< HEAD
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900"
             style={{ colorScheme: 'light' }}
+=======
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
           >
             <option value="benevole">Bénévole</option>
             <option value="responsable">Responsable</option>

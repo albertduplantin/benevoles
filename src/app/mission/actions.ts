@@ -2,6 +2,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+<<<<<<< HEAD
+=======
+
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 
 // Action pour INSCRIRE un utilisateur à une mission
 export async function joinMission(missionId: number) {
@@ -81,6 +85,8 @@ export async function joinMission(missionId: number) {
   if (insertError) {
     return `Erreur lors de l'inscription : ${insertError.message}`
   }
+
+
 
   // 6. Invalider le cache pour rafraîchir la page
   revalidatePath(`/mission/${missionId}`)

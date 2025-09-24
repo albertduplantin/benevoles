@@ -57,6 +57,34 @@ export async function middleware(request: NextRequest) {
   // rafraîchit la session de l'utilisateur si elle a expiré.
   await supabase.auth.getUser()
 
+  // Obligation de compléter le profil (téléphone)
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    // Si l'utilisateur est connecté, on vérifie son profil public.users
+    if (user) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('phone')
+        .eq('id', user.id)
+        .single()
+
+      const missingPhone = !profile || !profile.phone || profile.phone.trim() === ''
+
+      const currentPath = request.nextUrl.pathname
+      const onCompletionPage = currentPath.startsWith('/complete-profile')
+
+      if (missingPhone && !onCompletionPage) {
+        const redirectUrl = new URL('/complete-profile', request.url)
+        return NextResponse.redirect(redirectUrl)
+      }
+    }
+  } catch {
+    // on ignore les erreurs (ex. RLS) et laisse passer la requête
+  }
+
   return response
 }
 

@@ -111,8 +111,12 @@ export default function MembershipSettings() {
               onChange={(e) => setYear(parseInt(e.target.value))}
               min="2024"
               max="2030"
+<<<<<<< HEAD
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               style={{ colorScheme: 'light' }}
+=======
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             />
           </div>
           
@@ -127,8 +131,12 @@ export default function MembershipSettings() {
               onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
               min="0"
               step="0.01"
+<<<<<<< HEAD
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               style={{ colorScheme: 'light' }}
+=======
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             />
           </div>
         </div>

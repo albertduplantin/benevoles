@@ -54,6 +54,7 @@ export interface Database {
           location: string | null
           manager_id: string | null
           max_volunteers: number
+          is_urgent: boolean // nouveau champ
           start_time: string
           title: string
         }
@@ -65,6 +66,7 @@ export interface Database {
           location?: string | null
           manager_id?: string | null
           max_volunteers: number
+          is_urgent?: boolean
           start_time: string
           title: string
         }
@@ -76,6 +78,7 @@ export interface Database {
           location?: string | null
           manager_id?: string | null
           max_volunteers?: number
+          is_urgent?: boolean
           start_time?: string
           title?: string
         }
@@ -229,6 +232,7 @@ export type Inscription = Database['public']['Tables']['inscriptions']['Row'];
 export type MembershipSetting = Database['public']['Tables']['membership_settings']['Row'];
 export type MembershipPayment = Database['public']['Tables']['membership_payments']['Row'];
 
+<<<<<<< HEAD
 // Types pour le système de notifications
 export interface Notification {
   id: number;
@@ -257,6 +261,24 @@ export interface MissionWithCounts extends Mission {
 // Pour les missions avec les détails des bénévoles inscrits
 export type MissionWithVolunteers = Mission & {
   inscriptions_count: number;
+=======
+// Types pour les missions avec compteurs et volontaires
+export interface MissionWithCounts extends Mission {
+  inscriptions_count: number;
+  inscriptions?: Array<{
+    user_id: string;
+    users: {
+      first_name: string | null;
+      last_name: string | null;
+      phone: string | null;
+    } | null;
+  }>;
+}
+
+// Pour les missions avec les détails des bénévoles inscrits
+export type MissionWithVolunteers = Mission & {
+  inscriptions_count: number;
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   inscriptions: Array<{
     user_id: string;
     users: {
@@ -264,4 +286,180 @@ export type MissionWithVolunteers = Mission & {
       last_name: string | null;
     } | null;
   }>;
+<<<<<<< HEAD
 }; 
+=======
+};
+
+// Types pour le système de planning
+export interface PlanningMission extends Mission {
+  inscriptions_count: number;
+  volunteers: Array<{
+    user_id: string;
+    first_name: string | null;
+    last_name: string | null;
+    phone: string | null;
+  }>;
+  manager?: {
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
+}
+
+export interface ConflictDetection {
+  volunteer_id: string;
+  volunteer_name: string;
+  conflicts: Array<{
+    mission1: PlanningMission;
+    mission2: PlanningMission;
+    overlap_start: string;
+    overlap_end: string;
+  }>;
+}
+
+export interface PlanningStats {
+  total_missions: number;
+  total_volunteer_slots: number;
+  filled_slots: number;
+  coverage_percentage: number;
+  conflicts_count: number;
+  missions_by_day: Record<string, number>;
+}
+
+export interface PlanningFilters {
+  start_date?: string;
+  end_date?: string;
+  volunteer_id?: string;
+  mission_type?: string;
+  manager_id?: string;
+  location?: string;
+  status?: 'all' | 'full' | 'available' | 'conflicts';
+}
+
+// Types pour les vues de planning
+export type PlanningView = 'calendar' | 'timeline' | 'volunteer' | 'sector'; 
+
+// ============================================
+// TYPES POUR DISPONIBILITÉS ET COMPÉTENCES
+// ============================================
+
+// Types des jours de la semaine
+export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+
+// Niveau de compétence/intérêt pour un secteur
+export type SectorLevel = 0 | 1 | 2 | 3; // 0=Non intéressé, 1=Débutant, 2=Intermédiaire, 3=Expert
+
+// Interface pour les disponibilités d'un bénévole
+export interface UserAvailability {
+  id: number;
+  user_id: string;
+  preferred_days: WeekDay[];
+  preferred_morning: boolean;
+  preferred_afternoon: boolean;
+  preferred_evening: boolean;
+  max_hours_per_week?: number | null;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Interface pour les indisponibilités d'un bénévole
+export interface UserUnavailability {
+  id: number;
+  user_id: string;
+  start_date: string; // Date format YYYY-MM-DD
+  end_date: string;   // Date format YYYY-MM-DD
+  reason?: string | null;
+  created_at: string;
+}
+
+// Interface pour les préférences de secteurs
+export interface UserSectorPreferences {
+  id: number;
+  user_id: string;
+  accueil_billetterie: SectorLevel;
+  projections: SectorLevel;
+  technique: SectorLevel;
+  restauration: SectorLevel;
+  communication: SectorLevel;
+  logistique: SectorLevel;
+  animation: SectorLevel;
+  securite: SectorLevel;
+  entretien: SectorLevel;
+  autre: SectorLevel;
+  technical_notes?: string | null;
+  experience_notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Interface complète des préférences d'un bénévole
+export interface VolunteerCompleteProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  role: 'benevole' | 'responsable' | 'admin';
+  
+  // Disponibilités
+  preferred_days: WeekDay[] | null;
+  preferred_morning: boolean | null;
+  preferred_afternoon: boolean | null;
+  preferred_evening: boolean | null;
+  max_hours_per_week: number | null;
+  availability_notes: string | null;
+  
+  // Secteurs/Compétences
+  accueil_billetterie: SectorLevel | null;
+  projections: SectorLevel | null;
+  technique: SectorLevel | null;
+  restauration: SectorLevel | null;
+  communication: SectorLevel | null;
+  logistique: SectorLevel | null;
+  animation: SectorLevel | null;
+  securite: SectorLevel | null;
+  entretien: SectorLevel | null;
+  autre: SectorLevel | null;
+  technical_notes: string | null;
+  experience_notes: string | null;
+}
+
+// Types pour les formulaires
+export interface AvailabilityFormData {
+  preferred_days: WeekDay[];
+  preferred_morning: boolean;
+  preferred_afternoon: boolean;
+  preferred_evening: boolean;
+  max_hours_per_week?: number;
+  notes?: string;
+}
+
+export interface SectorPreferencesFormData {
+  accueil_billetterie: SectorLevel;
+  projections: SectorLevel;
+  technique: SectorLevel;
+  restauration: SectorLevel;
+  communication: SectorLevel;
+  logistique: SectorLevel;
+  animation: SectorLevel;
+  securite: SectorLevel;
+  entretien: SectorLevel;
+  autre: SectorLevel;
+  technical_notes?: string;
+  experience_notes?: string;
+}
+
+export interface UnavailabilityFormData {
+  start_date: string;
+  end_date: string;
+  reason?: string;
+}
+
+// Métadonnées pour l'affichage des secteurs
+export interface SectorMetadata {
+  key: keyof Omit<UserSectorPreferences, 'id' | 'user_id' | 'technical_notes' | 'experience_notes' | 'created_at' | 'updated_at'>;
+  label: string;
+  description: string;
+  icon: string;
+} 
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e

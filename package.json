@@ -1,21 +1,28 @@
 {
   "name": "benevoles",
-  "version": "0.1.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "@heroicons/react": "^2.2.0",
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
     "@stripe/stripe-js": "^7.4.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.0",
+    "@tippyjs/react": "^4.2.6",
+    "@types/nodemailer": "^6.4.17",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "next": "15.3.4",
+    "nodemailer": "^7.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "stripe": "^18.2.1"

@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+<<<<<<< HEAD
+=======
+import NextImage from 'next/image'
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 import { createClient } from '@/lib/supabase/client'
 import { UserProfile } from '@/lib/types'
 
@@ -142,9 +146,17 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
           <div className="relative">
                          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                {avatarUrl ? (
+<<<<<<< HEAD
                  <img
                    src={avatarUrl}
                    alt="Photo de profil"
+=======
+                 <NextImage
+                   src={avatarUrl}
+                   alt="Photo de profil"
+                   width={96}
+                   height={96}
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
                    className="w-full h-full object-cover"
                  />
                ) : (
@@ -198,8 +210,12 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
               id="first_name"
               defaultValue={userProfile?.first_name || ''}
               required
+<<<<<<< HEAD
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               style={{ colorScheme: 'light' }}
+=======
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             />
           </div>
           <div>
@@ -212,8 +228,12 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
               id="last_name"
               defaultValue={userProfile?.last_name || ''}
               required
+<<<<<<< HEAD
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               style={{ colorScheme: 'light' }}
+=======
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             />
           </div>
         </div>
@@ -227,9 +247,14 @@ export default function ProfileForm({ userProfile }: ProfileFormProps) {
             name="phone"
             id="phone"
             defaultValue={userProfile?.phone || ''}
+<<<<<<< HEAD
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
             placeholder="06 12 34 56 78"
             style={{ colorScheme: 'light' }}
+=======
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="06 12 34 56 78"
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
           />
         </div>
 

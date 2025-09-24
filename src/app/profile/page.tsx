@@ -6,6 +6,11 @@ import ProfileForm from '@/components/ProfileForm'
 import MissionHistory from '@/components/MissionHistory'
 import MembershipButton from '@/components/MembershipButton'
 
+<<<<<<< HEAD
+=======
+import VolunteerPreferences from '@/components/VolunteerPreferences'
+
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 export default async function ProfilePage() {
   const supabase = await createClient()
 
@@ -25,7 +30,11 @@ export default async function ProfilePage() {
     .single()
 
   // Récupérer l'historique des missions
+<<<<<<< HEAD
   const { data: missionsHistory } = await supabase
+=======
+  const { data: rawMissionsHistory } = await supabase
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
     .from('inscriptions')
     .select(`
       created_at,
@@ -41,6 +50,15 @@ export default async function ProfilePage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
+<<<<<<< HEAD
+=======
+  // Transformer les données pour correspondre au type attendu
+  const missionsHistory = rawMissionsHistory?.map(inscription => ({
+    created_at: inscription.created_at,
+    missions: Array.isArray(inscription.missions) ? inscription.missions[0] || null : inscription.missions
+  })) || null
+
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   return (
     <div className="min-h-screen">
       <Header user={user} title="Mon Profil" />
@@ -55,6 +73,18 @@ export default async function ProfilePage() {
                 <p className="text-gray-600 mb-6">Gérez vos informations personnelles et vos préférences</p>
                 <ProfileForm userProfile={userProfile} />
               </div>
+<<<<<<< HEAD
+=======
+              
+              {/* Disponibilités et compétences - seulement pour les bénévoles */}
+              {userProfile?.role === 'benevole' && (
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Mes Disponibilités & Compétences</h2>
+                  <p className="text-gray-600 mb-6">Aidez-nous à vous proposer des missions adaptées à vos disponibilités et compétences</p>
+                  <VolunteerPreferences userId={user.id} />
+                </div>
+              )}
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
             </div>
 
             {/* Sidebar - Cotisation et Historique */}

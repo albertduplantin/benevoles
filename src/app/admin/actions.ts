@@ -2,6 +2,13 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+<<<<<<< HEAD
+=======
+
+// Valeur sentinelle utilisée pour identifier les missions « sans date »
+const NO_DATE_SENTINEL = '1970-01-01T00:00:00Z'
+
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
 
 export async function createMissionAction(formData: FormData) {
   const supabase = await createClient()
@@ -13,22 +20,34 @@ export async function createMissionAction(formData: FormData) {
   if (profile?.role !== 'admin') return "Action non autorisée."
 
   const managerId = formData.get('manager_id') as string
+<<<<<<< HEAD
+=======
+  const isLongTerm = formData.get('long_term') === 'on'
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   const rawData = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     location: formData.get('location') as string,
+<<<<<<< HEAD
     start_time: formData.get('start_time') as string,
     end_time: formData.get('end_time') as string,
     max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
     manager_id: managerId || null
+=======
+    start_time: isLongTerm ? NO_DATE_SENTINEL : (formData.get('start_time') as string),
+    end_time: isLongTerm ? NO_DATE_SENTINEL : (formData.get('end_time') as string),
+    max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
+    manager_id: managerId || null,
+    is_urgent: formData.get('is_urgent') === 'on'
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   }
 
   // Validation simple
-  if (!rawData.title || !rawData.start_time || !rawData.end_time || !rawData.max_volunteers) {
+  if (!rawData.title || (!isLongTerm && (!rawData.start_time || !rawData.end_time)) || !rawData.max_volunteers) {
     return "Erreur : Champs requis manquants."
   }
   
-  const { error } = await supabase.from('missions').insert(rawData)
+  const { data: newMission, error } = await supabase.from('missions').insert(rawData).select().single()
 
   if (error) {
     return `Erreur lors de la création : ${error.message}`
@@ -47,6 +66,8 @@ export async function deleteMissionAction(missionId: number) {
 
   const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') return "Action non autorisée."
+
+
 
   // On supprime d'abord les inscriptions liées à cette mission pour éviter les erreurs de contrainte de clé étrangère
   const { error: inscriptionError } = await supabase.from('inscriptions').delete().eq('mission_id', missionId)
@@ -211,10 +232,15 @@ export async function updateMissionAction(missionId: number, formData: FormData)
   if (profile?.role !== 'admin') return "Action non autorisée."
 
   const managerId = formData.get('manager_id') as string
+<<<<<<< HEAD
+=======
+  const isLongTermUpdate = formData.get('long_term') === 'on'
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   const rawData = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     location: formData.get('location') as string,
+<<<<<<< HEAD
     start_time: formData.get('start_time') as string,
     end_time: formData.get('end_time') as string,
     max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
@@ -223,6 +249,17 @@ export async function updateMissionAction(missionId: number, formData: FormData)
 
   // Validation simple
   if (!rawData.title || !rawData.start_time || !rawData.end_time || !rawData.max_volunteers) {
+=======
+    start_time: isLongTermUpdate ? NO_DATE_SENTINEL : (formData.get('start_time') as string),
+    end_time: isLongTermUpdate ? NO_DATE_SENTINEL : (formData.get('end_time') as string),
+    max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
+    manager_id: managerId || null,
+    is_urgent: formData.get('is_urgent') === 'on'
+  }
+
+  // Validation simple
+  if (!rawData.title || (!isLongTermUpdate && (!rawData.start_time || !rawData.end_time)) || !rawData.max_volunteers) {
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
     return "Erreur : Champs requis manquants."
   }
   
@@ -235,6 +272,12 @@ export async function updateMissionAction(missionId: number, formData: FormData)
     return `Erreur lors de la mise à jour : ${error.message}`
   }
 
+<<<<<<< HEAD
+=======
+  // Notifications désactivées (système nettoyé)
+  console.log(`✅ Mission ${missionId} mise à jour`)
+
+>>>>>>> f04bd292517aef758b35a542c8acbf0c58acef3e
   revalidatePath('/admin')
   revalidatePath('/')
   return "Succès ! La mission a été mise à jour."
