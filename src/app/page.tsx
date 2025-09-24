@@ -71,11 +71,15 @@ export default async function HomePage() {
                         </h3>
                         <div className="flex-shrink-0 ml-2">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            mission.inscriptions_count >= mission.max_volunteers 
+                            (Array.isArray(mission.inscriptions_count) 
+                              ? mission.inscriptions_count[0]?.count || 0 
+                              : mission.inscriptions_count || 0) >= mission.max_volunteers 
                               ? 'bg-red-100 text-red-800' 
                               : 'bg-green-100 text-green-800'
                           }`}>
-                            {mission.inscriptions_count >= mission.max_volunteers ? 'Complet' : 'Disponible'}
+                            {(Array.isArray(mission.inscriptions_count) 
+                              ? mission.inscriptions_count[0]?.count || 0 
+                              : mission.inscriptions_count || 0) >= mission.max_volunteers ? 'Complet' : 'Disponible'}
                           </span>
                         </div>
                       </div>

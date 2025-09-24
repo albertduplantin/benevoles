@@ -153,7 +153,9 @@ export default function MissionRow({ mission, users }: MissionRowProps) {
         {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
       </td>
       <td className="px-4 py-2 text-center">
-        {mission.inscriptions_count} / {mission.max_volunteers}
+        {Array.isArray(mission.inscriptions_count) 
+          ? mission.inscriptions_count[0]?.count || 0 
+          : mission.inscriptions_count || 0} / {mission.max_volunteers}
       </td>
       <td className="px-4 py-2 text-center">
         <button onClick={handleEdit} className="text-blue-600 hover:underline text-sm">Éditer</button>

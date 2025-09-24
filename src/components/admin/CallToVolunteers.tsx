@@ -12,7 +12,11 @@ export default function CallToVolunteers({ missions, users }: CallToVolunteersPr
   const [isOpen, setIsOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState('');
 
-  const incompleteMissions = missions?.filter(m => m.inscriptions_count < m.max_volunteers)
+  const incompleteMissions = missions?.filter(m => 
+    (Array.isArray(m.inscriptions_count) 
+      ? m.inscriptions_count[0]?.count || 0 
+      : m.inscriptions_count || 0) < m.max_volunteers
+  )
 
   const generateText = () => {
     if (!incompleteMissions || incompleteMissions.length === 0) {
