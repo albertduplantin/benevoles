@@ -113,13 +113,13 @@ export default async function HomePage() {
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm font-medium text-gray-700">Places</span>
                           <span className="text-sm text-gray-600">
-                            {mission.inscriptions_count}/{mission.max_volunteers}
+                            {mission.inscriptions_count as unknown as number}/{mission.max_volunteers}
                           </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min((mission.inscriptions_count / mission.max_volunteers) * 100, 100)}%` }}
+                            style={{ width: `${Math.min(((mission.inscriptions_count as unknown as number) / mission.max_volunteers) * 100, 100)}%` }}
                           />
                         </div>
                       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Notification } from '@/lib/types'
 
@@ -40,9 +40,9 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         subscription.unsubscribe()
       }
     }
-  }, [userId])
+  }, [userId, fetchNotifications, supabase])
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     setIsLoading(true)
     const { data, error } = await supabase
       .from('notifications')
@@ -59,7 +59,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
       setUnreadCount(data.filter(n => !n.is_read).length)
     }
     setIsLoading(false)
-  }
+  }, [userId, supabase])
 
   const markAsRead = async (notificationId: number) => {
     const { error } = await supabase
@@ -122,18 +122,18 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     }
   }
 
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'border-green-200 bg-green-50'
-      case 'warning':
-        return 'border-yellow-200 bg-yellow-50'
-      case 'error':
-        return 'border-red-200 bg-red-50'
-      default:
-        return 'border-blue-200 bg-blue-50'
-    }
-  }
+  // const getNotificationColor = (type: string) => {
+  //   switch (type) {
+  //     case 'success':
+  //       return 'border-green-200 bg-green-50'
+  //     case 'warning':
+  //       return 'border-yellow-200 bg-yellow-50'
+  //     case 'error':
+  //       return 'border-red-200 bg-red-50'
+  //     default:
+  //       return 'border-blue-200 bg-blue-50'
+  //   }
+  // }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
