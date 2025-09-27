@@ -12,9 +12,16 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Les admins peuvent désormais consulter les missions comme les autres utilisateurs ;
-  // suppression de la redirection automatique vers /admin.
-
+  let isAdmin = false
+  if (user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    isAdmin = profile?.role === 'admin'
+  }
+  
   const { data: missions, error } = await supabase
     .from('missions')
     .select('*, inscriptions_count:inscriptions(count)')
@@ -32,7 +39,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen">
-      <Header user={user} />
+      <Header user={user} isAdmin={isAdmin} />
       
       <main className="py-8">
         <Container>

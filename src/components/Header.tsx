@@ -5,11 +5,12 @@ import { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
   user: User | null;
+  isAdmin?: boolean;
   title?: string;
   showBackToSite?: boolean;
 }
 
-export default function Header({ user, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false }: HeaderProps) {
+export default function Header({ user, isAdmin = false, title = "Portail Bénévoles - Festival du Film Court", showBackToSite = false }: HeaderProps) {
   return (
     <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4">
@@ -34,6 +35,14 @@ export default function Header({ user, title = "Portail Bénévoles - Festival d
                 >
                   Missions
                 </Link>
+                {isAdmin && (
+                  <Link 
+                    href="/admin" 
+                    className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Admin
+                  </Link>
+                )}
                 <Link 
                   href="/profile" 
                   className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
