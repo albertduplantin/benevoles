@@ -81,9 +81,10 @@ export default async function AdminPage() {
   const typedUsers = usersData as UserProfile[] | null
 
   // Si l'utilisateur est un admin, afficher le tableau de bord
+  const isAdmin = true
   return (
     <div className="min-h-screen">
-      <Header user={session.user} title="Tableau de bord Administrateur" showBackToSite={true} />
+      <Header user={session.user} isAdmin={isAdmin} title="Tableau de bord Administrateur" showBackToSite={true} />
       
       <main className="py-8">
         <Container maxWidth="xl">
