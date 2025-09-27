@@ -44,6 +44,23 @@ export default function LoginPage() {
         </div>
         
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-gray-200">
+          <button
+            type="button"
+            onClick={async () => {
+              const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                  redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+                },
+              })
+              if (error) setMessage('Erreur Google: ' + error.message)
+            }}
+            className="w-full mb-6 px-4 py-3 flex items-center justify-center gap-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 533.5 544.3"><path fill="#4285f4" d="M533.5 278.4c0-17.4-1.6-34.1-4.6-50.4H272v95.3h146.9c-6.4 34.4-25.2 63.6-53.7 83.2v68h86.9c50.9-46.8 81.4-115.7 81.4-196.1z"/><path fill="#34a853" d="M272 544.3c72.9 0 134.2-24.1 178.9-65.6l-86.9-68c-24.2 16.2-55.2 25.8-92 25.8-70.7 0-130.6-47.7-152-111.4h-90.2v69.9C72.2 486.7 165.4 544.3 272 544.3z"/><path fill="#fbbc04" d="M120 325.1c-10.8-32.3-10.8-67.8 0-100.1v-69.9H29.8c-28.6 57.1-28.6 124.8 0 181.9L120 325.1z"/><path fill="#ea4335" d="M272 214.5c37.8-.6 73.1 13.8 100.4 39.4l75.1-75.1C403.5 105.1 342.1 80.4 272 81.1 165.4 81.1 72.2 138.7 29.8 224.9l90.2 69.9C141.4 262.2 201.3 214.5 272 214.5z"/></svg>
+            <span>Continuer avec Google</span>
+          </button>
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label
