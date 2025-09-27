@@ -12,18 +12,8 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Rediriger les admins vers leur tableau de bord
-  if (user) {
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    
-    if (userProfile?.role === 'admin') {
-      redirect('/admin')
-    }
-  }
+  // Les admins peuvent désormais consulter les missions comme les autres utilisateurs ;
+  // suppression de la redirection automatique vers /admin.
 
   const { data: missions, error } = await supabase
     .from('missions')
