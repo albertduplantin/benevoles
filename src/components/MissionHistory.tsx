@@ -8,7 +8,14 @@ interface MissionHistoryProps {
       location: string | null;
       start_time: string;
       end_time: string;
-    } | null;
+    } | {
+      id: number;
+      title: string;
+      description: string | null;
+      location: string | null;
+      start_time: string;
+      end_time: string;
+    }[] | null;
   }> | null;
 }
 
@@ -25,7 +32,8 @@ export default function MissionHistory({ missions }: MissionHistoryProps) {
 
   const totalMissions = missions.length
   const pastMissions = missions.filter(inscription => {
-    const mission = inscription.missions;
+    const missionData = inscription.missions;
+    const mission = Array.isArray(missionData) ? missionData[0] : missionData;
     return mission && new Date(mission.start_time) < new Date();
   }).length
   const upcomingMissions = totalMissions - pastMissions
@@ -50,7 +58,8 @@ export default function MissionHistory({ missions }: MissionHistoryProps) {
 
       <div className="space-y-3 max-h-80 overflow-y-auto">
       {missions.map((inscription, index) => {
-        const mission = inscription.missions;
+        const missionData = inscription.missions;
+        const mission = Array.isArray(missionData) ? missionData[0] : missionData;
         if (!mission) return null;
 
         const missionDate = new Date(mission.start_time);
