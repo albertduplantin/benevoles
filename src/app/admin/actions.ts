@@ -13,18 +13,21 @@ export async function createMissionAction(formData: FormData) {
   if (profile?.role !== 'admin') return "Action non autorisée."
 
   const managerId = formData.get('manager_id') as string
+  const longTerm = formData.get('is_long_term') === 'on'
+
   const rawData = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     location: formData.get('location') as string,
-    start_time: formData.get('start_time') as string,
-    end_time: formData.get('end_time') as string,
+    start_time: longTerm ? null : (formData.get('start_time') as string | null),
+    end_time:   longTerm ? null : (formData.get('end_time') as string | null),
+    is_long_term: longTerm,
+    is_urgent: formData.get('is_urgent') === 'on',
     max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
-    manager_id: managerId || null
+    manager_id: managerId || null,
   }
 
-  // Validation simple
-  if (!rawData.title || !rawData.start_time || !rawData.end_time || !rawData.max_volunteers) {
+  if (!rawData.title || (!longTerm && (!rawData.start_time || !rawData.end_time)) || !rawData.max_volunteers) {
     return "Erreur : Champs requis manquants."
   }
   
@@ -211,18 +214,22 @@ export async function updateMissionAction(missionId: number, formData: FormData)
   if (profile?.role !== 'admin') return "Action non autorisée."
 
   const managerId = formData.get('manager_id') as string
+  const longTerm = formData.get('is_long_term') === 'on'
+
   const rawData = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     location: formData.get('location') as string,
-    start_time: formData.get('start_time') as string,
-    end_time: formData.get('end_time') as string,
+    start_time: longTerm ? null : (formData.get('start_time') as string | null),
+    end_time:   longTerm ? null : (formData.get('end_time') as string | null),
+    is_long_term: longTerm,
+    is_urgent: formData.get('is_urgent') === 'on',
     max_volunteers: parseInt(formData.get('max_volunteers') as string, 10),
-    manager_id: managerId || null
+    manager_id: managerId || null,
   }
 
   // Validation simple
-  if (!rawData.title || !rawData.start_time || !rawData.end_time || !rawData.max_volunteers) {
+  if (!rawData.title || (!longTerm && (!rawData.start_time || !rawData.end_time)) || !rawData.max_volunteers) {
     return "Erreur : Champs requis manquants."
   }
   
