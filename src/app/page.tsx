@@ -70,13 +70,20 @@ export default async function HomePage() {
                           {mission.title}
                         </h3>
                         <div className="flex-shrink-0 ml-2">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            mission.inscriptions_count >= mission.max_volunteers 
-                              ? 'bg-red-100 text-red-800' 
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {mission.inscriptions_count >= mission.max_volunteers ? 'Complet' : 'Disponible'}
-                          </span>
+                          {/* Normalise inscriptions_count qui peut être un nombre ou un tableau [{ count }] */}
+                          {(() => {
+                            const count = Array.isArray(mission.inscriptions_count)
+                              ? (mission.inscriptions_count[0]?.count ?? 0)
+                              : mission.inscriptions_count
+                            const isFull = count >= mission.max_volunteers
+                            return (
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                isFull ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                              }`}>
+                                {isFull ? 'Complet' : 'Disponible'}
+                              </span>
+                            )
+                          })()}
                         </div>
                       </div>
                       
@@ -108,14 +115,26 @@ export default async function HomePage() {
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm font-medium text-gray-700">Places</span>
-                          <span className="text-sm text-gray-600">
-                            {mission.inscriptions_count}/{mission.max_volunteers}
-                          </span>
+                          {(() => {
+                            const count = Array.isArray(mission.inscriptions_count)
+                              ? (mission.inscriptions_count[0]?.count ?? 0)
+                              : mission.inscriptions_count
+                            return (
+                              <span className="text-sm text-gray-600">
+                                {count}/{mission.max_volunteers}
+                              </span>
+                            )
+                          })()}
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${Math.min((mission.inscriptions_count / mission.max_volunteers) * 100, 100)}%` }}
+                            style={{ width: (() => {
+                              const count = Array.isArray(mission.inscriptions_count)
+                                ? (mission.inscriptions_count[0]?.count ?? 0)
+                                : mission.inscriptions_count
+                              return `${Math.min((count / mission.max_volunteers) * 100, 100)}%`
+                            })() }}
                           />
                         </div>
                       </div>
