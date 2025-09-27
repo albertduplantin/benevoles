@@ -57,6 +57,19 @@ export async function middleware(request: NextRequest) {
   // rafraîchit la session de l'utilisateur si elle a expiré.
   await supabase.auth.getUser()
 
+  // Rediriger vers complétion du téléphone si manquant
+  const { data: profile } = await supabase
+    .from('users')
+    .select('phone')
+    .eq('id', request.headers.get('sb-user') || '')
+    .single()
+
+  if (profile && !profile.phone && !request.nextUrl.pathname.startsWith('/complete-phone')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/complete-phone'
+    return NextResponse.redirect(url)
+  }
+
   return response
 }
 
