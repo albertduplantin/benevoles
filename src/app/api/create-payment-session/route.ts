@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
+
+const bodySchema = z.object({
+  amount: z.number().positive(),
+  year: z.number().int().gte(2020),
+  userId: z.string().uuid(),
+  userName: z.string().min(1),
+})
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -8,11 +16,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, year, userId, userName } = await request.json()
-
-    if (!amount || !year || !userId) {
-      return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
-    }
+    const { amount, year, userId, userName } = bodySchema.parse(await request.json())
 
     // Récupérer le vrai email de l'utilisateur depuis Supabase Auth
     const supabaseAuth = await createClient()
