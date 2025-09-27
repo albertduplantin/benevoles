@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import SentryInit from '@/components/SentryInit';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -28,7 +27,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen`}
       >
-        <SentryInit />
         {children}
       </body>
     </html>
