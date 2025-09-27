@@ -15,28 +15,31 @@ export default function AuthButton({ user }: { user: User | null }) {
   }
 
   return user ? (
-    <div className="flex items-center gap-4">
-      <span className="text-sm">Bonjour, {user.email}</span>
+    <div className="flex items-center gap-3">
+      <div className="hidden sm:block text-right">
+        <p className="text-sm font-medium text-gray-900">Connecté(e)</p>
+        <p className="text-xs text-gray-600">{user.email}</p>
+      </div>
       <button
         onClick={handleSignOut}
-        className="px-4 py-2 text-sm text-white bg-red-600 rounded-md hover:bg-red-700"
+        className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-sm hover:shadow-md"
       >
         Déconnexion
       </button>
     </div>
   ) : (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       <Link
         href="/login"
-        className="px-4 py-2 text-sm text-gray-800 bg-gray-200 rounded-md hover:bg-gray-300"
+        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md"
       >
         Connexion
       </Link>
       <Link
         href="/signup"
-        className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm hover:shadow-md"
       >
-        S'inscrire
+        S&apos;inscrire
       </Link>
     </div>
   )

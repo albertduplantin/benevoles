@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 import type { UserProfile, Inscription } from '@/lib/types'
 import AuthButton from '@/components/AuthButton'
@@ -12,10 +11,10 @@ import ExportPDFButton from '@/components/ExportPDFButton'
 export default async function MissionDetailsPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
+  const { id } = await params
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -25,7 +24,7 @@ export default async function MissionDetailsPage({
   const { data: mission, error: missionError } = await supabase
     .from('missions')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (missionError || !mission) {
@@ -36,7 +35,7 @@ export default async function MissionDetailsPage({
   const { data: inscriptions, error: inscriptionsError } = await supabase
     .from('inscriptions')
     .select('*, user:users(*)') // Jointure pour avoir les infos du bénévole
-    .eq('mission_id', params.id)
+    .eq('mission_id', id)
 
   if (inscriptionsError) {
     console.error('Error fetching inscriptions:', inscriptionsError)
@@ -84,7 +83,6 @@ export default async function MissionDetailsPage({
             </p>
           </div>
           <JoinMissionButton
-            missionId={mission.id}
             userId={user?.id}
             isUserInscribed={isUserInscribed}
             isMissionFull={isMissionFull}
