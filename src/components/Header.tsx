@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import AuthButton from './AuthButton'
+import AuthStatus from './AuthStatus'
 import NotificationBell from './NotificationBell'
 import { User } from '@supabase/supabase-js'
 
@@ -67,6 +67,8 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
             )}
             {/* Notifications */}
             {user && <NotificationBell userId={user.id} />}
+            {/* Auth status (client) */}
+            <AuthStatus />
             {/* Navigation mobile */}
             {user && (
               <Link 
@@ -86,7 +88,6 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
                 <span>Profil</span>
               </Link>
             )}
-            <AuthButton user={user} />
           </div>
         </nav>
       </div>
