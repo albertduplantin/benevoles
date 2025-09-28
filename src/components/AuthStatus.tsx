@@ -12,10 +12,14 @@ export default function AuthStatus() {
   useEffect(() => {
     const fetchSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
+      console.log('[AuthStatus] fetched session', session)
       setUser(session?.user ?? null)
     }
     fetchSession()
-    const { data: listener } = supabase.auth.onAuthStateChange(() => fetchSession())
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[AuthStatus] onAuthStateChange', event, session)
+      fetchSession()
+    })
     return () => listener.subscription.unsubscribe()
   }, [supabase])
 
