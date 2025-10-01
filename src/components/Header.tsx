@@ -34,6 +34,14 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
                 >
                   Missions
                 </Link>
+                {user && (
+                  <Link 
+                    href="/mes-missions" 
+                    className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Mes missions
+                  </Link>
+                )}
                 {isAdmin && (
                   <Link 
                     href="/admin" 
@@ -84,6 +92,15 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
               >
                 <span>👤</span>
                 <span>Profil</span>
+              </Link>
+            )}
+            {user && (
+              <Link 
+                href="/mes-missions" 
+                className="md:hidden text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors flex items-center space-x-1"
+              >
+                <span>✅</span>
+                <span>Mes missions</span>
               </Link>
             )}
           </div>
