@@ -9,7 +9,7 @@ export default async function MyMissionsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const { data } = user ? await supabase
     .from('inscriptions')
-    .select(`missions:id(id,title,location,start_time,end_time,is_long_term,is_urgent)`) // join
+    .select('missions (*)')
     .eq('user_id', user.id) : { data: null }
 
   return (
