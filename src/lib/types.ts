@@ -252,6 +252,8 @@ export interface NotificationInsert {
 // Types pour les missions avec compteurs et volontaires
 export interface MissionWithCounts extends Mission {
   inscriptions_count: { count: number }[];
+  is_long_term?: boolean;
+  is_urgent?: boolean;
 }
 
 // Pour les missions avec les détails des bénévoles inscrits
