@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Views } from 'react-big-calendar'
+import { Calendar, Views, type View } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { localizer, messagesFr } from '@/lib/calendar'
 import { useEffect, useState } from 'react'
@@ -14,7 +14,7 @@ export default function CalendarPage() {
   const router = useRouter()
   const [events, setEvents] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
-  const [view, setView] = useState<Views>(Views.MONTH)
+  const [view, setView] = useState<View>(Views.MONTH)
 
   useEffect(() => {
     const init = async () => {
@@ -45,7 +45,7 @@ export default function CalendarPage() {
 
           <div className="flex items-center gap-4 mb-4">
             <label className="text-sm">Vue:</label>
-            <select value={view} onChange={e => setView(e.target.value as Views)} className="border rounded px-2 py-1 text-sm">
+            <select value={view} onChange={e => setView(e.target.value as View)} className="border rounded px-2 py-1 text-sm">
               <option value={Views.MONTH}>Mois</option>
               <option value={Views.WEEK}>Semaine</option>
               <option value={Views.DAY}>Jour</option>
