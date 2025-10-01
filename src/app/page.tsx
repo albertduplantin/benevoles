@@ -4,6 +4,7 @@ import Header from '@/components/Header'
 import Container from '@/components/Container'
 import { MissionWithCounts } from '@/lib/types'
 import Link from 'next/link'
+import CardMission from '@/components/CardMission'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,6 +40,16 @@ export default async function HomePage() {
     inscriptions_count: (mission.inscriptions_count as { count: number }[])?.[0]?.count || 0
   })) as MissionWithCounts[] | null
 
+  // set of mission ids user joined
+  let joinedSet = new Set<number>()
+  if (user) {
+    const { data: myIns } = await supabase
+      .from('inscriptions')
+      .select('mission_id')
+      .eq('user_id', user.id)
+    if (myIns) joinedSet = new Set(myIns.map(i => i.mission_id))
+  }
+
   return (
     <div className="min-h-screen">
       <Header user={user} isAdmin={isAdmin} />
@@ -57,89 +68,7 @@ export default async function HomePage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {typedMissions && typedMissions.length > 0 ? (
               typedMissions.map((mission) => (
-                <Link 
-                  href={`/mission/${mission.id}`} 
-                  key={mission.id} 
-                  className="group block"
-                >
-                  <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02] h-full overflow-hidden">
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {mission.title}
-                        </h3>
-                        <div className="flex-shrink-0 ml-2">
-                          {/* Normalise inscriptions_count qui peut être un nombre ou un tableau [{ count }] */}
-                          {(() => {
-                            const count = Array.isArray(mission.inscriptions_count)
-                              ? (mission.inscriptions_count[0]?.count ?? 0)
-                              : mission.inscriptions_count
-                            const isFull = count >= mission.max_volunteers
-                            return (
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                isFull ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                              }`}>
-                                {isFull ? 'Complet' : 'Disponible'}
-                              </span>
-                            )
-                          })()}
-                        </div>
-                      </div>
-                      
-                      {mission.description && (
-                        <p className="text-gray-600 mb-4 line-clamp-2">{mission.description}</p>
-                      )}
-                      
-                      <div className="space-y-2 text-sm text-gray-600 mb-4">
-                        <div className="flex items-center">
-                          <span className="w-4 h-4 mr-2">📍</span>
-                          <span>{mission.location}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="w-4 h-4 mr-2">📅</span>
-                          <span>{new Date(mission.start_time).toLocaleDateString('fr-FR', { 
-                            weekday: 'long', 
-                            day: 'numeric', 
-                            month: 'long' 
-                          })}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="w-4 h-4 mr-2">⏰</span>
-                          <span>
-                            {new Date(mission.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(mission.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-6">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm font-medium text-gray-700">Places</span>
-                          {(() => {
-                            const count = Array.isArray(mission.inscriptions_count)
-                              ? (mission.inscriptions_count[0]?.count ?? 0)
-                              : mission.inscriptions_count
-                            return (
-                              <span className="text-sm text-gray-600">
-                                {count}/{mission.max_volunteers}
-                              </span>
-                            )
-                          })()}
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: (() => {
-                              const count = Array.isArray(mission.inscriptions_count)
-                                ? (mission.inscriptions_count[0]?.count ?? 0)
-                                : mission.inscriptions_count
-                              return `${Math.min((count / mission.max_volunteers) * 100, 100)}%`
-                            })() }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <CardMission key={mission.id} mission={mission} joined={joinedSet.has(mission.id)} />
               ))
             ) : (
               <div className="col-span-full text-center py-12">
