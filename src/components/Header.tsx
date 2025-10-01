@@ -27,8 +27,7 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
             </Link>
             
             {/* Navigation principale */}
-            {user && (
-              <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-6">
                 <Link 
                   href="/" 
                   className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
@@ -49,8 +48,7 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
                 >
                   Mon Profil
                 </Link>
-              </div>
-            )}
+            </div>
           </div>
           
           <div className="flex items-center space-x-4">
