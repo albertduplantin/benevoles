@@ -1,8 +1,27 @@
+import { fr } from 'date-fns/locale/fr'
 import { dateFnsLocalizer } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
-import { fr } from 'date-fns/locale'
 
 const locales = { fr }
+
+export const messagesFr = {
+  date: 'Date',
+  time: 'Heure',
+  event: 'Événement',
+  allDay: 'Toute la journée',
+  week: 'Semaine',
+  work_week: 'Sem. ouvrée',
+  day: 'Jour',
+  month: 'Mois',
+  previous: 'Précédent',
+  next: 'Suivant',
+  yesterday: 'Hier',
+  tomorrow: 'Demain',
+  today: "Aujourd'hui",
+  agenda: 'Agenda',
+  noEventsInRange: 'Aucun événement.',
+  showMore: (total: number) => `+ ${total} en plus`,
+}
 
 export const localizer = dateFnsLocalizer({
   format,

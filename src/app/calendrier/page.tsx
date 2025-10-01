@@ -2,7 +2,7 @@
 
 import { Calendar, Views } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { localizer } from '@/lib/calendar'
+import { localizer, messagesFr } from '@/lib/calendar'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -35,6 +35,7 @@ export default function CalendarPage() {
     <div className="p-6">
       <Calendar
         localizer={localizer}
+        messages={messagesFr as any}
         events={events}
         defaultView={Views.MONTH}
         style={{ height: 600 }}
