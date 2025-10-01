@@ -42,6 +42,7 @@ export default function Header({ user, isAdmin = false, title = "Portail Bénév
                     Mes missions
                   </Link>
                 )}
+                <Link href="/calendrier" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Calendrier</Link>
                 {isAdmin && (
                   <Link 
                     href="/admin" 
