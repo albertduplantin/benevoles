@@ -23,6 +23,12 @@ export const messagesFr = {
   showMore: (total: number) => `+ ${total} en plus`,
 }
 
+export const formatsFr = {
+  timeGutterFormat: 'HH:mm',
+  dayFormat: 'EEE d',
+  weekdayFormat: (date: Date, culture: string, loc: any) => loc.format(date, 'EEE', culture),
+}
+
 export const localizer = dateFnsLocalizer({
   format,
   parse,

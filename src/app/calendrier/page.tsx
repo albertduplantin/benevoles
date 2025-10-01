@@ -2,7 +2,7 @@
 
 import { Calendar, Views, type View } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { localizer, messagesFr } from '@/lib/calendar'
+import { localizer, messagesFr, formatsFr } from '@/lib/calendar'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -65,6 +65,7 @@ export default function CalendarPage() {
                 style:{ backgroundColor: event.joined? '#6366f1':'#22c55e', color:'#fff'}
               })}
               onSelectEvent={(e)=>router.push(`/mission/${e.id}`)}
+              formats={formatsFr as any}
             />
           </div>
 
