@@ -122,6 +122,21 @@ export async function promoteUserAction(userId: string, newRole: 'benevole' | 'r
   return `Rôle mis à jour avec succès.`
 }
 
+export async function updateUserPhoneAction(userId: string, phone: string) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return 'Action non autorisée.'
+
+  const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return 'Action non autorisée.'
+
+  const { error } = await supabase.from('users').update({ phone }).eq('id', userId)
+  if (error) return 'Erreur: ' + error.message
+  revalidatePath('/admin')
+  return 'Téléphone mis à jour avec succès.'
+}
+
 export async function createUserAction(formData: FormData) {
   // Vérifier que l'opérateur est bien un admin avec le client normal
   const supabase = await createClient()
