@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
 })
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
+
+const metaSchema = z.object({
+  payment_id: z.string().regex(/^\d+$/),
+  user_id: z.string().uuid(),
+  year: z.string().regex(/^\d{4}$/)
+})
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -27,14 +34,14 @@ export async function POST(request: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session
 
     try {
-      const paymentId = session.metadata?.payment_id
-      const userId = session.metadata?.user_id
-      const year = parseInt(session.metadata?.year || '0')
-
-      if (!paymentId || !userId || !year) {
-        console.error('Métadonnées manquantes dans le webhook')
-        return NextResponse.json({ error: 'Métadonnées manquantes' }, { status: 400 })
+      const parsed = metaSchema.safeParse(session.metadata || {})
+      if (!parsed.success) {
+        console.error('Métadonnées invalides:', parsed.error)
+        return NextResponse.json({ error: 'Métadonnées invalides' }, { status: 400 })
       }
+
+      const { payment_id: paymentId, user_id: userId, year: yearStr } = parsed.data
+      const year = parseInt(yearStr, 10)
 
       // Mettre à jour le statut du paiement
       const { error: updateError } = await supabase

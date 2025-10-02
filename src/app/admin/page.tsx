@@ -12,6 +12,7 @@ import { MissionWithCounts, MissionWithVolunteers, UserProfile } from '@/lib/typ
 import MissionRow from './MissionRow'
 import UserRow from './UserRow'
 import CallToVolunteers from '@/components/admin/CallToVolunteers'
+import ExportDashboardButton from '@/components/admin/ExportDashboardButton'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -170,6 +171,9 @@ export default async function AdminPage() {
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div className="flex justify-end mb-4">
+          <ExportDashboardButton />
         </div>
         </Container>
       </main>
