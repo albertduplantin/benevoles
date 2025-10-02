@@ -85,6 +85,17 @@ export async function GET(_req: NextRequest) {
     }
   })
 
+  // Feuille globale des bénévoles
+  const partGlobal = workbook.addWorksheet('Bénévoles')
+  partGlobal.columns = [
+    { header: 'Mission', key: 'mission', width: 30 },
+    { header: 'Nom', key: 'nom', width: 20 },
+    { header: 'Prénom', key: 'prenom', width: 20 },
+    { header: 'Email', key: 'email', width: 25 },
+    { header: 'Téléphone', key: 'tel', width: 15 },
+    { header: 'Rôle', key: 'role', width: 12 }
+  ]
+
   // Récupérer inscriptions détaillées
   const { data: inscriptions } = await supabase
     .from('inscriptions')
@@ -126,33 +137,7 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json({ error: e?.message || 'export error' }, { status: 500 })
   }
 
-  /* --- Sheet Participants global --- */
-  const partGlobal = workbook.addWorksheet('Bénévoles')
-  partGlobal.columns = [
-    { header: 'Mission', key: 'mission', width: 30 },
-    { header: 'Nom', key: 'nom', width: 20 },
-    { header: 'Prénom', key: 'prenom', width: 20 },
-    { header: 'Email', key: 'email', width: 25 },
-    { header: 'Téléphone', key: 'tel', width: 15 },
-    { header: 'Rôle', key: 'role', width: 12 }
-  ]
-
-  if (inscriptions) {
-    inscriptions.forEach(i => {
-      const mission = typed.find(m => m.id === i.mission_id)
-      const u: any = Array.isArray(i.users) ? i.users[0] : i.users
-      if (mission && u) {
-        partGlobal.addRow({
-          mission: mission.title,
-          nom: u.last_name,
-          prenom: u.first_name,
-          email: u.email,
-          tel: u.phone,
-          role: u.role
-        })
-      }
-    })
-  }
+  // la feuille globale est déjà alimentée dans la boucle précédente
 
   return response
 }
