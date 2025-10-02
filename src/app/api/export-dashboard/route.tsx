@@ -41,17 +41,10 @@ export async function GET(_req: NextRequest) {
   ]
 
   typed.forEach(m => {
-    sheet.addRow({
-      title: m.title,
-      date: m.is_long_term ? 'À planifier' : new Date(m.start_time!).toLocaleDateString('fr-FR'),
-      location: m.location ?? '',
-      inscrits: `${m.inscriptions_count}/${m.max_volunteers}`,
-      urgent: m.is_urgent ? 'Oui' : 'Non',
-      long: m.is_long_term ? 'Oui' : 'Non'
-    })
+    const sheetName = m.title.substring(0, 28)
 
-    // Ajouter onglet participants
-    const partSheet = workbook.addWorksheet(m.title.substring(0, 28))
+    // Ajouter onglet participants par mission
+    const partSheet = workbook.addWorksheet(sheetName)
     partSheet.columns = [
       { header: 'Nom', key: 'nom', width: 20 },
       { header: 'Prénom', key: 'prenom', width: 20 },
@@ -60,6 +53,20 @@ export async function GET(_req: NextRequest) {
       { header: 'Rôle', key: 'role', width: 12 }
     ]
 
+    const row = sheet.addRow({
+      title: m.title,
+      date: m.is_long_term ? 'À planifier' : new Date(m.start_time!).toLocaleDateString('fr-FR'),
+      location: m.location ?? '',
+      inscrits: `${m.inscriptions_count}/${m.max_volunteers}`,
+      urgent: m.is_urgent ? 'Oui' : 'Non',
+      long: m.is_long_term ? 'Oui' : 'Non'
+    })
+
+    // Hyperlien depuis première feuille
+    row.getCell('title').value = {
+      text: m.title,
+      hyperlink: `#'${sheetName}'!A1`
+    }
   })
 
   // Récupérer inscriptions détaillées
@@ -75,13 +82,15 @@ export async function GET(_req: NextRequest) {
       if (ws && i.users) {
         const u: any = Array.isArray(i.users) ? i.users[0] : i.users
         if (u) {
-          ws.addRow({
+          const rowData = {
             nom: u.last_name,
             prenom: u.first_name,
             email: u.email,
             tel: u.phone,
             role: u.role
-          })
+          }
+          ws.addRow(rowData)
+          partGlobal.addRow({ mission: mission?.title ?? '', ...rowData })
         }
       }
     })
