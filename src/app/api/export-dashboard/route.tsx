@@ -40,12 +40,15 @@ export async function GET(_req: NextRequest) {
     { header: 'Long cours', key: 'long', width: 12 }
   ]
 
+  const MAX_LEN = 28
   const makeSheetName = (raw: string, existing: Set<string>): string => {
-    let name = raw.replace(/[\[\]*?:\\/?]/g, '').substring(0, 28)
-    let counter = 1
-    while (existing.has(name) || name.trim() === '') {
-      name = `${name.substring(0, 25)}_${counter}`
-      counter += 1
+    let base = raw.replace(/[\*?:\\/\[\]]/g, '').replace(/'/g, '').slice(0, MAX_LEN)
+    if (!base.trim()) base = 'Mission'
+    let name = base
+    let i = 1
+    while (existing.has(name)) {
+      name = `${base.slice(0, MAX_LEN - 3)}_${i}`
+      i += 1
     }
     existing.add(name)
     return name
@@ -78,7 +81,7 @@ export async function GET(_req: NextRequest) {
     // Hyperlien depuis première feuille
     row.getCell('title').value = {
       text: m.title,
-      hyperlink: `#'${sheetName}'!A1`
+      hyperlink: `#'${sheetName.replace(/'/g, "''")}'!A1`
     }
   })
 
@@ -96,11 +99,11 @@ export async function GET(_req: NextRequest) {
         const u: any = Array.isArray(i.users) ? i.users[0] : i.users
         if (u) {
           const rowData = {
-            nom: u.last_name,
-            prenom: u.first_name,
-            email: u.email,
-            tel: u.phone,
-            role: u.role
+            nom: u.last_name ?? 'Inconnu',
+            prenom: u.first_name ?? '',
+            email: u.email ?? '',
+            tel: u.phone ?? '',
+            role: u.role ?? ''
           }
           ws.addRow(rowData)
           partGlobal.addRow({ mission: mission?.title ?? '', ...rowData })
@@ -109,7 +112,19 @@ export async function GET(_req: NextRequest) {
     })
   }
 
+  let response: NextResponse
+  try {
   const buffer = await workbook.xlsx.writeBuffer()
+  response = new NextResponse(buffer, {
+    headers: {
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="dashboard_${Date.now()}.xlsx"`
+    }
+  })
+  } catch (e: any) {
+    console.error('Export error', e)
+    return NextResponse.json({ error: e?.message || 'export error' }, { status: 500 })
+  }
 
   /* --- Sheet Participants global --- */
   const partGlobal = workbook.addWorksheet('Bénévoles')
@@ -139,10 +154,5 @@ export async function GET(_req: NextRequest) {
     })
   }
 
-  return new NextResponse(buffer, {
-    headers: {
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename="dashboard_${Date.now()}.xlsx"`
-    }
-  })
+  return response
 }
