@@ -89,9 +89,16 @@ export default async function AdminPage() {
       
       <main className="py-8">
         <Container maxWidth="xl">
+        {/* Bandeau supérieur avec export */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-1">Tableau de bord</h2>
+            <p className="text-gray-600">Actions rapides pour la gestion administrative</p>
+          </div>
+          <ExportDashboardButton />
+        </div>
+
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Actions Rapides</h2>
-          <p className="text-gray-600 mb-6">Générez facilement des appels à bénévoles pour les missions à pourvoir</p>
           <div className="flex gap-4 mb-4">
             <CallToVolunteers missions={missionsWithVolunteers} users={typedUsers} />
             <SendNotificationForm missions={typedMissions?.map(m => ({ id: m.id, title: m.title })) || []} />
@@ -171,9 +178,6 @@ export default async function AdminPage() {
                     </tbody>
                 </table>
             </div>
-        </div>
-        <div className="flex justify-end mb-4">
-          <ExportDashboardButton />
         </div>
         </Container>
       </main>

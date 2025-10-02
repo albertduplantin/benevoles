@@ -22,7 +22,7 @@ export default function ExportDashboardButton() {
   return (
     <button onClick={handleClick} disabled={loading}
       className="px-4 py-2 text-sm font-semibold rounded bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50">
-      {loading ? 'Génération…' : 'Exporter tableau PDF'}
+      {loading ? 'Génération…' : 'Exporter tableau Excel'}
     </button>
   )
 }

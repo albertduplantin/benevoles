@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import ExcelJS from 'exceljs'
 import { createClient } from '@/lib/supabase/server'
 import type { MissionWithCounts } from '@/lib/types'
 
@@ -24,57 +24,75 @@ export async function GET(_req: NextRequest) {
       : (m.inscriptions_count as number)
   })) as MissionWithCounts[]
 
-  // Génération PDF avec pdf-lib
-  const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage()
-  const { width, height } = page.getSize()
+  // Génération Excel avec exceljs
+  const workbook = new ExcelJS.Workbook()
+  workbook.creator = 'Portail Bénévoles'
+  workbook.created = new Date()
 
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-  const fontSizeTitle = 18
-  const fontSizeText = 10
+  const sheet = workbook.addWorksheet('Missions')
 
-  page.drawText('Tableau de bord – Missions', {
-    x: 50,
-    y: height - 50,
-    size: fontSizeTitle,
-    font,
-    color: rgb(0, 0, 0)
-  })
-
-  page.drawText(`Généré le ${new Date().toLocaleString('fr-FR')}`, {
-    x: 50,
-    y: height - 70,
-    size: fontSizeText,
-    font,
-    color: rgb(0, 0, 0)
-  })
-
-  let yCursor = height - 90
-  const lineHeight = 14
-
-  const addText = (text: string) => {
-    page.drawText(text, { x: 50, y: yCursor, size: fontSizeText, font })
-    yCursor -= lineHeight
-    if (yCursor < 40) {
-      yCursor = height - 40
-      pdfDoc.addPage()
-    }
-  }
-
-  addText('Titre | Date | Lieu | Inscrits | Urgente | Long cours')
-  addText('----------------------------------------------------------------')
+  sheet.columns = [
+    { header: 'Titre', key: 'title', width: 30 },
+    { header: 'Date', key: 'date', width: 15 },
+    { header: 'Lieu', key: 'location', width: 20 },
+    { header: 'Inscrits', key: 'inscrits', width: 12 },
+    { header: 'Urgente', key: 'urgent', width: 10 },
+    { header: 'Long cours', key: 'long', width: 12 }
+  ]
 
   typed.forEach(m => {
-    const line = `${m.title} | ${m.is_long_term ? 'À planifier' : new Date(m.start_time!).toLocaleDateString('fr-FR')} | ${m.location ?? ''} | ${m.inscriptions_count}/${m.max_volunteers} | ${m.is_urgent ? 'Oui' : 'Non'} | ${m.is_long_term ? 'Oui' : 'Non'}`
-    addText(line)
+    sheet.addRow({
+      title: m.title,
+      date: m.is_long_term ? 'À planifier' : new Date(m.start_time!).toLocaleDateString('fr-FR'),
+      location: m.location ?? '',
+      inscrits: `${m.inscriptions_count}/${m.max_volunteers}`,
+      urgent: m.is_urgent ? 'Oui' : 'Non',
+      long: m.is_long_term ? 'Oui' : 'Non'
+    })
+
+    // Ajouter onglet participants
+    const partSheet = workbook.addWorksheet(m.title.substring(0, 28))
+    partSheet.columns = [
+      { header: 'Nom', key: 'nom', width: 20 },
+      { header: 'Prénom', key: 'prenom', width: 20 },
+      { header: 'Email', key: 'email', width: 25 },
+      { header: 'Téléphone', key: 'tel', width: 15 },
+      { header: 'Rôle', key: 'role', width: 12 }
+    ]
+
   })
 
-  const pdfBytes = await pdfDoc.save()
+  // Récupérer inscriptions détaillées
+  const { data: inscriptions } = await supabase
+    .from('inscriptions')
+    .select('mission_id, users(first_name,last_name,email,phone,role)')
 
-  return new NextResponse(pdfBytes, {
+  if (inscriptions) {
+    inscriptions.forEach(i => {
+      const mission = typed.find(m => m.id === i.mission_id)
+      const sheetName = mission?.title.substring(0, 28)
+      const ws = workbook.getWorksheet(sheetName!)
+      if (ws && i.users) {
+        const u: any = Array.isArray(i.users) ? i.users[0] : i.users
+        if (u) {
+          ws.addRow({
+            nom: u.last_name,
+            prenom: u.first_name,
+            email: u.email,
+            tel: u.phone,
+            role: u.role
+          })
+        }
+      }
+    })
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer()
+
+  return new NextResponse(buffer, {
     headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="dashboard_${Date.now()}.pdf"`
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="dashboard_${Date.now()}.xlsx"`
     }
   })
 }
