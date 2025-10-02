@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { UserProfile } from '@/lib/types'
-import { deleteUserAction, promoteUserAction } from './actions'
+import { deleteUserAction, promoteUserAction, updateUserPhoneAction } from './actions'
 
 export default function UserRow({ user }: { user: UserProfile }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -62,7 +62,7 @@ export default function UserRow({ user }: { user: UserProfile }) {
               onClick={async()=>{
                 await handlePromote(currentRole)
                 if(phone!==user.phone){
-                  await (await import('./actions')).updateUserPhoneAction(user.id, phone)
+                  await updateUserPhoneAction(user.id, phone)
                 }
               }}
               className="text-green-600 hover:underline text-sm"
