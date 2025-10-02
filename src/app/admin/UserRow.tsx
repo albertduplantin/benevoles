@@ -7,6 +7,7 @@ import { deleteUserAction, promoteUserAction } from './actions'
 export default function UserRow({ user }: { user: UserProfile }) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentRole, setCurrentRole] = useState(user.role)
+  const [phone,setPhone]=useState(user.phone||'')
 
   const handleDelete = async () => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer l&apos;utilisateur ${user.first_name} ${user.last_name} ? Cette action est irréversible et supprimera toutes ses inscriptions.`)) {
@@ -31,8 +32,14 @@ export default function UserRow({ user }: { user: UserProfile }) {
   return (
     <tr className="border-t">
       <td className="px-4 py-2 font-medium">{user.last_name} {user.first_name}</td>
-      <td className="px-4 py-2 text-sm text-gray-600">Email masqué</td>
-      <td className="px-4 py-2">{user.phone || 'Non renseigné'}</td>
+      <td className="px-4 py-2 text-sm text-gray-600">{(user as any).email || '—'}</td>
+      <td className="px-4 py-2">
+        {isEditing ? (
+          <input value={phone} onChange={e=>setPhone(e.target.value)} className="border rounded px-2 py-1 text-sm w-40" />
+        ) : (
+          phone || 'Non renseigné'
+        )}
+      </td>
       <td className="px-4 py-2 text-center">
         {isEditing ? (
           <select 
@@ -51,12 +58,15 @@ export default function UserRow({ user }: { user: UserProfile }) {
       <td className="px-4 py-2 text-center">
         {isEditing ? (
           <div className="space-x-2">
-            <button 
-              onClick={() => handlePromote(currentRole)}
+            <button
+              onClick={async()=>{
+                await handlePromote(currentRole)
+                if(phone!==user.phone){
+                  await (await import('./actions')).updateUserPhoneAction(user.id, phone)
+                }
+              }}
               className="text-green-600 hover:underline text-sm"
-            >
-              Valider
-            </button>
+            >Valider</button>
             <button 
               onClick={() => {
                 setCurrentRole(user.role)
