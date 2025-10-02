@@ -157,6 +157,27 @@ export default function SignupPage() {
           {errorMsg && (
             <p className="mt-2 text-sm text-center text-red-600">{errorMsg}</p>
           )}
+          <div className="relative mb-2">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">ou</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
+              if (error) {
+                setErrorMsg('Erreur OAuth : ' + error.message)
+              }
+            }}
+            className="w-full px-4 py-3 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true"><path fill="currentColor" d="M21.35 11.1h-9.18v2.96h5.85c-.25 1.54-1.57 4.52-5.85 4.52-3.52 0-6.38-2.91-6.38-6.5s2.86-6.5 6.38-6.5c2 0 3.34.86 4.11 1.6l2.81-2.7C17.36 3.19 15.15 2 12.17 2 6.74 2 2.39 6.48 2.39 12s4.35 10 9.78 10c5.66 0 9.4-3.98 9.4-9.56 0-.64-.07-1.13-.22-1.34Z"/></svg>
+            <span>Continuer avec Google</span>
+          </button>
         </form>
       </div>
     </div>
