@@ -40,8 +40,21 @@ export async function GET(_req: NextRequest) {
     { header: 'Long cours', key: 'long', width: 12 }
   ]
 
+  const makeSheetName = (raw: string, existing: Set<string>): string => {
+    let name = raw.replace(/[\[\]*?:\\/?]/g, '').substring(0, 28)
+    let counter = 1
+    while (existing.has(name) || name.trim() === '') {
+      name = `${name.substring(0, 25)}_${counter}`
+      counter += 1
+    }
+    existing.add(name)
+    return name
+  }
+
+  const usedNames = new Set<string>()
+
   typed.forEach(m => {
-    const sheetName = m.title.substring(0, 28)
+    const sheetName = makeSheetName(m.title, usedNames)
 
     // Ajouter onglet participants par mission
     const partSheet = workbook.addWorksheet(sheetName)
