@@ -10,6 +10,7 @@ interface CreateMissionFormProps {
 
 export default function CreateMissionForm({ onMissionCreated, users }: CreateMissionFormProps) {
     const [message, setMessage] = useState<string | undefined>('')
+    const [longTerm, setLongTerm] = useState(false)
     const formRef = useRef<HTMLFormElement>(null)
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -58,11 +59,24 @@ export default function CreateMissionForm({ onMissionCreated, users }: CreateMis
                 </div>
                 <div>
                     <label htmlFor="start_time" className="block text-sm font-medium text-gray-700">Date et heure de début</label>
-                    <input type="datetime-local" name="start_time" id="start_time" required className="w-full mt-1 border-gray-300 rounded-md shadow-sm"/>
+                    <input type="datetime-local" name="start_time" id="start_time" required={!longTerm} disabled={longTerm} className="w-full mt-1 border-gray-300 rounded-md shadow-sm"/>
                 </div>
                 <div>
                     <label htmlFor="end_time" className="block text-sm font-medium text-gray-700">Date et heure de fin</label>
-                    <input type="datetime-local" name="end_time" id="end_time" required className="w-full mt-1 border-gray-300 rounded-md shadow-sm"/>
+                    <input type="datetime-local" name="end_time" id="end_time" required={!longTerm} disabled={longTerm} className="w-full mt-1 border-gray-300 rounded-md shadow-sm"/>
+                </div>
+                <div className="md:col-span-2 flex flex-col md:flex-row md:items-center gap-4">
+                    <label className="flex items-center gap-2">
+                        <input type="checkbox" name="is_long_term" onChange={(e)=>setLongTerm(e.target.checked)} />
+                        Mission au long cours
+                    </label>
+                    {longTerm && (
+                        <p className="text-xs text-gray-500 md:ml-4">Les champs de date peuvent être renseignés plus tard depuis le tableau de bord.</p>
+                    )}
+                    <label className="flex items-center gap-2">
+                        <input type="checkbox" name="is_urgent" />
+                        Urgente
+                    </label>
                 </div>
             </div>
             <div className="mt-6 text-right">
