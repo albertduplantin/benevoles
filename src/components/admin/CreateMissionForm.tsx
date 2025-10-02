@@ -29,6 +29,19 @@ export default function CreateMissionForm({ onMissionCreated, users }: CreateMis
     return (
         <form ref={formRef} onSubmit={handleSubmit} className="p-4 mt-6 border rounded-lg bg-gray-50">
             <h3 className="text-lg font-semibold mb-4">Créer une nouvelle mission</h3>
+
+            {/* Options rapides */}
+            <div className="flex flex-col md:flex-row md:items-center gap-6 mb-6">
+              <label className="flex items-center gap-2" title="Les dates pourront être fixées ultérieurement dans le tableau de bord.">
+                <input type="checkbox" name="is_long_term" onChange={e=>setLongTerm(e.target.checked)} />
+                Mission au long cours
+              </label>
+
+              <label className="flex items-center gap-2 text-red-600" title="La mission sera mise en avant comme urgente auprès des bénévoles.">
+                <input type="checkbox" name="is_urgent" className="accent-red-600" />
+                Urgente ⚠️
+              </label>
+            </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700">Titre</label>
@@ -65,19 +78,9 @@ export default function CreateMissionForm({ onMissionCreated, users }: CreateMis
                     <label htmlFor="end_time" className="block text-sm font-medium text-gray-700">Date et heure de fin</label>
                     <input type="datetime-local" name="end_time" id="end_time" required={!longTerm} disabled={longTerm} className="w-full mt-1 border-gray-300 rounded-md shadow-sm"/>
                 </div>
-                <div className="md:col-span-2 flex flex-col md:flex-row md:items-center gap-4">
-                    <label className="flex items-center gap-2">
-                        <input type="checkbox" name="is_long_term" onChange={(e)=>setLongTerm(e.target.checked)} />
-                        Mission au long cours
-                    </label>
-                    {longTerm && (
-                        <p className="text-xs text-gray-500 md:ml-4">Les champs de date peuvent être renseignés plus tard depuis le tableau de bord.</p>
-                    )}
-                    <label className="flex items-center gap-2">
-                        <input type="checkbox" name="is_urgent" />
-                        Urgente
-                    </label>
-                </div>
+                {longTerm && (
+                    <div className="md:col-span-2 text-xs text-gray-500">Les champs de date peuvent être renseignés plus tard depuis le tableau de bord.</div>
+                )}
             </div>
             <div className="mt-6 text-right">
                 <button type="submit" className="px-4 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
